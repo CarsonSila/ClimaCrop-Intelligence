@@ -1,0 +1,43 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Large Raw 5-min Weather Station Data (~2.5GB, aggregated into data/county_climate_historical.csv)
+metadata/
+
+# Ignore raw root CSVs if any left
+*.csv
+!data/*.csv
+
+# IDE and OS
+.DS_Store
+.idea/
+.vscode/
+*.log

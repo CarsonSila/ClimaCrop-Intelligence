@@ -1,0 +1,201 @@
+crop,category,market,base_price,market_price,peak_harvest_price,off_season_price,volatility_cv
+Maize,Cereals,Nairobi (Wakulima),42,51.2,42.0,64.0,0.18
+Maize,Cereals,Nakuru,42,42.8,35.1,53.5,0.272
+Maize,Cereals,Eldoret,42,41.2,33.8,51.5,0.237
+Maize,Cereals,Kisumu (Jubilee),42,45.4,37.2,56.8,0.216
+Maize,Cereals,Mombasa (Kongowea),42,53.8,44.1,67.2,0.145
+Sorghum,Cereals,Nairobi (Wakulima),50,61.0,50.0,76.2,0.145
+Sorghum,Cereals,Nakuru,50,51.0,41.8,63.8,0.129
+Sorghum,Cereals,Eldoret,50,49.0,40.2,61.2,0.259
+Sorghum,Cereals,Kisumu (Jubilee),50,54.0,44.3,67.5,0.216
+Sorghum,Cereals,Mombasa (Kongowea),50,64.0,52.5,80.0,0.233
+Finger Millet,Cereals,Nairobi (Wakulima),75,91.5,75.0,114.4,0.123
+Finger Millet,Cereals,Nakuru,75,76.5,62.7,95.6,0.275
+Finger Millet,Cereals,Eldoret,75,73.5,60.3,91.9,0.253
+Finger Millet,Cereals,Kisumu (Jubilee),75,81.0,66.4,101.2,0.154
+Finger Millet,Cereals,Mombasa (Kongowea),75,96.0,78.7,120.0,0.149
+Pearl Millet,Cereals,Nairobi (Wakulima),70,85.4,70.0,106.8,0.149
+Pearl Millet,Cereals,Nakuru,70,71.4,58.5,89.2,0.169
+Pearl Millet,Cereals,Eldoret,70,68.6,56.3,85.8,0.204
+Pearl Millet,Cereals,Kisumu (Jubilee),70,75.6,62.0,94.5,0.189
+Pearl Millet,Cereals,Mombasa (Kongowea),70,89.6,73.5,112.0,0.167
+Wheat,Cereals,Nairobi (Wakulima),52,63.4,52.0,79.2,0.218
+Wheat,Cereals,Nakuru,52,53.0,43.5,66.2,0.142
+Wheat,Cereals,Eldoret,52,51.0,41.8,63.8,0.167
+Wheat,Cereals,Kisumu (Jubilee),52,56.2,46.1,70.2,0.179
+Wheat,Cereals,Mombasa (Kongowea),52,66.6,54.6,83.2,0.193
+Rice,Cereals,Nairobi (Wakulima),90,109.8,90.0,137.2,0.246
+Rice,Cereals,Nakuru,90,91.8,75.3,114.8,0.152
+Rice,Cereals,Eldoret,90,88.2,72.3,110.2,0.202
+Rice,Cereals,Kisumu (Jubilee),90,97.2,79.7,121.5,0.215
+Rice,Cereals,Mombasa (Kongowea),90,115.2,94.5,144.0,0.127
+Common Beans,Pulses,Nairobi (Wakulima),120,146.4,120.0,183.0,0.217
+Common Beans,Pulses,Nakuru,120,122.4,100.4,153.0,0.147
+Common Beans,Pulses,Eldoret,120,117.6,96.4,147.0,0.13
+Common Beans,Pulses,Kisumu (Jubilee),120,129.6,106.3,162.0,0.272
+Common Beans,Pulses,Mombasa (Kongowea),120,153.6,126.0,192.0,0.275
+Cowpeas (Kunde),Pulses,Nairobi (Wakulima),95,115.9,95.0,144.9,0.249
+Cowpeas (Kunde),Pulses,Nakuru,95,96.9,79.5,121.1,0.169
+Cowpeas (Kunde),Pulses,Eldoret,95,93.1,76.3,116.4,0.136
+Cowpeas (Kunde),Pulses,Kisumu (Jubilee),95,102.6,84.1,128.2,0.229
+Cowpeas (Kunde),Pulses,Mombasa (Kongowea),95,121.6,99.7,152.0,0.19
+Green Grams (Ndengu),Pulses,Nairobi (Wakulima),110,134.2,110.0,167.8,0.14
+Green Grams (Ndengu),Pulses,Nakuru,110,112.2,92.0,140.2,0.199
+Green Grams (Ndengu),Pulses,Eldoret,110,107.8,88.4,134.8,0.126
+Green Grams (Ndengu),Pulses,Kisumu (Jubilee),110,118.8,97.4,148.5,0.265
+Green Grams (Ndengu),Pulses,Mombasa (Kongowea),110,140.8,115.5,176.0,0.161
+Pigeon Peas (Mbaazi),Pulses,Nairobi (Wakulima),100,122.0,100.0,152.5,0.226
+Pigeon Peas (Mbaazi),Pulses,Nakuru,100,102.0,83.6,127.5,0.17
+Pigeon Peas (Mbaazi),Pulses,Eldoret,100,98.0,80.4,122.5,0.203
+Pigeon Peas (Mbaazi),Pulses,Kisumu (Jubilee),100,108.0,88.6,135.0,0.207
+Pigeon Peas (Mbaazi),Pulses,Mombasa (Kongowea),100,128.0,105.0,160.0,0.15
+Soybeans,Pulses,Nairobi (Wakulima),85,103.7,85.0,129.6,0.275
+Soybeans,Pulses,Nakuru,85,86.7,71.1,108.4,0.244
+Soybeans,Pulses,Eldoret,85,83.3,68.3,104.1,0.27
+Soybeans,Pulses,Kisumu (Jubilee),85,91.8,75.3,114.8,0.263
+Soybeans,Pulses,Mombasa (Kongowea),85,108.8,89.2,136.0,0.216
+Groundnuts,Pulses,Nairobi (Wakulima),130,158.6,130.1,198.2,0.267
+Groundnuts,Pulses,Nakuru,130,132.6,108.7,165.8,0.134
+Groundnuts,Pulses,Eldoret,130,127.4,104.5,159.2,0.151
+Groundnuts,Pulses,Kisumu (Jubilee),130,140.4,115.1,175.5,0.127
+Groundnuts,Pulses,Mombasa (Kongowea),130,166.4,136.4,208.0,0.172
+Irish Potatoes,Roots & Tubers,Nairobi (Wakulima),35,42.7,35.0,53.4,0.182
+Irish Potatoes,Roots & Tubers,Nakuru,35,35.7,29.3,44.6,0.163
+Irish Potatoes,Roots & Tubers,Eldoret,35,34.3,28.1,42.9,0.253
+Irish Potatoes,Roots & Tubers,Kisumu (Jubilee),35,37.8,31.0,47.2,0.177
+Irish Potatoes,Roots & Tubers,Mombasa (Kongowea),35,44.8,36.7,56.0,0.165
+Sweet Potatoes,Roots & Tubers,Nairobi (Wakulima),30,36.6,30.0,45.8,0.207
+Sweet Potatoes,Roots & Tubers,Nakuru,30,30.6,25.1,38.2,0.143
+Sweet Potatoes,Roots & Tubers,Eldoret,30,29.4,24.1,36.8,0.248
+Sweet Potatoes,Roots & Tubers,Kisumu (Jubilee),30,32.4,26.6,40.5,0.132
+Sweet Potatoes,Roots & Tubers,Mombasa (Kongowea),30,38.4,31.5,48.0,0.278
+Cassava,Roots & Tubers,Nairobi (Wakulima),25,30.5,25.0,38.1,0.244
+Cassava,Roots & Tubers,Nakuru,25,25.5,20.9,31.9,0.152
+Cassava,Roots & Tubers,Eldoret,25,24.5,20.1,30.6,0.121
+Cassava,Roots & Tubers,Kisumu (Jubilee),25,27.0,22.1,33.8,0.25
+Cassava,Roots & Tubers,Mombasa (Kongowea),25,32.0,26.2,40.0,0.233
+Arrowroots (Nduma),Roots & Tubers,Nairobi (Wakulima),60,73.2,60.0,91.5,0.237
+Arrowroots (Nduma),Roots & Tubers,Nakuru,60,61.2,50.2,76.5,0.243
+Arrowroots (Nduma),Roots & Tubers,Eldoret,60,58.8,48.2,73.5,0.132
+Arrowroots (Nduma),Roots & Tubers,Kisumu (Jubilee),60,64.8,53.1,81.0,0.177
+Arrowroots (Nduma),Roots & Tubers,Mombasa (Kongowea),60,76.8,63.0,96.0,0.139
+Tomatoes,Horticulture,Nairobi (Wakulima),45,54.9,45.0,68.6,0.258
+Tomatoes,Horticulture,Nakuru,45,45.9,37.6,57.4,0.22
+Tomatoes,Horticulture,Eldoret,45,44.1,36.2,55.1,0.173
+Tomatoes,Horticulture,Kisumu (Jubilee),45,48.6,39.9,60.8,0.13
+Tomatoes,Horticulture,Mombasa (Kongowea),45,57.6,47.2,72.0,0.17
+Bulb Onions,Horticulture,Nairobi (Wakulima),55,67.1,55.0,83.9,0.172
+Bulb Onions,Horticulture,Nakuru,55,56.1,46.0,70.1,0.237
+Bulb Onions,Horticulture,Eldoret,55,53.9,44.2,67.4,0.222
+Bulb Onions,Horticulture,Kisumu (Jubilee),55,59.4,48.7,74.2,0.262
+Bulb Onions,Horticulture,Mombasa (Kongowea),55,70.4,57.7,88.0,0.196
+Cabbage,Horticulture,Nairobi (Wakulima),20,24.4,20.0,30.5,0.139
+Cabbage,Horticulture,Nakuru,20,20.4,16.7,25.5,0.234
+Cabbage,Horticulture,Eldoret,20,19.6,16.1,24.5,0.242
+Cabbage,Horticulture,Kisumu (Jubilee),20,21.6,17.7,27.0,0.21
+Cabbage,Horticulture,Mombasa (Kongowea),20,25.6,21.0,32.0,0.243
+Kales (Sukuma Wiki),Horticulture,Nairobi (Wakulima),25,30.5,25.0,38.1,0.199
+Kales (Sukuma Wiki),Horticulture,Nakuru,25,25.5,20.9,31.9,0.204
+Kales (Sukuma Wiki),Horticulture,Eldoret,25,24.5,20.1,30.6,0.188
+Kales (Sukuma Wiki),Horticulture,Kisumu (Jubilee),25,27.0,22.1,33.8,0.124
+Kales (Sukuma Wiki),Horticulture,Mombasa (Kongowea),25,32.0,26.2,40.0,0.137
+Spinach,Horticulture,Nairobi (Wakulima),30,36.6,30.0,45.8,0.125
+Spinach,Horticulture,Nakuru,30,30.6,25.1,38.2,0.222
+Spinach,Horticulture,Eldoret,30,29.4,24.1,36.8,0.17
+Spinach,Horticulture,Kisumu (Jubilee),30,32.4,26.6,40.5,0.201
+Spinach,Horticulture,Mombasa (Kongowea),30,38.4,31.5,48.0,0.265
+Capsicum (Hoho),Horticulture,Nairobi (Wakulima),65,79.3,65.0,99.1,0.16
+Capsicum (Hoho),Horticulture,Nakuru,65,66.3,54.4,82.9,0.186
+Capsicum (Hoho),Horticulture,Eldoret,65,63.7,52.2,79.6,0.241
+Capsicum (Hoho),Horticulture,Kisumu (Jubilee),65,70.2,57.6,87.8,0.157
+Capsicum (Hoho),Horticulture,Mombasa (Kongowea),65,83.2,68.2,104.0,0.132
+French Beans,Horticulture,Nairobi (Wakulima),80,97.6,80.0,122.0,0.166
+French Beans,Horticulture,Nakuru,80,81.6,66.9,102.0,0.146
+French Beans,Horticulture,Eldoret,80,78.4,64.3,98.0,0.269
+French Beans,Horticulture,Kisumu (Jubilee),80,86.4,70.8,108.0,0.249
+French Beans,Horticulture,Mombasa (Kongowea),80,102.4,84.0,128.0,0.221
+Carrots,Horticulture,Nairobi (Wakulima),35,42.7,35.0,53.4,0.259
+Carrots,Horticulture,Nakuru,35,35.7,29.3,44.6,0.249
+Carrots,Horticulture,Eldoret,35,34.3,28.1,42.9,0.15
+Carrots,Horticulture,Kisumu (Jubilee),35,37.8,31.0,47.2,0.263
+Carrots,Horticulture,Mombasa (Kongowea),35,44.8,36.7,56.0,0.206
+Watermelon,Horticulture,Nairobi (Wakulima),30,36.6,30.0,45.8,0.249
+Watermelon,Horticulture,Nakuru,30,30.6,25.1,38.2,0.263
+Watermelon,Horticulture,Eldoret,30,29.4,24.1,36.8,0.171
+Watermelon,Horticulture,Kisumu (Jubilee),30,32.4,26.6,40.5,0.138
+Watermelon,Horticulture,Mombasa (Kongowea),30,38.4,31.5,48.0,0.156
+Butternut Squash,Horticulture,Nairobi (Wakulima),40,48.8,40.0,61.0,0.188
+Butternut Squash,Horticulture,Nakuru,40,40.8,33.5,51.0,0.251
+Butternut Squash,Horticulture,Eldoret,40,39.2,32.1,49.0,0.258
+Butternut Squash,Horticulture,Kisumu (Jubilee),40,43.2,35.4,54.0,0.121
+Butternut Squash,Horticulture,Mombasa (Kongowea),40,51.2,42.0,64.0,0.202
+Pumpkin,Horticulture,Nairobi (Wakulima),35,42.7,35.0,53.4,0.187
+Pumpkin,Horticulture,Nakuru,35,35.7,29.3,44.6,0.156
+Pumpkin,Horticulture,Eldoret,35,34.3,28.1,42.9,0.139
+Pumpkin,Horticulture,Kisumu (Jubilee),35,37.8,31.0,47.2,0.174
+Pumpkin,Horticulture,Mombasa (Kongowea),35,44.8,36.7,56.0,0.271
+Garden Peas,Horticulture,Nairobi (Wakulima),90,109.8,90.0,137.2,0.172
+Garden Peas,Horticulture,Nakuru,90,91.8,75.3,114.8,0.203
+Garden Peas,Horticulture,Eldoret,90,88.2,72.3,110.2,0.232
+Garden Peas,Horticulture,Kisumu (Jubilee),90,97.2,79.7,121.5,0.178
+Garden Peas,Horticulture,Mombasa (Kongowea),90,115.2,94.5,144.0,0.275
+Coffee (Arabica),Cash Crops,Nairobi (Wakulima),110,134.2,110.0,167.8,0.274
+Coffee (Arabica),Cash Crops,Nakuru,110,112.2,92.0,140.2,0.16
+Coffee (Arabica),Cash Crops,Eldoret,110,107.8,88.4,134.8,0.2
+Coffee (Arabica),Cash Crops,Kisumu (Jubilee),110,118.8,97.4,148.5,0.168
+Coffee (Arabica),Cash Crops,Mombasa (Kongowea),110,140.8,115.5,176.0,0.166
+Tea,Cash Crops,Nairobi (Wakulima),60,73.2,60.0,91.5,0.126
+Tea,Cash Crops,Nakuru,60,61.2,50.2,76.5,0.218
+Tea,Cash Crops,Eldoret,60,58.8,48.2,73.5,0.2
+Tea,Cash Crops,Kisumu (Jubilee),60,64.8,53.1,81.0,0.128
+Tea,Cash Crops,Mombasa (Kongowea),60,76.8,63.0,96.0,0.165
+Sugarcane,Cash Crops,Nairobi (Wakulima),6,7.3,6.0,9.1,0.265
+Sugarcane,Cash Crops,Nakuru,6,6.1,5.0,7.6,0.158
+Sugarcane,Cash Crops,Eldoret,6,5.9,4.8,7.4,0.143
+Sugarcane,Cash Crops,Kisumu (Jubilee),6,6.5,5.3,8.1,0.198
+Sugarcane,Cash Crops,Mombasa (Kongowea),6,7.7,6.3,9.6,0.278
+Avocado (Hass),Cash Crops,Nairobi (Wakulima),75,91.5,75.0,114.4,0.159
+Avocado (Hass),Cash Crops,Nakuru,75,76.5,62.7,95.6,0.228
+Avocado (Hass),Cash Crops,Eldoret,75,73.5,60.3,91.9,0.242
+Avocado (Hass),Cash Crops,Kisumu (Jubilee),75,81.0,66.4,101.2,0.158
+Avocado (Hass),Cash Crops,Mombasa (Kongowea),75,96.0,78.7,120.0,0.237
+Mangoes,Cash Crops,Nairobi (Wakulima),40,48.8,40.0,61.0,0.179
+Mangoes,Cash Crops,Nakuru,40,40.8,33.5,51.0,0.221
+Mangoes,Cash Crops,Eldoret,40,39.2,32.1,49.0,0.221
+Mangoes,Cash Crops,Kisumu (Jubilee),40,43.2,35.4,54.0,0.206
+Mangoes,Cash Crops,Mombasa (Kongowea),40,51.2,42.0,64.0,0.134
+Bananas,Cash Crops,Nairobi (Wakulima),30,36.6,30.0,45.8,0.254
+Bananas,Cash Crops,Nakuru,30,30.6,25.1,38.2,0.171
+Bananas,Cash Crops,Eldoret,30,29.4,24.1,36.8,0.15
+Bananas,Cash Crops,Kisumu (Jubilee),30,32.4,26.6,40.5,0.127
+Bananas,Cash Crops,Mombasa (Kongowea),30,38.4,31.5,48.0,0.215
+Macadamia,Cash Crops,Nairobi (Wakulima),140,170.8,140.1,213.5,0.228
+Macadamia,Cash Crops,Nakuru,140,142.8,117.1,178.5,0.123
+Macadamia,Cash Crops,Eldoret,140,137.2,112.5,171.5,0.202
+Macadamia,Cash Crops,Kisumu (Jubilee),140,151.2,124.0,189.0,0.156
+Macadamia,Cash Crops,Mombasa (Kongowea),140,179.2,146.9,224.0,0.223
+Cotton,Cash Crops,Nairobi (Wakulima),65,79.3,65.0,99.1,0.148
+Cotton,Cash Crops,Nakuru,65,66.3,54.4,82.9,0.231
+Cotton,Cash Crops,Eldoret,65,63.7,52.2,79.6,0.182
+Cotton,Cash Crops,Kisumu (Jubilee),65,70.2,57.6,87.8,0.27
+Cotton,Cash Crops,Mombasa (Kongowea),65,83.2,68.2,104.0,0.142
+Pyrethrum,Cash Crops,Nairobi (Wakulima),250,305.0,250.1,381.2,0.175
+Pyrethrum,Cash Crops,Nakuru,250,255.0,209.1,318.8,0.138
+Pyrethrum,Cash Crops,Eldoret,250,245.0,200.9,306.2,0.268
+Pyrethrum,Cash Crops,Kisumu (Jubilee),250,270.0,221.4,337.5,0.26
+Pyrethrum,Cash Crops,Mombasa (Kongowea),250,320.0,262.4,400.0,0.161
+Cashew Nuts,Cash Crops,Nairobi (Wakulima),100,122.0,100.0,152.5,0.226
+Cashew Nuts,Cash Crops,Nakuru,100,102.0,83.6,127.5,0.251
+Cashew Nuts,Cash Crops,Eldoret,100,98.0,80.4,122.5,0.209
+Cashew Nuts,Cash Crops,Kisumu (Jubilee),100,108.0,88.6,135.0,0.205
+Cashew Nuts,Cash Crops,Mombasa (Kongowea),100,128.0,105.0,160.0,0.159
+Passion Fruit,Cash Crops,Nairobi (Wakulima),85,103.7,85.0,129.6,0.135
+Passion Fruit,Cash Crops,Nakuru,85,86.7,71.1,108.4,0.264
+Passion Fruit,Cash Crops,Eldoret,85,83.3,68.3,104.1,0.264
+Passion Fruit,Cash Crops,Kisumu (Jubilee),85,91.8,75.3,114.8,0.221
+Passion Fruit,Cash Crops,Mombasa (Kongowea),85,108.8,89.2,136.0,0.174
+Miraa (Khat),Cash Crops,Nairobi (Wakulima),350,427.0,350.1,533.8,0.176
+Miraa (Khat),Cash Crops,Nakuru,350,357.0,292.7,446.2,0.236
+Miraa (Khat),Cash Crops,Eldoret,350,343.0,281.3,428.8,0.264
+Miraa (Khat),Cash Crops,Kisumu (Jubilee),350,378.0,310.0,472.5,0.262
+Miraa (Khat),Cash Crops,Mombasa (Kongowea),350,448.0,367.4,560.0,0.245
