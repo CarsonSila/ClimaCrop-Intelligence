@@ -1,7 +1,7 @@
 """
 Kilimo-Smart: Climate-Smart Agricultural Advisory and De-Risking Platform.
 Dual-View Decision Support for Cooperatives & Credit Underwriting for Financial Institutions.
-Features rich, interactive data visualizations (Maps, Area/Line, Bubbles, Treemaps, Heatmaps, Donut & Gauge charts).
+Styling: Complete Emerald Green AgTech Theme with Embedded Smart Farming Imagery and 14 Interactive Visualizations.
 """
 
 import sys
@@ -19,111 +19,149 @@ import streamlit as st
 from src.financial_engine import FinancialDecisionEngine
 
 # ---------------------------------------------------------
-# 1. PAGE CONFIG & MODERN AGRI-FINTECH STYLING
+# 1. PAGE CONFIG & DEEP GREEN THEME STYLING
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Kilimo-Smart | Agricultural Intelligence & De-Risking",
-    page_icon="🌾",
+    page_title="ClimaCrop Intelligence | Kilimo-Smart Green Platform",
+    page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for high-impact visual hierarchy
+# Custom CSS for polished green theme and visual hierarchy
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Plus Jakarta Sans', sans-serif;
+        color: #133a27;
     }
     
-    .hero-container {
-        background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 60%, #40916c 100%);
+    /* Hero Banner with Green Gradient & Overlay */
+    .hero-banner {
+        position: relative;
+        background: linear-gradient(135deg, rgba(20, 58, 38, 0.92) 0%, rgba(45, 106, 79, 0.88) 60%, rgba(64, 145, 108, 0.85) 100%),
+                    url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=1400&auto=format&fit=crop&q=80') center/cover no-repeat;
         color: white;
-        padding: 24px 30px;
-        border-radius: 16px;
+        padding: 36px 36px;
+        border-radius: 20px;
         margin-bottom: 25px;
-        box-shadow: 0 8px 20px rgba(27, 67, 50, 0.15);
+        box-shadow: 0 12px 28px rgba(27, 67, 50, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .hero-tag {
+        display: inline-block;
+        background: rgba(216, 243, 220, 0.25);
+        backdrop-filter: blur(8px);
+        color: #d8f3dc;
+        padding: 5px 14px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+        border: 1px solid rgba(216, 243, 220, 0.4);
     }
     .hero-title {
-        font-size: 2.1rem;
+        font-size: 2.3rem;
         font-weight: 800;
         letter-spacing: -0.5px;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
+        color: #ffffff;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .hero-subtitle {
         font-size: 1.05rem;
         color: #d8f3dc;
         font-weight: 400;
-        margin-bottom: 0;
+        max-width: 850px;
+        line-height: 1.5;
     }
+    
+    /* Green Metric KPI Cards */
     .kpi-card {
         background: #ffffff;
-        border-radius: 12px;
-        padding: 16px 20px;
-        border: 1px solid #e9ecef;
-        border-left: 5px solid #2d6a4f;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        border-radius: 14px;
+        padding: 18px 22px;
+        border: 1px solid #e1f0e5;
+        border-left: 6px solid #2d6a4f;
+        box-shadow: 0 4px 10px rgba(45, 106, 79, 0.05);
         margin-bottom: 15px;
+        transition: transform 0.2s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(45, 106, 79, 0.1);
     }
     .kpi-label {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #6c757d;
-        font-weight: 600;
+        letter-spacing: 0.6px;
+        color: #52796f;
+        font-weight: 700;
         margin-bottom: 4px;
     }
     .kpi-val {
-        font-size: 1.6rem;
+        font-size: 1.75rem;
         font-weight: 800;
         color: #1b4332;
     }
     .kpi-sub {
-        font-size: 0.82rem;
-        color: #52b788;
+        font-size: 0.83rem;
+        color: #40916c;
         font-weight: 600;
     }
+    
+    /* Crop Recommendation Card */
     .crop-card {
         background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 14px;
-        padding: 20px;
-        margin-bottom: 16px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid #d8f3dc;
+        border-radius: 16px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 14px rgba(45, 106, 79, 0.06);
+        border-left: 6px solid #40916c;
     }
     .badge-pill-low {
         background-color: #d8f3dc;
         color: #1b4332;
-        padding: 5px 12px;
+        padding: 6px 14px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.85rem;
+        border: 1px solid #b7e4c7;
     }
     .badge-pill-mod {
         background-color: #fef3c7;
         color: #92400e;
-        padding: 5px 12px;
+        padding: 6px 14px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.85rem;
+        border: 1px solid #fde68a;
     }
     .badge-pill-high {
         background-color: #fee2e2;
         color: #991b1b;
-        padding: 5px 12px;
+        padding: 6px 14px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.85rem;
+        border: 1px solid #fecaca;
     }
-    .chart-container {
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 18px;
-        border: 1px solid #edf2f7;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        margin-bottom: 20px;
+    
+    /* Custom Green Buttons & Tabs */
+    .stButton>button {
+        background-color: #2d6a4f !important;
+        color: white !important;
+        border-radius: 10px !important;
+        border: none !important;
+        font-weight: 600 !important;
+        padding: 8px 18px !important;
+    }
+    .stButton>button:hover {
+        background-color: #1b4332 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -137,10 +175,10 @@ def load_engine():
 engine = load_engine()
 
 # ---------------------------------------------------------
-# 2. SIDEBAR CONTROLS
+# 2. SIDEBAR CONTROLS & GREEN THEME BANNER
 # ---------------------------------------------------------
-st.sidebar.image("https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400&q=80", use_container_width=True)
-st.sidebar.title("🌾 Region & Season Controls")
+st.sidebar.image("https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80", caption="Smart Agro-Meteorology & Analytics", use_container_width=True)
+st.sidebar.title("🌿 Regional Controls")
 
 # County choices
 counties_list = [
@@ -153,7 +191,7 @@ selected_county = st.sidebar.selectbox("📍 Select County", counties_list, inde
 selected_season = st.sidebar.selectbox("📅 Planting Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🏢 Platform Mode")
+st.sidebar.markdown("### 🏢 Platform Persona Mode")
 platform_view = st.sidebar.radio(
     "Active View",
     [
@@ -165,22 +203,22 @@ platform_view = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🗺️ Visual Analytics Included")
 st.sidebar.markdown("""
-- 🗺️ **Geospatial Station Map**
-- 📈 **Area & Dual-Axis Trendlines**
-- 🫧 **Suitability vs. Profit Bubble Plot**
-- 📊 **Financial Waterfall & Bars**
-- 🌳 **Crop Category Treemap**
-- 🥧 **Underwriting Risk Donut & Gauges**
-- 📦 **Climate Distribution Box Plots**
-""")
+<div style="background-color: #e8f5e9; padding: 12px 16px; border-radius: 10px; border-left: 4px solid #2e7d32;">
+    <span style="font-size: 0.85rem; color: #1b5e20; font-weight: 600;">
+        🌿 <b>Kilimo-Smart Engine:</b> Powered by 116 TAHMO ground weather stations across Kenya (2015–2025) & KNBS Agricultural Economics.
+    </span>
+</div>
+""", unsafe_allow_html=True)
 
-# Top Hero Banner
+# Top Hero Banner with Smart Agriculture Visual
 st.markdown(f"""
-<div class="hero-container">
-    <div class="hero-title">🌾 CLIMACROP INTELLIGENCE PLATFORM</div>
-    <div class="hero-subtitle">Climate-Smart Agricultural Decision Support for Cooperatives & Credit Risk Underwriting for Financial Institutions</div>
+<div class="hero-banner">
+    <span class="hero-tag">🌱 CLIMACROP INTELLIGENCE • GREEN AGRI-FINTECH</span>
+    <div class="hero-title">KILIMO-SMART DECISION SUPPORT SYSTEM</div>
+    <div class="hero-subtitle">
+        Translating 10 years of localized ground weather patterns into optimal 40-crop recommendations, farm gate profit projections, and institutional credit de-risking.
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -192,7 +230,6 @@ if platform_view == "🌱 Agricultural Cooperative View":
     st.subheader(f"🌱 Cooperative Advisory Hub: {selected_county} County — {selected_season}")
     st.markdown("Translating 10-year local weather station trends into optimal crop selection, farm revenue projections, and regional wholesale market arbitrage.")
     
-    # Controls
     col_c1, col_c2, col_c3 = st.columns([1.2, 1.2, 1])
     with col_c1:
         farm_size = st.slider("Member Farm Size (Acres)", min_value=0.5, max_value=30.0, value=3.0, step=0.5)
@@ -257,7 +294,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <div>
                             <span style="font-size: 1.35rem; font-weight: 800; color: #1b4332;">#{idx+1} {row['crop']}</span>
-                            <span style="color: #64748b; margin-left: 10px; font-weight: 500;">({row['category']} • {row['growth_days']} days cycle)</span>
+                            <span style="color: #52796f; margin-left: 10px; font-weight: 600;">({row['category']} • {row['growth_days']} days cycle)</span>
                         </div>
                         <div>
                             <span class="{badge_class}">Suitability: {row['suitability_score']}% ({row['risk_level']} Risk)</span>
@@ -276,7 +313,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 st.markdown("---")
 
         # -----------------------------------------------------
-        # VISUALIZATION 1: STRATEGIC BUBBLE CHART
+        # VISUALIZATION 1: STRATEGIC BUBBLE CHART (GREEN PALETTE)
         # -----------------------------------------------------
         st.markdown("### 🫧 1. Strategic Decision Frontier: Suitability vs. Profitability vs. Yield")
         st.caption("Bubble size represents expected total yield in kg. Higher & further right indicates optimal commercial choices.")
@@ -298,7 +335,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
             },
             title=f"Crop Suitability vs. Net Profit Frontier ({farm_size} Acres in {selected_county})"
         )
-        fig_bubble.update_traces(textposition='top center', marker=dict(opacity=0.85, line=dict(width=1.5, color='DarkSlateGrey')))
+        fig_bubble.update_traces(textposition='top center', marker=dict(opacity=0.88, line=dict(width=1.5, color='#1b4332')))
         fig_bubble.update_layout(height=450, template="plotly_white")
         st.plotly_chart(fig_bubble, use_container_width=True)
 
@@ -344,7 +381,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 values="total_farm_net_profit_kes",
                 color="benefit_cost_ratio",
                 color_continuous_scale="Greens",
-                title=f"Category Profit Proportions & Benefit-Cost Ratio"
+                title="Category Profit Proportions & Benefit-Cost Ratio"
             )
             fig_tree.update_layout(height=400)
             st.plotly_chart(fig_tree, use_container_width=True)
@@ -365,7 +402,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 y="net_market_price_kes",
                 color="arbitrage_margin_vs_base",
                 text="net_market_price_kes",
-                color_continuous_scale="Viridis",
+                color_continuous_scale="Greens",
                 title=f"Net Price per kg for {sample_crop_for_market} across Regional Markets (KES / kg)",
                 labels={"net_market_price_kes": "Net Price (KES/kg)", "market": "Wholesale Market Hub", "arbitrage_margin_vs_base": "Arbitrage Margin (KES)"}
             )
@@ -413,7 +450,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         m4.metric("Expected Default Probability", f"{loan_res['expected_default_rate_pct']:.2f}%", f"DSCR Buffer: {loan_res['debt_service_coverage_ratio']}x")
 
         # -----------------------------------------------------
-        # VISUALIZATION 5: GAUGE & DONUT CHARTS
+        # VISUALIZATION 5: GAUGE & DONUT CHARTS (GREEN ACCENTS)
         # -----------------------------------------------------
         col_g1, col_g2 = st.columns([1, 1])
         
@@ -426,11 +463,11 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 domain = {'x': [0, 1], 'y': [0, 1]},
                 title = {'text': f"Risk Score: {loan_res['credit_grade']}", 'font': {'size': 18, 'color': '#1b4332'}},
                 gauge = {
-                    'axis': {'range': [0.0, 1.0], 'tickwidth': 1, 'tickcolor': "darkblue"},
+                    'axis': {'range': [0.0, 1.0], 'tickwidth': 1, 'tickcolor': "#2d6a4f"},
                     'bar': {'color': "#2d6a4f" if loan_res["composite_risk_score"] < 0.38 else ("#e76f51" if loan_res["composite_risk_score"] < 0.58 else "#d90429")},
                     'bgcolor': "white",
                     'borderwidth': 2,
-                    'bordercolor': "gray",
+                    'bordercolor': "#d8f3dc",
                     'steps': [
                         {'range': [0.0, 0.25], 'color': '#d8f3dc'},
                         {'range': [0.25, 0.40], 'color': '#b7e4c7'},
@@ -459,7 +496,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 values="Score",
                 names="Component",
                 hole=0.55,
-                color_discrete_sequence=["#e76f51", "#f4a261", "#2a9d8f"],
+                color_discrete_sequence=["#e76f51", "#2d6a4f", "#52b788"],
                 title="Underwriting Risk Drivers"
             )
             fig_donut.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20))
@@ -490,10 +527,10 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 loan_res['expected_revenue_kes'] - loan_res['total_project_cost_kes'],
                 0
             ],
-            connector={"line": {"color": "rgb(63, 63, 63)"}},
+            connector={"line": {"color": "#40916c"}},
             decreasing={"marker": {"color": "#e76f51"}},
             increasing={"marker": {"color": "#2d6a4f"}},
-            totals={"marker": {"color": "#264653"}}
+            totals={"marker": {"color": "#1b4332"}}
         ))
         fig_waterfall.update_layout(height=380, template="plotly_white", title="Loan Facility Sizing vs. Harvest Revenue Coverage")
         st.plotly_chart(fig_waterfall, use_container_width=True)
@@ -550,7 +587,8 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 "loan_amount_kes": "Loan Amount (KES)",
                 "credit_grade": "Credit Grade"
             },
-            title="Portfolio Risk-Return Frontier across Counties and Crops"
+            title="Portfolio Risk-Return Frontier across Counties and Crops",
+            color_discrete_sequence=["#2d6a4f", "#52b788", "#e76f51", "#d90429"]
         )
         fig_port_scatter.update_traces(textposition='top center')
         fig_port_scatter.update_layout(height=440, template="plotly_white")
@@ -584,7 +622,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
         st.markdown("---")
         
         # -----------------------------------------------------
-        # VISUALIZATION 8: COMBINED AREA & DUAL AXIS LINE
+        # VISUALIZATION 8: COMBINED AREA & DUAL AXIS LINE (EMERALD GREEN)
         # -----------------------------------------------------
         st.markdown("### 📈 8. Seasonal Rainfall & Temperature Shift (Combined Area & Line)")
         
@@ -637,7 +675,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 y="seasonal_rainfall_mm",
                 color="season",
                 points="all",
-                color_discrete_sequence=["#2d6a4f", "#e76f51"],
+                color_discrete_sequence=["#2d6a4f", "#52b788"],
                 title="Rainfall Spread & Outliers across Kenyan Seasons (mm)"
             )
             fig_box.update_layout(height=380, template="plotly_white", showlegend=False)
@@ -651,7 +689,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 color="season",
                 nbins=20,
                 opacity=0.75,
-                color_discrete_sequence=["#2a9d8f", "#e76f51"],
+                color_discrete_sequence=["#40916c", "#74c69d"],
                 title="Frequency of Dry Spell Lengths (Days)"
             )
             fig_hist.update_layout(height=380, template="plotly_white")
@@ -676,7 +714,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 center={"lat": 0.5, "lon": 37.5},
                 mapbox_style="carto-positron",
                 title="Geographical Distribution of Ingested Ground Weather Stations",
-                color_continuous_scale="Viridis"
+                color_continuous_scale="Greens"
             )
             fig_map.update_layout(height=480)
             st.plotly_chart(fig_map, use_container_width=True)
@@ -703,7 +741,7 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
             path=["category", "crop"],
             values="yield_per_acre_kg",
             color="base_price_kes_per_kg",
-            color_continuous_scale="Tealgrn",
+            color_continuous_scale="Greens",
             title="Crop Yield Potential (Size) vs. Base Farm-Gate Price (Color)"
         )
         fig_crop_tree.update_layout(height=420)
@@ -729,7 +767,8 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                     color="market",
                     barmode="group",
                     title="Market Price Variations by Trading Hub (KES / kg)",
-                    labels={"market_price": "Market Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"}
+                    labels={"market_price": "Market Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
+                    color_discrete_sequence=["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
                 )
                 fig_m.update_layout(height=420, template="plotly_white")
                 st.plotly_chart(fig_m, use_container_width=True)
@@ -743,7 +782,8 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                 x="category",
                 y="volatility_cv",
                 color="category",
-                title="Coefficient of Variation ($CV$) by Crop Category"
+                title="Coefficient of Variation (CV) by Crop Category",
+                color_discrete_sequence=["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
             )
             fig_vol_box.update_layout(height=380, template="plotly_white", showlegend=False)
             st.plotly_chart(fig_vol_box, use_container_width=True)
