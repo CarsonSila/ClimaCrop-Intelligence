@@ -1,7 +1,10 @@
 """
-Kilimo-Smart: Climate-Smart Agricultural Advisory and De-Risking Platform.
-Dual-View Decision Support for Cooperatives & Credit Underwriting for Financial Institutions.
-Styling: Complete Emerald Green AgTech Theme with Embedded Smart Farming Imagery and 14 Interactive Visualizations.
+ClimaCrop Intelligence: Kilimo-Smart Climate Decision Support & Agri-Fintech De-Risking Platform.
+Features:
+- Multi-Theme Engine (🌿 Emerald Light, 🌙 Cyber Forest Dark, ⚙️ Minimal Neutral)
+- Embedded Smart Agro-Meteorology Imagery
+- 14 Interactive Visualizations (Maps, Area/Line, Bubbles, Treemaps, Waterfalls, Gauges, Donut & Box plots)
+- Real-Time Cooperative Advisory & Institutional Bank Underwriting
 """
 
 import sys
@@ -9,6 +12,7 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
 import os
+import io
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -19,150 +23,208 @@ import streamlit as st
 from src.financial_engine import FinancialDecisionEngine
 
 # ---------------------------------------------------------
-# 1. PAGE CONFIG & DEEP GREEN THEME STYLING
+# 1. PAGE CONFIG & PERSISTENT SESSION STATE
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="ClimaCrop Intelligence | Kilimo-Smart Green Platform",
+    page_title="ClimaCrop Intelligence | Kilimo-Smart Platform",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for polished green theme and visual hierarchy
-st.markdown("""
+# ---------------------------------------------------------
+# 2. SIDEBAR CONTROLS & THEME SWITCHER
+# ---------------------------------------------------------
+st.sidebar.image(
+    "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80",
+    caption="Smart Agro-Meteorology & Analytics",
+    use_container_width=True
+)
+
+st.sidebar.markdown("### 🎨 Interface Theme")
+theme_mode = st.sidebar.radio(
+    "Select Display Theme",
+    ["🌿 Emerald Light", "🌙 Cyber Forest Dark", "⚙️ Minimal Modern"],
+    index=0
+)
+
+# Define Theme Variables
+if theme_mode == "🌙 Cyber Forest Dark":
+    is_dark = True
+    plotly_theme = "plotly_dark"
+    bg_main = "#0b130e"
+    card_bg = "#13231a"
+    card_border = "#1f3b2d"
+    text_main = "#e2fbe8"
+    text_muted = "#86efac"
+    primary_color = "#10b981"
+    kpi_val_color = "#34d399"
+    badge_low_bg = "#064e3b"
+    badge_low_txt = "#a7f3d0"
+    hero_grad = "linear-gradient(135deg, rgba(8, 28, 18, 0.95) 0%, rgba(19, 42, 31, 0.92) 60%, rgba(6, 78, 59, 0.90) 100%)"
+elif theme_mode == "⚙️ Minimal Modern":
+    is_dark = False
+    plotly_theme = "plotly_white"
+    bg_main = "#fafaf9"
+    card_bg = "#ffffff"
+    card_border = "#e7e5e4"
+    text_main = "#1c1917"
+    text_muted = "#57534e"
+    primary_color = "#292524"
+    kpi_val_color = "#1c1917"
+    badge_low_bg = "#f5f5f4"
+    badge_low_txt = "#292524"
+    hero_grad = "linear-gradient(135deg, rgba(41, 37, 36, 0.95) 0%, rgba(68, 64, 60, 0.90) 100%)"
+else: # Emerald Light (Default)
+    is_dark = False
+    plotly_theme = "plotly_white"
+    bg_main = "#f4fbf7"
+    card_bg = "#ffffff"
+    card_border = "#d8f3dc"
+    text_main = "#133a27"
+    text_muted = "#40916c"
+    primary_color = "#2d6a4f"
+    kpi_val_color = "#1b4332"
+    badge_low_bg = "#d8f3dc"
+    badge_low_txt = "#1b4332"
+    hero_grad = "linear-gradient(135deg, rgba(20, 58, 38, 0.92) 0%, rgba(45, 106, 79, 0.88) 60%, rgba(64, 145, 108, 0.85) 100%)"
+
+# Dynamic CSS Injection
+st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: #133a27;
-    }
+    html, body, [data-testid="stAppViewContainer"] {{
+        background-color: {bg_main} !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: {text_main} !important;
+    }}
     
-    /* Hero Banner with Green Gradient & Overlay */
-    .hero-banner {
+    [data-testid="stSidebar"] {{
+        background-color: {card_bg} !important;
+        border-right: 1px solid {card_border} !important;
+    }}
+    
+    /* Hero Banner */
+    .hero-banner {{
         position: relative;
-        background: linear-gradient(135deg, rgba(20, 58, 38, 0.92) 0%, rgba(45, 106, 79, 0.88) 60%, rgba(64, 145, 108, 0.85) 100%),
+        background: {hero_grad},
                     url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=1400&auto=format&fit=crop&q=80') center/cover no-repeat;
-        color: white;
-        padding: 36px 36px;
+        color: #ffffff !important;
+        padding: 34px 36px;
         border-radius: 20px;
-        margin-bottom: 25px;
-        box-shadow: 0 12px 28px rgba(27, 67, 50, 0.18);
+        margin-bottom: 24px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, {'0.4' if is_dark else '0.12'});
         border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    .hero-tag {
-        display: inline-block;
+    }}
+    .hero-tag {{
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         background: rgba(216, 243, 220, 0.25);
         backdrop-filter: blur(8px);
         color: #d8f3dc;
-        padding: 5px 14px;
+        padding: 6px 16px;
         border-radius: 30px;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 700;
         letter-spacing: 0.5px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         border: 1px solid rgba(216, 243, 220, 0.4);
-    }
-    .hero-title {
+    }}
+    .hero-title {{
         font-size: 2.3rem;
         font-weight: 800;
         letter-spacing: -0.5px;
         margin-bottom: 8px;
-        color: #ffffff;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .hero-subtitle {
-        font-size: 1.05rem;
-        color: #d8f3dc;
+        color: #ffffff !important;
+    }}
+    .hero-subtitle {{
+        font-size: 1.02rem;
+        color: #d8f3dc !important;
         font-weight: 400;
         max-width: 850px;
         line-height: 1.5;
-    }
+    }}
     
-    /* Green Metric KPI Cards */
-    .kpi-card {
-        background: #ffffff;
+    /* Metric KPI Cards */
+    .kpi-card {{
+        background: {card_bg};
         border-radius: 14px;
         padding: 18px 22px;
-        border: 1px solid #e1f0e5;
-        border-left: 6px solid #2d6a4f;
-        box-shadow: 0 4px 10px rgba(45, 106, 79, 0.05);
+        border: 1px solid {card_border};
+        border-left: 6px solid {primary_color};
+        box-shadow: 0 4px 12px rgba(0, 0, 0, {'0.25' if is_dark else '0.04'});
         margin-bottom: 15px;
-        transition: transform 0.2s ease;
-    }
-    .kpi-card:hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }}
+    .kpi-card:hover {{
         transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(45, 106, 79, 0.1);
-    }
-    .kpi-label {
-        font-size: 0.78rem;
+        box-shadow: 0 8px 18px rgba(0, 0, 0, {'0.35' if is_dark else '0.08'});
+    }}
+    .kpi-label {{
+        font-size: 0.76rem;
         text-transform: uppercase;
         letter-spacing: 0.6px;
-        color: #52796f;
+        color: {text_muted};
         font-weight: 700;
         margin-bottom: 4px;
-    }
-    .kpi-val {
+    }}
+    .kpi-val {{
         font-size: 1.75rem;
         font-weight: 800;
-        color: #1b4332;
-    }
-    .kpi-sub {
-        font-size: 0.83rem;
-        color: #40916c;
+        color: {kpi_val_color};
+    }}
+    .kpi-sub {{
+        font-size: 0.82rem;
+        color: {text_muted};
         font-weight: 600;
-    }
+    }}
     
     /* Crop Recommendation Card */
-    .crop-card {
-        background: #ffffff;
-        border: 1px solid #d8f3dc;
+    .crop-card {{
+        background: {card_bg};
+        border: 1px solid {card_border};
         border-radius: 16px;
         padding: 22px;
         margin-bottom: 18px;
-        box-shadow: 0 4px 14px rgba(45, 106, 79, 0.06);
-        border-left: 6px solid #40916c;
-    }
-    .badge-pill-low {
-        background-color: #d8f3dc;
-        color: #1b4332;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, {'0.25' if is_dark else '0.04'});
+        border-left: 6px solid {primary_color};
+    }}
+    .badge-pill-low {{
+        background-color: {badge_low_bg};
+        color: {badge_low_txt};
         padding: 6px 14px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.85rem;
-        border: 1px solid #b7e4c7;
-    }
-    .badge-pill-mod {
-        background-color: #fef3c7;
-        color: #92400e;
+    }}
+    .badge-pill-mod {{
+        background-color: {'#78350f' if is_dark else '#fef3c7'};
+        color: {'#fde68a' if is_dark else '#92400e'};
         padding: 6px 14px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.85rem;
-        border: 1px solid #fde68a;
-    }
-    .badge-pill-high {
-        background-color: #fee2e2;
-        color: #991b1b;
+    }}
+    .badge-pill-high {{
+        background-color: {'#7f1d1d' if is_dark else '#fee2e2'};
+        color: {'#fecaca' if is_dark else '#991b1b'};
         padding: 6px 14px;
         border-radius: 30px;
         font-weight: 700;
         font-size: 0.85rem;
-        border: 1px solid #fecaca;
-    }
+    }}
     
-    /* Custom Green Buttons & Tabs */
-    .stButton>button {
-        background-color: #2d6a4f !important;
-        color: white !important;
+    /* Custom Streamlit Buttons */
+    .stButton>button {{
+        background-color: {primary_color} !important;
+        color: #ffffff !important;
         border-radius: 10px !important;
         border: none !important;
         font-weight: 600 !important;
         padding: 8px 18px !important;
-    }
-    .stButton>button:hover {
-        background-color: #1b4332 !important;
-    }
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -175,12 +237,11 @@ def load_engine():
 engine = load_engine()
 
 # ---------------------------------------------------------
-# 2. SIDEBAR CONTROLS & GREEN THEME BANNER
+# 3. SIDEBAR CONTROLS
 # ---------------------------------------------------------
-st.sidebar.image("https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80", caption="Smart Agro-Meteorology & Analytics", use_container_width=True)
-st.sidebar.title("🌿 Regional Controls")
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🌾 Region & Planting Calendar")
 
-# County choices
 counties_list = [
     "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
     "Bungoma", "Kakamega", "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
@@ -203,21 +264,30 @@ platform_view = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("""
-<div style="background-color: #e8f5e9; padding: 12px 16px; border-radius: 10px; border-left: 4px solid #2e7d32;">
-    <span style="font-size: 0.85rem; color: #1b5e20; font-weight: 600;">
-        🌿 <b>Kilimo-Smart Engine:</b> Powered by 116 TAHMO ground weather stations across Kenya (2015–2025) & KNBS Agricultural Economics.
-    </span>
+st.sidebar.markdown(f"""
+<div style="background-color: {card_bg}; padding: 14px 16px; border-radius: 12px; border: 1px solid {card_border};">
+    <div style="font-size: 0.82rem; color: {text_muted}; font-weight: 700; margin-bottom: 4px;">
+        📡 LIVE DATA STACK
+    </div>
+    <div style="font-size: 0.85rem; color: {text_main}; font-weight: 600;">
+        • 116 TAHMO Ground Weather Stations<br>
+        • 10-Year Time-Series (2015–2025)<br>
+        • 40-Crop KNBS Production Model<br>
+        • 5 Wholesale Arbitrage Hubs
+    </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 # Top Hero Banner with Smart Agriculture Visual
 st.markdown(f"""
 <div class="hero-banner">
-    <span class="hero-tag">🌱 CLIMACROP INTELLIGENCE • GREEN AGRI-FINTECH</span>
+    <div class="hero-tag">
+        <span style="color: #4ade80;">●</span> 116 ACTIVE STATIONS • SEASONAL ADVISORY ENGINE
+    </div>
     <div class="hero-title">KILIMO-SMART DECISION SUPPORT SYSTEM</div>
     <div class="hero-subtitle">
-        Translating 10 years of localized ground weather patterns into optimal 40-crop recommendations, farm gate profit projections, and institutional credit de-risking.
+        Bridging 10 years of localized ground weather patterns with optimal 40-crop selection, member farm profitability, and institutional agricultural credit de-risking.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -293,8 +363,8 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 <div class="crop-card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <div>
-                            <span style="font-size: 1.35rem; font-weight: 800; color: #1b4332;">#{idx+1} {row['crop']}</span>
-                            <span style="color: #52796f; margin-left: 10px; font-weight: 600;">({row['category']} • {row['growth_days']} days cycle)</span>
+                            <span style="font-size: 1.35rem; font-weight: 800; color: {primary_color};">#{idx+1} {row['crop']}</span>
+                            <span style="color: {text_muted}; margin-left: 10px; font-weight: 600;">({row['category']} • {row['growth_days']} days cycle)</span>
                         </div>
                         <div>
                             <span class="{badge_class}">Suitability: {row['suitability_score']}% ({row['risk_level']} Risk)</span>
@@ -313,7 +383,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 st.markdown("---")
 
         # -----------------------------------------------------
-        # VISUALIZATION 1: STRATEGIC BUBBLE CHART (GREEN PALETTE)
+        # VISUALIZATION 1: STRATEGIC BUBBLE CHART
         # -----------------------------------------------------
         st.markdown("### 🫧 1. Strategic Decision Frontier: Suitability vs. Profitability vs. Yield")
         st.caption("Bubble size represents expected total yield in kg. Higher & further right indicates optimal commercial choices.")
@@ -326,7 +396,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
             color="risk_level",
             hover_name="crop",
             text="crop",
-            color_discrete_map={"Low": "#2d6a4f", "Moderate": "#e76f51", "High": "#d90429"},
+            color_discrete_map={"Low": "#10b981", "Moderate": "#f59e0b", "High": "#ef4444"},
             labels={
                 "suitability_score": "Crop Suitability Score (%)",
                 "total_farm_net_profit_kes": "Net Farm Profit (KES)",
@@ -335,8 +405,8 @@ if platform_view == "🌱 Agricultural Cooperative View":
             },
             title=f"Crop Suitability vs. Net Profit Frontier ({farm_size} Acres in {selected_county})"
         )
-        fig_bubble.update_traces(textposition='top center', marker=dict(opacity=0.88, line=dict(width=1.5, color='#1b4332')))
-        fig_bubble.update_layout(height=450, template="plotly_white")
+        fig_bubble.update_traces(textposition='top center', marker=dict(opacity=0.88, line=dict(width=1.5, color='#ffffff' if is_dark else '#1b4332')))
+        fig_bubble.update_layout(height=450, template=plotly_theme)
         st.plotly_chart(fig_bubble, use_container_width=True)
 
         # -----------------------------------------------------
@@ -365,11 +435,11 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 y="Amount_KES",
                 color="Metric",
                 barmode="group",
-                color_discrete_map={"Production CapEx": "#e76f51", "Net Farm Profit": "#2d6a4f", "Gross Revenue": "#52b788"},
+                color_discrete_map={"Production CapEx": "#ef4444", "Net Farm Profit": "#10b981", "Gross Revenue": "#3b82f6"},
                 title=f"Financial Payoff Comparison ({farm_size} Acres)",
                 labels={"Amount_KES": "Amount (KES)", "crop": "Crop"}
             )
-            fig_bar.update_layout(height=400, template="plotly_white")
+            fig_bar.update_layout(height=400, template=plotly_theme)
             st.plotly_chart(fig_bar, use_container_width=True)
 
         with col_v2:
@@ -383,7 +453,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 color_continuous_scale="Greens",
                 title="Category Profit Proportions & Benefit-Cost Ratio"
             )
-            fig_tree.update_layout(height=400)
+            fig_tree.update_layout(height=400, template=plotly_theme)
             st.plotly_chart(fig_tree, use_container_width=True)
 
         # -----------------------------------------------------
@@ -407,7 +477,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 labels={"net_market_price_kes": "Net Price (KES/kg)", "market": "Wholesale Market Hub", "arbitrage_margin_vs_base": "Arbitrage Margin (KES)"}
             )
             fig_mkt.update_traces(texttemplate='KES %{text:.1f}', textposition='outside')
-            fig_mkt.update_layout(height=380, template="plotly_white")
+            fig_mkt.update_layout(height=380, template=plotly_theme)
             st.plotly_chart(fig_mkt, use_container_width=True)
 
 
@@ -450,7 +520,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         m4.metric("Expected Default Probability", f"{loan_res['expected_default_rate_pct']:.2f}%", f"DSCR Buffer: {loan_res['debt_service_coverage_ratio']}x")
 
         # -----------------------------------------------------
-        # VISUALIZATION 5: GAUGE & DONUT CHARTS (GREEN ACCENTS)
+        # VISUALIZATION 5: GAUGE & DONUT CHARTS
         # -----------------------------------------------------
         col_g1, col_g2 = st.columns([1, 1])
         
@@ -461,18 +531,18 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 mode = "gauge+number+delta",
                 value = loan_res["composite_risk_score"],
                 domain = {'x': [0, 1], 'y': [0, 1]},
-                title = {'text': f"Risk Score: {loan_res['credit_grade']}", 'font': {'size': 18, 'color': '#1b4332'}},
+                title = {'text': f"Risk Score: {loan_res['credit_grade']}", 'font': {'size': 18, 'color': text_main}},
                 gauge = {
-                    'axis': {'range': [0.0, 1.0], 'tickwidth': 1, 'tickcolor': "#2d6a4f"},
-                    'bar': {'color': "#2d6a4f" if loan_res["composite_risk_score"] < 0.38 else ("#e76f51" if loan_res["composite_risk_score"] < 0.58 else "#d90429")},
-                    'bgcolor': "white",
+                    'axis': {'range': [0.0, 1.0], 'tickwidth': 1, 'tickcolor': primary_color},
+                    'bar': {'color': "#10b981" if loan_res["composite_risk_score"] < 0.38 else ("#f59e0b" if loan_res["composite_risk_score"] < 0.58 else "#ef4444")},
+                    'bgcolor': card_bg,
                     'borderwidth': 2,
-                    'bordercolor': "#d8f3dc",
+                    'bordercolor': card_border,
                     'steps': [
-                        {'range': [0.0, 0.25], 'color': '#d8f3dc'},
-                        {'range': [0.25, 0.40], 'color': '#b7e4c7'},
-                        {'range': [0.40, 0.60], 'color': '#ffe8d6'},
-                        {'range': [0.60, 1.0], 'color': '#ffccd5'}
+                        {'range': [0.0, 0.25], 'color': '#064e3b' if is_dark else '#d8f3dc'},
+                        {'range': [0.25, 0.40], 'color': '#065f46' if is_dark else '#b7e4c7'},
+                        {'range': [0.40, 0.60], 'color': '#78350f' if is_dark else '#ffe8d6'},
+                        {'range': [0.60, 1.0], 'color': '#7f1d1d' if is_dark else '#ffccd5'}
                     ],
                     'threshold': {
                         'line': {'color': "red", 'width': 4},
@@ -481,7 +551,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                     }
                 }
             ))
-            fig_gauge.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20))
+            fig_gauge.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20), template=plotly_theme)
             st.plotly_chart(fig_gauge, use_container_width=True)
 
         with col_g2:
@@ -496,10 +566,10 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 values="Score",
                 names="Component",
                 hole=0.55,
-                color_discrete_sequence=["#e76f51", "#2d6a4f", "#52b788"],
+                color_discrete_sequence=["#ef4444", "#10b981", "#3b82f6"],
                 title="Underwriting Risk Drivers"
             )
-            fig_donut.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20))
+            fig_donut.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20), template=plotly_theme)
             st.plotly_chart(fig_donut, use_container_width=True)
 
         # -----------------------------------------------------
@@ -527,12 +597,12 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 loan_res['expected_revenue_kes'] - loan_res['total_project_cost_kes'],
                 0
             ],
-            connector={"line": {"color": "#40916c"}},
-            decreasing={"marker": {"color": "#e76f51"}},
-            increasing={"marker": {"color": "#2d6a4f"}},
-            totals={"marker": {"color": "#1b4332"}}
+            connector={"line": {"color": "#10b981" if is_dark else "#40916c"}},
+            decreasing={"marker": {"color": "#ef4444"}},
+            increasing={"marker": {"color": "#10b981"}},
+            totals={"marker": {"color": "#3b82f6"}}
         ))
-        fig_waterfall.update_layout(height=380, template="plotly_white", title="Loan Facility Sizing vs. Harvest Revenue Coverage")
+        fig_waterfall.update_layout(height=380, template=plotly_theme, title="Loan Facility Sizing vs. Harvest Revenue Coverage")
         st.plotly_chart(fig_waterfall, use_container_width=True)
 
         # Covenants & Mitigations
@@ -588,10 +658,10 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 "credit_grade": "Credit Grade"
             },
             title="Portfolio Risk-Return Frontier across Counties and Crops",
-            color_discrete_sequence=["#2d6a4f", "#52b788", "#e76f51", "#d90429"]
+            color_discrete_sequence=["#10b981", "#3b82f6", "#f59e0b", "#ef4444"]
         )
         fig_port_scatter.update_traces(textposition='top center')
-        fig_port_scatter.update_layout(height=440, template="plotly_white")
+        fig_port_scatter.update_layout(height=440, template=plotly_theme)
         st.plotly_chart(fig_port_scatter, use_container_width=True)
 
         st.dataframe(
@@ -622,7 +692,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
         st.markdown("---")
         
         # -----------------------------------------------------
-        # VISUALIZATION 8: COMBINED AREA & DUAL AXIS LINE (EMERALD GREEN)
+        # VISUALIZATION 8: COMBINED AREA & DUAL AXIS LINE
         # -----------------------------------------------------
         st.markdown("### 📈 8. Seasonal Rainfall & Temperature Shift (Combined Area & Line)")
         
@@ -635,8 +705,8 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 y=county_data["seasonal_rainfall_mm"],
                 name="Seasonal Rainfall (mm)",
                 fill='tozeroy',
-                fillcolor='rgba(45, 106, 79, 0.25)',
-                line=dict(color='#2d6a4f', width=2.5)
+                fillcolor='rgba(16, 185, 129, 0.22)' if is_dark else 'rgba(45, 106, 79, 0.25)',
+                line=dict(color='#10b981' if is_dark else '#2d6a4f', width=2.5)
             ),
             secondary_y=False
         )
@@ -647,7 +717,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 x=county_data["year"].astype(str) + " " + county_data["season"],
                 y=county_data["temp_mean_c"],
                 name="Mean Temperature (°C)",
-                line=dict(color='#e76f51', width=3.5, dash='solid')
+                line=dict(color='#f87171' if is_dark else '#e76f51', width=3.5, dash='solid')
             ),
             secondary_y=True
         )
@@ -656,7 +726,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             title=f"10-Year Climate Trajectory in {selected_county} (2015–2025)",
             height=450,
             hovermode="x unified",
-            template="plotly_white"
+            template=plotly_theme
         )
         fig_trend.update_yaxes(title_text="Seasonal Rainfall (mm)", secondary_y=False)
         fig_trend.update_yaxes(title_text="Temperature (°C)", secondary_y=True)
@@ -675,10 +745,10 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 y="seasonal_rainfall_mm",
                 color="season",
                 points="all",
-                color_discrete_sequence=["#2d6a4f", "#52b788"],
+                color_discrete_sequence=["#10b981", "#3b82f6"],
                 title="Rainfall Spread & Outliers across Kenyan Seasons (mm)"
             )
-            fig_box.update_layout(height=380, template="plotly_white", showlegend=False)
+            fig_box.update_layout(height=380, template=plotly_theme, showlegend=False)
             st.plotly_chart(fig_box, use_container_width=True)
 
         with col_c_v2:
@@ -689,10 +759,10 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 color="season",
                 nbins=20,
                 opacity=0.75,
-                color_discrete_sequence=["#40916c", "#74c69d"],
+                color_discrete_sequence=["#10b981", "#f59e0b"],
                 title="Frequency of Dry Spell Lengths (Days)"
             )
-            fig_hist.update_layout(height=380, template="plotly_white")
+            fig_hist.update_layout(height=380, template=plotly_theme)
             st.plotly_chart(fig_hist, use_container_width=True)
 
         # -----------------------------------------------------
@@ -712,7 +782,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 size_max=12,
                 zoom=5.5,
                 center={"lat": 0.5, "lon": 37.5},
-                mapbox_style="carto-positron",
+                mapbox_style="carto-darkmatter" if is_dark else "carto-positron",
                 title="Geographical Distribution of Ingested Ground Weather Stations",
                 color_continuous_scale="Greens"
             )
@@ -744,7 +814,7 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
             color_continuous_scale="Greens",
             title="Crop Yield Potential (Size) vs. Base Farm-Gate Price (Color)"
         )
-        fig_crop_tree.update_layout(height=420)
+        fig_crop_tree.update_layout(height=420, template=plotly_theme)
         st.plotly_chart(fig_crop_tree, use_container_width=True)
 
         st.dataframe(
@@ -768,9 +838,9 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                     barmode="group",
                     title="Market Price Variations by Trading Hub (KES / kg)",
                     labels={"market_price": "Market Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
-                    color_discrete_sequence=["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
+                    color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"] if is_dark else ["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
                 )
-                fig_m.update_layout(height=420, template="plotly_white")
+                fig_m.update_layout(height=420, template=plotly_theme)
                 st.plotly_chart(fig_m, use_container_width=True)
 
             # -----------------------------------------------------
@@ -783,7 +853,7 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                 y="volatility_cv",
                 color="category",
                 title="Coefficient of Variation (CV) by Crop Category",
-                color_discrete_sequence=["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
+                color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"] if is_dark else ["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
             )
-            fig_vol_box.update_layout(height=380, template="plotly_white", showlegend=False)
+            fig_vol_box.update_layout(height=380, template=plotly_theme, showlegend=False)
             st.plotly_chart(fig_vol_box, use_container_width=True)
