@@ -1,7 +1,8 @@
 """
 ClimaCrop Intelligence: Kilimo-Smart Climate Decision Support & Agri-Fintech De-Risking Platform.
 Features:
-- Multi-Theme Engine (🌿 Emerald Light, 🌙 Cyber Forest Dark, ⚙️ Minimal Neutral)
+- Mobile-First Responsive Design (Optimized for iOS, Android, Tablets & Desktops)
+- Multi-Theme Engine (🌿 Emerald Light, 🌙 Cyber Forest Dark, ⚙️ Minimal Modern)
 - Embedded Smart Agro-Meteorology Imagery
 - 14 Interactive Visualizations (Maps, Area/Line, Bubbles, Treemaps, Waterfalls, Gauges, Donut & Box plots)
 - Real-Time Cooperative Advisory & Institutional Bank Underwriting
@@ -26,10 +27,10 @@ from src.financial_engine import FinancialDecisionEngine
 # 1. PAGE CONFIG & PERSISTENT SESSION STATE
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="ClimaCrop Intelligence | Kilimo-Smart Platform",
+    page_title="ClimaCrop Intelligence | Kilimo-Smart Mobile-Ready Platform",
     page_icon="🌿",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # ---------------------------------------------------------
@@ -89,7 +90,7 @@ else: # Emerald Light (Default)
     badge_low_txt = "#1b4332"
     hero_grad = "linear-gradient(135deg, rgba(20, 58, 38, 0.92) 0%, rgba(45, 106, 79, 0.88) 60%, rgba(64, 145, 108, 0.85) 100%)"
 
-# Dynamic CSS Injection
+# Dynamic & Mobile-First CSS Injection
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -111,9 +112,9 @@ st.markdown(f"""
         background: {hero_grad},
                     url('https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=1400&auto=format&fit=crop&q=80') center/cover no-repeat;
         color: #ffffff !important;
-        padding: 34px 36px;
-        border-radius: 20px;
-        margin-bottom: 24px;
+        padding: 30px 32px;
+        border-radius: 18px;
+        margin-bottom: 20px;
         box-shadow: 0 12px 28px rgba(0, 0, 0, {'0.4' if is_dark else '0.12'});
         border: 1px solid rgba(255, 255, 255, 0.15);
     }}
@@ -124,38 +125,38 @@ st.markdown(f"""
         background: rgba(216, 243, 220, 0.25);
         backdrop-filter: blur(8px);
         color: #d8f3dc;
-        padding: 6px 16px;
+        padding: 6px 14px;
         border-radius: 30px;
         font-size: 0.82rem;
         font-weight: 700;
         letter-spacing: 0.5px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
         border: 1px solid rgba(216, 243, 220, 0.4);
     }}
     .hero-title {{
-        font-size: 2.3rem;
+        font-size: 2.1rem;
         font-weight: 800;
         letter-spacing: -0.5px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         color: #ffffff !important;
     }}
     .hero-subtitle {{
-        font-size: 1.02rem;
+        font-size: 1.0rem;
         color: #d8f3dc !important;
         font-weight: 400;
         max-width: 850px;
-        line-height: 1.5;
+        line-height: 1.45;
     }}
     
     /* Metric KPI Cards */
     .kpi-card {{
         background: {card_bg};
         border-radius: 14px;
-        padding: 18px 22px;
+        padding: 16px 18px;
         border: 1px solid {card_border};
-        border-left: 6px solid {primary_color};
+        border-left: 5px solid {primary_color};
         box-shadow: 0 4px 12px rgba(0, 0, 0, {'0.25' if is_dark else '0.04'});
-        margin-bottom: 15px;
+        margin-bottom: 12px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }}
     .kpi-card:hover {{
@@ -163,7 +164,7 @@ st.markdown(f"""
         box-shadow: 0 8px 18px rgba(0, 0, 0, {'0.35' if is_dark else '0.08'});
     }}
     .kpi-label {{
-        font-size: 0.76rem;
+        font-size: 0.74rem;
         text-transform: uppercase;
         letter-spacing: 0.6px;
         color: {text_muted};
@@ -171,12 +172,12 @@ st.markdown(f"""
         margin-bottom: 4px;
     }}
     .kpi-val {{
-        font-size: 1.75rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: {kpi_val_color};
     }}
     .kpi-sub {{
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         color: {text_muted};
         font-weight: 600;
     }}
@@ -185,35 +186,35 @@ st.markdown(f"""
     .crop-card {{
         background: {card_bg};
         border: 1px solid {card_border};
-        border-radius: 16px;
-        padding: 22px;
-        margin-bottom: 18px;
+        border-radius: 14px;
+        padding: 18px;
+        margin-bottom: 16px;
         box-shadow: 0 4px 14px rgba(0, 0, 0, {'0.25' if is_dark else '0.04'});
-        border-left: 6px solid {primary_color};
+        border-left: 5px solid {primary_color};
     }}
     .badge-pill-low {{
         background-color: {badge_low_bg};
         color: {badge_low_txt};
-        padding: 6px 14px;
+        padding: 5px 12px;
         border-radius: 30px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }}
     .badge-pill-mod {{
         background-color: {'#78350f' if is_dark else '#fef3c7'};
         color: {'#fde68a' if is_dark else '#92400e'};
-        padding: 6px 14px;
+        padding: 5px 12px;
         border-radius: 30px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }}
     .badge-pill-high {{
         background-color: {'#7f1d1d' if is_dark else '#fee2e2'};
         color: {'#fecaca' if is_dark else '#991b1b'};
-        padding: 6px 14px;
+        padding: 5px 12px;
         border-radius: 30px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }}
     
     /* Custom Streamlit Buttons */
@@ -224,6 +225,50 @@ st.markdown(f"""
         border: none !important;
         font-weight: 600 !important;
         padding: 8px 18px !important;
+    }}
+    
+    /* Mobile-First Responsive Breakpoints (< 768px) */
+    @media screen and (max-width: 768px) {{
+        .hero-banner {{
+            padding: 20px 16px !important;
+            border-radius: 14px !important;
+            margin-bottom: 16px !important;
+        }}
+        .hero-title {{
+            font-size: 1.45rem !important;
+            line-height: 1.25 !important;
+        }}
+        .hero-subtitle {{
+            font-size: 0.86rem !important;
+            line-height: 1.4 !important;
+        }}
+        .hero-tag {{
+            font-size: 0.70rem !important;
+            padding: 4px 10px !important;
+        }}
+        .kpi-card {{
+            padding: 12px 14px !important;
+            margin-bottom: 10px !important;
+        }}
+        .kpi-val {{
+            font-size: 1.3rem !important;
+        }}
+        .kpi-label {{
+            font-size: 0.70rem !important;
+        }}
+        .crop-card {{
+            padding: 14px 12px !important;
+            border-radius: 12px !important;
+        }}
+        .block-container {{
+            padding-top: 1.2rem !important;
+            padding-bottom: 1.8rem !important;
+            padding-left: 0.6rem !important;
+            padding-right: 0.6rem !important;
+        }}
+        .stSelectbox, .stSlider, .stRadio, .stButton>button {{
+            touch-action: manipulation;
+        }}
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -240,7 +285,7 @@ engine = load_engine()
 # 3. SIDEBAR CONTROLS
 # ---------------------------------------------------------
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🌾 Region & Planting Calendar")
+st.sidebar.markdown("### 🌾 Region & Calendar")
 
 counties_list = [
     "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
@@ -252,7 +297,7 @@ selected_county = st.sidebar.selectbox("📍 Select County", counties_list, inde
 selected_season = st.sidebar.selectbox("📅 Planting Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### 🏢 Platform Persona Mode")
+st.sidebar.markdown("### 🏢 Platform Mode")
 platform_view = st.sidebar.radio(
     "Active View",
     [
@@ -265,15 +310,15 @@ platform_view = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"""
-<div style="background-color: {card_bg}; padding: 14px 16px; border-radius: 12px; border: 1px solid {card_border};">
-    <div style="font-size: 0.82rem; color: {text_muted}; font-weight: 700; margin-bottom: 4px;">
+<div style="background-color: {card_bg}; padding: 12px 14px; border-radius: 10px; border: 1px solid {card_border};">
+    <div style="font-size: 0.78rem; color: {text_muted}; font-weight: 700; margin-bottom: 3px;">
         📡 LIVE DATA STACK
     </div>
-    <div style="font-size: 0.85rem; color: {text_main}; font-weight: 600;">
-        • 116 TAHMO Ground Weather Stations<br>
-        • 10-Year Time-Series (2015–2025)<br>
-        • 40-Crop KNBS Production Model<br>
-        • 5 Wholesale Arbitrage Hubs
+    <div style="font-size: 0.82rem; color: {text_main}; font-weight: 600; line-height: 1.4;">
+        • 116 Weather Stations<br>
+        • 10-Yr Series (2015–2025)<br>
+        • 40-Crop Economic Model<br>
+        • 5 Wholesale Markets
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -283,11 +328,11 @@ st.sidebar.markdown(f"""
 st.markdown(f"""
 <div class="hero-banner">
     <div class="hero-tag">
-        <span style="color: #4ade80;">●</span> 116 ACTIVE STATIONS • SEASONAL ADVISORY ENGINE
+        <span style="color: #4ade80;">●</span> 116 ACTIVE STATIONS • SEASONAL ADVISORY
     </div>
-    <div class="hero-title">KILIMO-SMART DECISION SUPPORT SYSTEM</div>
+    <div class="hero-title">KILIMO-SMART DECISION ENGINE</div>
     <div class="hero-subtitle">
-        Bridging 10 years of localized ground weather patterns with optimal 40-crop selection, member farm profitability, and institutional agricultural credit de-risking.
+        Translating 10 years of localized ground weather patterns into optimal 40-crop selection, member farm profitability, and institutional credit de-risking.
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -346,8 +391,8 @@ if platform_view == "🌱 Agricultural Cooperative View":
         st.markdown(f"""
         <div class="kpi-card">
             <div class="kpi-label">Climate Archetype</div>
-            <div class="kpi-val" style="font-size:1.2rem;">{climate_profile['cluster_name']}</div>
-            <div class="kpi-sub">K-Means Cluster #{climate_profile['cluster_id']}</div>
+            <div class="kpi-val" style="font-size:1.15rem;">{climate_profile['cluster_name']}</div>
+            <div class="kpi-sub">Cluster #{climate_profile['cluster_id']}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -361,10 +406,10 @@ if platform_view == "🌱 Agricultural Cooperative View":
             with st.container():
                 st.markdown(f"""
                 <div class="crop-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                         <div>
-                            <span style="font-size: 1.35rem; font-weight: 800; color: {primary_color};">#{idx+1} {row['crop']}</span>
-                            <span style="color: {text_muted}; margin-left: 10px; font-weight: 600;">({row['category']} • {row['growth_days']} days cycle)</span>
+                            <span style="font-size: 1.25rem; font-weight: 800; color: {primary_color};">#{idx+1} {row['crop']}</span>
+                            <span style="color: {text_muted}; margin-left: 8px; font-weight: 600;">({row['category']} • {row['growth_days']}d)</span>
                         </div>
                         <div>
                             <span class="{badge_class}">Suitability: {row['suitability_score']}% ({row['risk_level']} Risk)</span>
@@ -398,16 +443,16 @@ if platform_view == "🌱 Agricultural Cooperative View":
             text="crop",
             color_discrete_map={"Low": "#10b981", "Moderate": "#f59e0b", "High": "#ef4444"},
             labels={
-                "suitability_score": "Crop Suitability Score (%)",
-                "total_farm_net_profit_kes": "Net Farm Profit (KES)",
-                "total_farm_yield_kg": "Total Yield (kg)",
-                "risk_level": "Climate Risk"
+                "suitability_score": "Suitability Score (%)",
+                "total_farm_net_profit_kes": "Net Profit (KES)",
+                "total_farm_yield_kg": "Yield (kg)",
+                "risk_level": "Risk"
             },
-            title=f"Crop Suitability vs. Net Profit Frontier ({farm_size} Acres in {selected_county})"
+            title=f"Crop Suitability vs. Profit Frontier ({farm_size} Acres)"
         )
         fig_bubble.update_traces(textposition='top center', marker=dict(opacity=0.88, line=dict(width=1.5, color='#ffffff' if is_dark else '#1b4332')))
-        fig_bubble.update_layout(height=450, template=plotly_theme)
-        st.plotly_chart(fig_bubble, use_container_width=True)
+        fig_bubble.update_layout(height=420, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
+        st.plotly_chart(fig_bubble, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         # -----------------------------------------------------
         # VISUALIZATION 2: FINANCIAL BREAKDOWN GROUPED BAR
@@ -436,14 +481,14 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 color="Metric",
                 barmode="group",
                 color_discrete_map={"Production CapEx": "#ef4444", "Net Farm Profit": "#10b981", "Gross Revenue": "#3b82f6"},
-                title=f"Financial Payoff Comparison ({farm_size} Acres)",
-                labels={"Amount_KES": "Amount (KES)", "crop": "Crop"}
+                title=f"Financial Payoff ({farm_size} Acres)",
+                labels={"Amount_KES": "KES", "crop": "Crop"}
             )
-            fig_bar.update_layout(height=400, template=plotly_theme)
-            st.plotly_chart(fig_bar, use_container_width=True)
+            fig_bar.update_layout(height=380, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
+            st.plotly_chart(fig_bar, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         with col_v2:
-            st.markdown("### 🌳 3. Profit Share by Agricultural Category (Treemap)")
+            st.markdown("### 🌳 3. Profit Share by Category (Treemap)")
             
             fig_tree = px.treemap(
                 recs_df,
@@ -451,10 +496,10 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 values="total_farm_net_profit_kes",
                 color="benefit_cost_ratio",
                 color_continuous_scale="Greens",
-                title="Category Profit Proportions & Benefit-Cost Ratio"
+                title="Category Profit Proportions"
             )
-            fig_tree.update_layout(height=400, template=plotly_theme)
-            st.plotly_chart(fig_tree, use_container_width=True)
+            fig_tree.update_layout(height=380, margin=dict(l=5, r=5, t=35, b=5), template=plotly_theme)
+            st.plotly_chart(fig_tree, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         # -----------------------------------------------------
         # VISUALIZATION 4: REGIONAL MARKET ARBITRAGE
@@ -474,11 +519,11 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 text="net_market_price_kes",
                 color_continuous_scale="Greens",
                 title=f"Net Price per kg for {sample_crop_for_market} across Regional Markets (KES / kg)",
-                labels={"net_market_price_kes": "Net Price (KES/kg)", "market": "Wholesale Market Hub", "arbitrage_margin_vs_base": "Arbitrage Margin (KES)"}
+                labels={"net_market_price_kes": "Net Price (KES/kg)", "market": "Hub", "arbitrage_margin_vs_base": "Margin (KES)"}
             )
             fig_mkt.update_traces(texttemplate='KES %{text:.1f}', textposition='outside')
-            fig_mkt.update_layout(height=380, template=plotly_theme)
-            st.plotly_chart(fig_mkt, use_container_width=True)
+            fig_mkt.update_layout(height=360, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
+            st.plotly_chart(fig_mkt, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
 
 # ---------------------------------------------------------
@@ -492,14 +537,12 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
     
     with tab_single:
         st.markdown("#### 🌾 Individual Farm Facility Assessment")
-        col_b1, col_b2, col_b3, col_b4 = st.columns(4)
+        col_b1, col_b2 = st.columns(2)
         with col_b1:
             borrower_name = st.text_input("Borrower / SACCO Group", value="Nakuru Grain Growers Co-op")
-        with col_b2:
             underwrite_crop = st.selectbox("Funded Crop", engine.crops_df["crop"].unique() if engine.crops_df is not None else ["Maize", "Sorghum", "Tomatoes"], index=0)
-        with col_b3:
+        with col_b2:
             loan_acres = st.number_input("Cultivated Acres", min_value=1.0, max_value=200.0, value=6.0, step=1.0)
-        with col_b4:
             underwrite_county = st.selectbox("Farm Location County", counties_list, index=counties_list.index(selected_county))
 
         loan_res = engine.underwrite_agricultural_loan(
@@ -514,10 +557,10 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         
         # Credit Metrics Banner
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Credit Rating Grade", loan_res["credit_grade"], f"Risk Index: {loan_res['composite_risk_score']}")
-        m2.metric("Eligible Loan Facility (70% CapEx)", f"KES {loan_res['loan_amount_kes']:,}", f"Total Cost: KES {loan_res['total_project_cost_kes']:,}")
-        m3.metric("Risk-Adjusted Interest Rate", f"{loan_res['interest_rate_pct']:.2f}%", f"Base 12% + Risk Premium")
-        m4.metric("Expected Default Probability", f"{loan_res['expected_default_rate_pct']:.2f}%", f"DSCR Buffer: {loan_res['debt_service_coverage_ratio']}x")
+        m1.metric("Credit Grade", loan_res["credit_grade"], f"Risk: {loan_res['composite_risk_score']}")
+        m2.metric("Eligible Loan (70% CapEx)", f"KES {loan_res['loan_amount_kes']:,}", f"Cost: KES {loan_res['total_project_cost_kes']:,}")
+        m3.metric("Interest Rate", f"{loan_res['interest_rate_pct']:.2f}%", "Base 12% + Risk")
+        m4.metric("Default Risk", f"{loan_res['expected_default_rate_pct']:.2f}%", f"DSCR: {loan_res['debt_service_coverage_ratio']}x")
 
         # -----------------------------------------------------
         # VISUALIZATION 5: GAUGE & DONUT CHARTS
@@ -531,7 +574,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 mode = "gauge+number+delta",
                 value = loan_res["composite_risk_score"],
                 domain = {'x': [0, 1], 'y': [0, 1]},
-                title = {'text': f"Risk Score: {loan_res['credit_grade']}", 'font': {'size': 18, 'color': text_main}},
+                title = {'text': f"Risk Score: {loan_res['credit_grade']}", 'font': {'size': 16, 'color': text_main}},
                 gauge = {
                     'axis': {'range': [0.0, 1.0], 'tickwidth': 1, 'tickcolor': primary_color},
                     'bar': {'color': "#10b981" if loan_res["composite_risk_score"] < 0.38 else ("#f59e0b" if loan_res["composite_risk_score"] < 0.58 else "#ef4444")},
@@ -551,14 +594,14 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                     }
                 }
             ))
-            fig_gauge.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20), template=plotly_theme)
-            st.plotly_chart(fig_gauge, use_container_width=True)
+            fig_gauge.update_layout(height=280, margin=dict(l=10, r=10, t=30, b=10), template=plotly_theme)
+            st.plotly_chart(fig_gauge, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         with col_g2:
             st.markdown("#### 🔬 Risk Factor Decomposition (Donut Chart)")
             
             risk_breakdown = pd.DataFrame({
-                "Component": ["Climate Stress (40%)", "Crop Fit Gap (35%)", "Market Price Volatility (25%)"],
+                "Component": ["Climate Stress (40%)", "Crop Fit Gap (35%)", "Price Volatility (25%)"],
                 "Score": [loan_res["climate_risk_component"], loan_res["crop_suitability_component"], loan_res["market_volatility_component"]]
             })
             fig_donut = px.pie(
@@ -567,10 +610,10 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
                 names="Component",
                 hole=0.55,
                 color_discrete_sequence=["#ef4444", "#10b981", "#3b82f6"],
-                title="Underwriting Risk Drivers"
+                title="Underwriting Drivers"
             )
-            fig_donut.update_layout(height=320, margin=dict(l=20, r=20, t=40, b=20), template=plotly_theme)
-            st.plotly_chart(fig_donut, use_container_width=True)
+            fig_donut.update_layout(height=280, margin=dict(l=10, r=10, t=30, b=10), template=plotly_theme)
+            st.plotly_chart(fig_donut, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         # -----------------------------------------------------
         # VISUALIZATION 6: WATERFALL FINANCING SIZING
@@ -581,7 +624,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
             name="Facility Coverage",
             orientation="v",
             measure=["relative", "relative", "total", "relative", "total"],
-            x=["Farmer Equity (30%)", "Bank Loan Facility (70%)", "Total Project CapEx", "Net Farm Operating Margin", "Expected Gross Harvest"],
+            x=["Farmer Equity", "Loan Facility", "Project CapEx", "Net Operating Margin", "Gross Harvest"],
             textposition="outside",
             text=[
                 f"KES {loan_res['total_project_cost_kes'] * 0.3:,.0f}",
@@ -602,8 +645,8 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
             increasing={"marker": {"color": "#10b981"}},
             totals={"marker": {"color": "#3b82f6"}}
         ))
-        fig_waterfall.update_layout(height=380, template=plotly_theme, title="Loan Facility Sizing vs. Harvest Revenue Coverage")
-        st.plotly_chart(fig_waterfall, use_container_width=True)
+        fig_waterfall.update_layout(height=360, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme, title="Facility Sizing vs. Revenue Coverage")
+        st.plotly_chart(fig_waterfall, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         # Covenants & Mitigations
         st.markdown("#### 🛡️ Required Loan Covenants & Climate Mitigations")
@@ -632,10 +675,10 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         port_summary, port_df = engine.simulate_loan_portfolio(sample_portfolio)
         
         col_p1, col_p2, col_p3, col_p4 = st.columns(4)
-        col_p1.metric("Total Portfolio Exposure", f"KES {port_summary['total_disbursed_kes']:,}", f"{port_summary['total_loans_count']} Active Loans")
-        col_p2.metric("Weighted Interest Yield", f"{port_summary['weighted_average_interest_rate_pct']:.2f}%", "Risk-Weighted Yield")
-        col_p3.metric("Expected Default Losses", f"KES {port_summary['expected_credit_losses_kes']:,}", f"{port_summary['weighted_expected_default_rate_pct']:.2f}% Default Rate")
-        col_p4.metric("Net Projected Portfolio ROI", f"{port_summary['net_projected_roi_pct']:.2f}%", "After Expected Credit Loss")
+        col_p1.metric("Total Exposure", f"KES {port_summary['total_disbursed_kes']:,}", f"{port_summary['total_loans_count']} Loans")
+        col_p2.metric("Weighted Interest", f"{port_summary['weighted_average_interest_rate_pct']:.2f}%", "Risk-Weighted")
+        col_p3.metric("Expected Losses", f"KES {port_summary['expected_credit_losses_kes']:,}", f"{port_summary['weighted_expected_default_rate_pct']:.2f}% Default")
+        col_p4.metric("Net Portfolio ROI", f"{port_summary['net_projected_roi_pct']:.2f}%", "After Credit Loss")
 
         # -----------------------------------------------------
         # VISUALIZATION 7: PORTFOLIO RISK-RETURN BUBBLE SCATTER
@@ -652,17 +695,17 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
             hover_name="borrower_name",
             text="crop",
             labels={
-                "expected_default_rate_pct": "Expected Default Rate (%)",
-                "interest_rate_pct": "Risk-Adjusted Interest Rate (%)",
+                "expected_default_rate_pct": "Default Rate (%)",
+                "interest_rate_pct": "Interest Rate (%)",
                 "loan_amount_kes": "Loan Amount (KES)",
-                "credit_grade": "Credit Grade"
+                "credit_grade": "Grade"
             },
-            title="Portfolio Risk-Return Frontier across Counties and Crops",
+            title="Portfolio Risk-Return Frontier",
             color_discrete_sequence=["#10b981", "#3b82f6", "#f59e0b", "#ef4444"]
         )
         fig_port_scatter.update_traces(textposition='top center')
-        fig_port_scatter.update_layout(height=440, template=plotly_theme)
-        st.plotly_chart(fig_port_scatter, use_container_width=True)
+        fig_port_scatter.update_layout(height=400, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
+        st.plotly_chart(fig_port_scatter, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         st.dataframe(
             port_df[["borrower_name", "county", "crop", "acres", "credit_grade", "loan_amount_kes", "interest_rate_pct", "expected_default_rate_pct", "recommendation"]],
@@ -684,10 +727,10 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             
         # KPI Cards
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Mean Seasonal Rainfall", f"{county_data['seasonal_rainfall_mm'].mean():.1f} mm", "10-Yr Historical Mean")
-        c2.metric("Mean Temperature", f"{county_data['temp_mean_c'].mean():.1f} °C", "+0.08°C / Year Warming Trend")
-        c3.metric("Max Dry Spell Duration", f"{int(county_data['max_dry_spell_days'].mean())} Days", "Consecutive Rain < 2mm")
-        c4.metric("Rainfall Volatility (CV)", f"{county_data['seasonal_rainfall_mm'].std() / county_data['seasonal_rainfall_mm'].mean():.2f}", "Coefficient of Variation")
+        c1.metric("Seasonal Rainfall", f"{county_data['seasonal_rainfall_mm'].mean():.1f} mm", "10-Yr Mean")
+        c2.metric("Mean Temp", f"{county_data['temp_mean_c'].mean():.1f} °C", "+0.08°C/yr")
+        c3.metric("Dry Spell", f"{int(county_data['max_dry_spell_days'].mean())} Days", "< 2mm Rain")
+        c4.metric("Volatility (CV)", f"{county_data['seasonal_rainfall_mm'].std() / county_data['seasonal_rainfall_mm'].mean():.2f}", "Variation")
 
         st.markdown("---")
         
@@ -703,7 +746,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             go.Scatter(
                 x=county_data["year"].astype(str) + " " + county_data["season"],
                 y=county_data["seasonal_rainfall_mm"],
-                name="Seasonal Rainfall (mm)",
+                name="Rainfall (mm)",
                 fill='tozeroy',
                 fillcolor='rgba(16, 185, 129, 0.22)' if is_dark else 'rgba(45, 106, 79, 0.25)',
                 line=dict(color='#10b981' if is_dark else '#2d6a4f', width=2.5)
@@ -716,21 +759,22 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             go.Scatter(
                 x=county_data["year"].astype(str) + " " + county_data["season"],
                 y=county_data["temp_mean_c"],
-                name="Mean Temperature (°C)",
+                name="Temp (°C)",
                 line=dict(color='#f87171' if is_dark else '#e76f51', width=3.5, dash='solid')
             ),
             secondary_y=True
         )
         
         fig_trend.update_layout(
-            title=f"10-Year Climate Trajectory in {selected_county} (2015–2025)",
-            height=450,
+            title=f"10-Year Climate in {selected_county} (2015–2025)",
+            height=400,
+            margin=dict(l=10, r=10, t=35, b=10),
             hovermode="x unified",
             template=plotly_theme
         )
-        fig_trend.update_yaxes(title_text="Seasonal Rainfall (mm)", secondary_y=False)
-        fig_trend.update_yaxes(title_text="Temperature (°C)", secondary_y=True)
-        st.plotly_chart(fig_trend, use_container_width=True)
+        fig_trend.update_yaxes(title_text="Rainfall (mm)", secondary_y=False)
+        fig_trend.update_yaxes(title_text="Temp (°C)", secondary_y=True)
+        st.plotly_chart(fig_trend, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         # -----------------------------------------------------
         # VISUALIZATION 9: DISTRIBUTION BOX PLOTS & HISTOGRAM
@@ -738,7 +782,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
         col_c_v1, col_c_v2 = st.columns([1, 1])
         
         with col_c_v1:
-            st.markdown("### 📦 9. Rainfall Distribution by Season (Box Plot)")
+            st.markdown("### 📦 9. Rainfall Distribution (Box Plot)")
             fig_box = px.box(
                 engine.climate_df,
                 x="season",
@@ -746,13 +790,13 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 color="season",
                 points="all",
                 color_discrete_sequence=["#10b981", "#3b82f6"],
-                title="Rainfall Spread & Outliers across Kenyan Seasons (mm)"
+                title="Rainfall Spread across Seasons (mm)"
             )
-            fig_box.update_layout(height=380, template=plotly_theme, showlegend=False)
-            st.plotly_chart(fig_box, use_container_width=True)
+            fig_box.update_layout(height=340, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme, showlegend=False)
+            st.plotly_chart(fig_box, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         with col_c_v2:
-            st.markdown("### 📊 10. Dry Spell Duration Histogram")
+            st.markdown("### 📊 10. Dry Spell Histogram")
             fig_hist = px.histogram(
                 engine.climate_df,
                 x="max_dry_spell_days",
@@ -760,10 +804,10 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 nbins=20,
                 opacity=0.75,
                 color_discrete_sequence=["#10b981", "#f59e0b"],
-                title="Frequency of Dry Spell Lengths (Days)"
+                title="Dry Spell Frequency (Days)"
             )
-            fig_hist.update_layout(height=380, template=plotly_theme)
-            st.plotly_chart(fig_hist, use_container_width=True)
+            fig_hist.update_layout(height=340, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
+            st.plotly_chart(fig_hist, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         # -----------------------------------------------------
         # VISUALIZATION 11: GEOSPATIAL MAP OF 116 STATIONS
@@ -780,14 +824,14 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
                 hover_data=["county", "elevation_msl", "installation_date"],
                 color="elevation_msl",
                 size_max=12,
-                zoom=5.5,
+                zoom=5.2,
                 center={"lat": 0.5, "lon": 37.5},
                 mapbox_style="carto-darkmatter" if is_dark else "carto-positron",
-                title="Geographical Distribution of Ingested Ground Weather Stations",
+                title="116 Ground Weather Stations Map",
                 color_continuous_scale="Greens"
             )
-            fig_map.update_layout(height=480)
-            st.plotly_chart(fig_map, use_container_width=True)
+            fig_map.update_layout(height=420, margin=dict(l=0, r=0, t=30, b=0))
+            st.plotly_chart(fig_map, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
 
 # ---------------------------------------------------------
@@ -812,10 +856,10 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
             values="yield_per_acre_kg",
             color="base_price_kes_per_kg",
             color_continuous_scale="Greens",
-            title="Crop Yield Potential (Size) vs. Base Farm-Gate Price (Color)"
+            title="Yield Potential (Size) vs. Base Price (Color)"
         )
-        fig_crop_tree.update_layout(height=420, template=plotly_theme)
-        st.plotly_chart(fig_crop_tree, use_container_width=True)
+        fig_crop_tree.update_layout(height=380, margin=dict(l=5, r=5, t=35, b=5), template=plotly_theme)
+        st.plotly_chart(fig_crop_tree, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
         st.dataframe(
             df_display[["crop", "category", "growth_days", "drought_tolerance", "cost_per_acre_kes", "yield_per_acre_kg", "base_price_kes_per_kg"]],
@@ -836,12 +880,12 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                     y="market_price",
                     color="market",
                     barmode="group",
-                    title="Market Price Variations by Trading Hub (KES / kg)",
-                    labels={"market_price": "Market Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
+                    title="Price Variations by Trading Hub (KES / kg)",
+                    labels={"market_price": "Price (KES/kg)", "crop": "Crop", "market": "Hub"},
                     color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"] if is_dark else ["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
                 )
-                fig_m.update_layout(height=420, template=plotly_theme)
-                st.plotly_chart(fig_m, use_container_width=True)
+                fig_m.update_layout(height=380, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
+                st.plotly_chart(fig_m, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
             # -----------------------------------------------------
             # VISUALIZATION 14: VOLATILITY BOX PLOTS BY CATEGORY
@@ -852,8 +896,8 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                 x="category",
                 y="volatility_cv",
                 color="category",
-                title="Coefficient of Variation (CV) by Crop Category",
+                title="Volatility (CV) by Category",
                 color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"] if is_dark else ["#1b4332", "#2d6a4f", "#40916c", "#52b788", "#74c69d"]
             )
-            fig_vol_box.update_layout(height=380, template=plotly_theme, showlegend=False)
-            st.plotly_chart(fig_vol_box, use_container_width=True)
+            fig_vol_box.update_layout(height=340, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme, showlegend=False)
+            st.plotly_chart(fig_vol_box, use_container_width=True, config={"responsive": True, "displayModeBar": False})
