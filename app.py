@@ -12,7 +12,7 @@ from plotly.subplots import make_subplots
 import streamlit as st
 
 from src.financial_engine import FinancialDecisionEngine
-
+from src.humanize import humanize_crop_recommendation, humanize_loan_decision, humanize_confidence
 
 st.set_page_config(
     page_title="ClimaCrop Intelligence | Kilimo-Smart Mobile-Ready Platform",
@@ -20,7 +20,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
 
 st.sidebar.image(
     "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80",
@@ -62,7 +61,7 @@ elif theme_mode == "⚙️ Minimal Modern":
     badge_low_bg = "#f5f5f4"
     badge_low_txt = "#292524"
     hero_grad = "linear-gradient(135deg, rgba(41, 37, 36, 0.95) 0%, rgba(68, 64, 60, 0.90) 100%)"
-else: # Emerald Light (Default)
+else:
     is_dark = False
     plotly_theme = "plotly_white"
     bg_main = "#f4fbf7"
@@ -365,7 +364,11 @@ if platform_view == "🌱 Agricultural Cooperative View":
     )
 
     render_provenance_badge(provenance_report)
-    
+    if not recs_df.empty:
+        st.markdown(f"**In plain terms:** {humanize_confidence(provenance_report.get('overall_confidence', 0.0))}")
+        with st.expander("🗣️ Explain these recommendations in plain language"):
+            for _, rec in recs_df.iterrows():
+                st.markdown(f"- {humanize_crop_recommendation(rec.to_dict())}")
     
     k1, k2, k3, k4 = st.columns(4)
     with k1:
@@ -432,7 +435,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 
                 st.markdown("---")
 
-    
+        
         st.markdown("### 🫧 1. Strategic Decision Frontier: Suitability vs. Profitability vs. Yield")
         st.caption("Bubble size represents expected total yield in kg. Higher & further right indicates optimal commercial choices.")
         
@@ -551,6 +554,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         )
 
         render_provenance_badge(loan_res.get("provenance"))
+        st.markdown(f"**In plain terms:** {humanize_loan_decision(loan_res)}")
         st.warning(
             "⚠️ The risk weights and interest-rate formula behind this credit grade are "
             "author-chosen constants, not calibrated against real loan default data. "

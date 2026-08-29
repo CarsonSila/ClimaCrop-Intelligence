@@ -1,9 +1,3 @@
-"""
-Data Ingestion and Engineering Pipeline for Climate-Smart Agriculture System.
-Processes 116 TAHMO weather stations (2015-2025), aggregates to Kenyan county climate metrics,
-and creates the 40-crop benchmark matrix and multi-market pricing data.
-"""
-
 import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -13,14 +7,11 @@ import glob
 import numpy as np
 import pandas as pd
 
-# ---------------------------------------------------------
-# 1. COUNTY MAPPING FOR 116 STATIONS
-# ---------------------------------------------------------
+
 def map_station_to_county(station_id, name, lat, lon):
-    """Maps station metadata to Kenyan counties based on known locations and coordinates."""
     name_lower = str(name).lower()
     
-    # Exact name matches
+    
     if "nakuru" in name_lower or "molo" in name_lower or "moi forces" in name_lower:
         return "Nakuru"
     if "eldoret" in name_lower or "moi university" in name_lower:
@@ -92,7 +83,7 @@ def map_station_to_county(station_id, name, lat, lon):
     if "habasweni" in name_lower:
         return "Wajir"
 
-    # Coordinate bounding box fallbacks
+    
     if lat > 0.3 and lon > 35.0 and lon < 35.5:
         return "Uasin Gishu"
     elif lat < 0.0 and lat > -1.0 and lon > 35.5 and lon < 36.5:
@@ -113,11 +104,8 @@ def map_station_to_county(station_id, name, lat, lon):
     return "Other Kenya"
 
 
-# ---------------------------------------------------------
-# 2. 40-CROP AGRONOMIC & FINANCIAL BENCHMARK DATABASE
-# ---------------------------------------------------------
+
 def create_crops_database():
-    """Generates a structured database for 40 major Kenyan crops across 5 categories."""
     crops_data = [
         # Cereals (6)
         {"crop": "Maize", "category": "Cereals", "min_rain_mm": 450, "max_rain_mm": 1100, "min_temp_c": 17, "max_temp_c": 30, "growth_days": 120, "drought_tolerance": 5, "cost_per_acre_kes": 28000, "yield_per_acre_kg": 2400, "base_price_kes_per_kg": 42},
@@ -176,11 +164,8 @@ def create_crops_database():
     return df
 
 
-# ---------------------------------------------------------
-# 3. REGIONAL MARKET PRICING DATABASE
-# ---------------------------------------------------------
+
 def create_market_database(crops_df):
-    """Generates realistic market price differentials across 5 major Kenyan trading hubs."""
     markets = [
         {"market": "Nairobi (Wakulima)", "price_mult": 1.22, "transport_from_central": 4, "transport_from_rift": 8, "transport_from_west": 12, "transport_from_coast": 14},
         {"market": "Nakuru", "price_mult": 1.02, "transport_from_central": 6, "transport_from_rift": 3, "transport_from_west": 6, "transport_from_coast": 16},
@@ -212,9 +197,7 @@ def create_market_database(crops_df):
     return df_market
 
 
-# ---------------------------------------------------------
-# 4. INGEST & AGGREGATE 116 TAHMO STATIONS (2015-2025)
-# ---------------------------------------------------------
+
 def process_tahmo_climate_data():
     """Reads 116 weather station CSV files, aggregates 5-min data to daily & seasonal county metrics."""
     metadata_path = "metadata/metadata.csv" if os.path.exists("metadata/metadata.csv") else "metadata.csv"
@@ -224,10 +207,10 @@ def process_tahmo_climate_data():
     print("Station Distribution by County:")
     print(meta['county'].value_counts().head(15))
     
-    # Save enriched station metadata
+    
     meta.to_csv("data/stations_with_counties.csv", index=False)
     
-    # Process station files efficiently (daily resample)
+    
     all_daily_records = []
     csv_files = glob.glob("metadata/TA*.csv") if glob.glob("metadata/TA*.csv") else glob.glob("TA*.csv")
     print(f"\nIngesting and aggregating {len(csv_files)} TAHMO station files...")
@@ -242,10 +225,8 @@ def process_tahmo_climate_data():
         elev = station_elev_map.get(station_id, 1500)
         
         try:
-            # Fast typed reading
             df_st = pd.read_csv(file_path, usecols=["time", "precip_mm", "final_quality_flag"])
             df_st = df_st[df_st["final_quality_flag"] >= 0]
-            # Convert time and group by date
             df_st["date_str"] = df_st["time"].str.slice(0, 10)
             daily = df_st.groupby("date_str")["precip_mm"].sum().reset_index()
             daily.rename(columns={"date_str": "date"}, inplace=True)
@@ -265,7 +246,6 @@ def process_tahmo_climate_data():
     df_daily_all["year"] = df_daily_all["date"].dt.year
     df_daily_all["month"] = df_daily_all["date"].dt.month
     
-    # Estimate Daily Temperature from elevation lapse rate + warming trend
     warming_trend = (df_daily_all["year"] - 2015) * 0.08
     seasonal_temp_offset = np.sin((df_daily_all["month"] - 2) * (2 * np.pi / 12)) * 1.5
     base_temp = 28.5 - (df_daily_all["elevation"] * 0.0062) + seasonal_temp_offset + warming_trend
@@ -276,9 +256,6 @@ def process_tahmo_climate_data():
 
     print("\nDaily Aggregation complete. Computing county-level seasonal indicators...")
     
-    # ---------------------------------------------------------
-    # 5. COMPUTE SEASONAL METRICS (Long Rains MAM & Short Rains OND)
-    # ---------------------------------------------------------
     def assign_season(month):
         if month in [3, 4, 5]:
             return "Long Rains (MAM)"
@@ -291,7 +268,7 @@ def process_tahmo_climate_data():
             
     df_daily_all["season"] = df_daily_all["month"].apply(assign_season)
     
-    # First aggregate to daily county means so dates are strictly monotonic per county
+    
     county_daily = df_daily_all.groupby(["county", "year", "month", "season", "date"]).agg({
         "precip_mm": "mean",
         "temp_mean_c": "mean",
@@ -300,7 +277,7 @@ def process_tahmo_climate_data():
         "elevation": "mean"
     }).reset_index().sort_values(by=["county", "date"])
 
-    # County-Year-Season Aggregations
+    
     seasonal_records = []
     
     for (county, year, season), group in county_daily.groupby(["county", "year", "season"]):
@@ -313,11 +290,11 @@ def process_tahmo_climate_data():
         rain_days = (group["precip_mm"] >= 1.0).sum()
         heavy_rain_days = (group["precip_mm"] >= 20.0).sum()
         
-        # Max consecutive dry days (< 2mm)
+        
         is_dry = (group["precip_mm"] < 2.0).astype(int)
         dry_spells = (is_dry.groupby((~is_dry.astype(bool)).cumsum()).cumsum()).max() if len(is_dry) > 0 else 0
         
-        # Approximate onset week (first 7-day cumulative rainfall >= 25mm)
+        
         sorted_g = group.sort_values(by="date")
         rolling_7d = sorted_g["precip_mm"].rolling(window=7, min_periods=1).sum()
         onset_indices = np.where(rolling_7d.values >= 25.0)[0]
@@ -325,14 +302,14 @@ def process_tahmo_climate_data():
             onset_day_of_season = onset_indices[0]
             onset_week = max(1, min(12, int(onset_day_of_season // 7) + 1))
         else:
-            onset_week = 7 # Delayed/late onset default
+            onset_week = 7
             
         avg_temp = group["temp_mean_c"].mean()
         max_temp = group["temp_max_c"].max()
         min_temp = group["temp_min_c"].min()
         avg_elev = group["elevation"].mean()
         
-        # Drought index
+        
         drought_risk_score = max(0.0, min(1.0, (1.0 - (rain_total / 450.0)) * 0.6 + (dry_spells / 25.0) * 0.4))
         
         seasonal_records.append({

@@ -107,8 +107,7 @@ class RuleBasedSuitabilityEngine:
                 "benefit_cost_ratio": bcr,
                 "drought_tolerance": int(crop_row["drought_tolerance"]),
                 "growth_days": int(crop_row["growth_days"]),
-                # Explainability — every score can be justified in one line,
-                # unlike the RF's predict_proba output.
+                
                 "score_breakdown": (
                     f"rain fit {scores['rain_fit']:.0%}, temp fit {scores['temp_fit']:.0%}, "
                     f"dry-spell tolerance {scores['dry_spell_fit']:.0%}, onset timing {scores['onset_fit']:.0%}"

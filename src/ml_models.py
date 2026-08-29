@@ -1,11 +1,3 @@
-"""
-Machine Learning Layer for Climate-Smart Agricultural Advisory System.
-Implements:
-1. Climate Pattern Clustering (K-Means) & Seasonal Trend Forecaster
-2. 40-Crop Suitability Classifier (Random Forest / Scikit-Learn)
-3. Market Price Forecaster & Regional Arbitrage Engine
-"""
-
 import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -21,9 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
 
-# ---------------------------------------------------------
-# 1. CLIMATE PATTERN CLUSTERING (K-Means, k=3)
-# ---------------------------------------------------------
+
 class ClimatePatternEngine:
     def __init__(self, n_clusters=3):
         self.n_clusters = n_clusters
@@ -60,9 +50,6 @@ class ClimatePatternEngine:
         return mapped_clusters, [self.cluster_labels[c] for c in mapped_clusters]
 
 
-# ---------------------------------------------------------
-# 2. 40-CROP SUITABILITY ENGINE (Multi-Class Random Forest)
-# ---------------------------------------------------------
 class CropSuitabilityEngine:
     def __init__(self):
         self.model = RandomForestClassifier(n_estimators=75, max_depth=10, min_samples_leaf=2, random_state=42)
@@ -74,7 +61,6 @@ class CropSuitabilityEngine:
         ]
 
     def _generate_synthetic_training_data(self, crops_df, n_samples_per_crop=150):
-        """Generates well-calibrated training data across Kenya's agro-climatic zones."""
         rows = []
         np.random.seed(42)
         
@@ -192,9 +178,7 @@ class CropSuitabilityEngine:
         return df_res.head(top_n)
 
 
-# ---------------------------------------------------------
-# 3. REGIONAL MARKET FORECASTER & ARBITRAGE OPTIMIZER
-# ---------------------------------------------------------
+
 class MarketArbitrageEngine:
     def __init__(self):
         self.market_df = None

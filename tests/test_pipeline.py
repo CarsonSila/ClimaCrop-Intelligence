@@ -39,7 +39,6 @@ class TestKilimoSmartPipeline(unittest.TestCase):
         self.assertEqual(markets, expected_markets, "All 5 trading hubs must exist")
 
     def test_03_cooperative_recommendations(self):
-        """Test the cooperative crop recommendation logic."""
         recs, climate, provenance = self.engine.get_cooperative_recommendations(
             county="Nakuru",
             season="Long Rains (MAM)",
