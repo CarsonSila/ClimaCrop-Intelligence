@@ -1,11 +1,3 @@
-"""
-Fintech and Decision Support Layer for Cooperatives and Financial Institutions.
-Implements:
-1. Cooperative Advisory Engine (What to plant, Yields, Net Farm Profit, Where to trade)
-2. Bank / SACCO Agricultural Loan Underwriting Engine (Credit scoring, Risk-weighted interest rate, Default risk)
-3. Portfolio Stress-Testing and Mitigation Generator
-"""
-
 import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -16,8 +8,10 @@ import numpy as np
 import pandas as pd
 
 from src.ml_models import ClimatePatternEngine, CropSuitabilityEngine, MarketArbitrageEngine
+from src.rule_based_suitability import RuleBasedSuitabilityEngine
+from src.provenance import Provenance, SourcedValue, ProvenanceReport
 
-# Unpickling compatibility alias
+
 if "__main__" in sys.modules:
     setattr(sys.modules["__main__"], "ClimatePatternEngine", ClimatePatternEngine)
     setattr(sys.modules["__main__"], "CropSuitabilityEngine", CropSuitabilityEngine)
@@ -25,11 +19,24 @@ if "__main__" in sys.modules:
 
 
 class FinancialDecisionEngine:
-    def __init__(self, models_dir="models", data_dir="data"):
+    def __init__(self, models_dir="models", data_dir="data", suitability_mode="rule_based"):
+        """
+        suitability_mode:
+          "rule_based" (default) - transparent, documented scoring, no
+            circular synthetic-data ML. Recommended until real yield-outcome
+            training data exists.
+          "ml_legacy" - the original Random Forest, trained on synthetic
+            samples generated from the same thresholds it's scored against.
+            Kept available for comparison/audit purposes only — NOT
+            recommended for real decisions. Every output using this mode is
+            tagged Provenance.MODELED with a note explaining the caveat.
+        """
         self.models_dir = models_dir
         self.data_dir = data_dir
+        self.suitability_mode = suitability_mode
         self.climate_engine = None
         self.crop_engine = None
+        self.rule_engine = None
         self.market_engine = None
         self.climate_df = None
         self.crops_df = None
@@ -43,7 +50,7 @@ class FinancialDecisionEngine:
 
         if os.path.exists(climate_eng_path):
             self.climate_engine = joblib.load(climate_eng_path)
-        if os.path.exists(crop_eng_path):
+        if self.suitability_mode == "ml_legacy" and os.path.exists(crop_eng_path):
             self.crop_engine = joblib.load(crop_eng_path)
         if os.path.exists(market_eng_path):
             self.market_engine = joblib.load(market_eng_path)
@@ -56,8 +63,28 @@ class FinancialDecisionEngine:
             self.climate_df = pd.read_csv(climate_data_path)
         if os.path.exists(crops_data_path):
             self.crops_df = pd.read_csv(crops_data_path)
+            if self.suitability_mode == "rule_based":
+                self.rule_engine = RuleBasedSuitabilityEngine(self.crops_df)
         if os.path.exists(market_data_path):
             self.market_df = pd.read_csv(market_data_path)
+
+    def _crops_data_provenance(self) -> SourcedValue:
+        """crops_database.csv currently carries hand-authored placeholder
+        economics (see its 'source'/'confidence' columns) pending real
+        KALRO/FAO citations. Surface that honestly rather than implying the
+        figures are verified."""
+        if self.crops_df is not None and "confidence" in self.crops_df.columns:
+            if (self.crops_df["confidence"] == "assumed").all():
+                return SourcedValue(
+                    value="crop economics (cost/yield/price)",
+                    provenance=Provenance.ASSUMED,
+                    note="crops_database.csv is hand-authored placeholder data, not yet cited to KALRO/FAO/AMIS sources.",
+                )
+        return SourcedValue(
+            value="crop economics (cost/yield/price)",
+            provenance=Provenance.OFFICIAL,
+            note="Sourced per crops_database.csv 'source' column.",
+        )
 
     def get_county_climate_profile(self, county="Nakuru", season="Long Rains (MAM)"):
         """Retrieves county's climate statistics and forecasted conditions."""
@@ -106,9 +133,6 @@ class FinancialDecisionEngine:
 
         return profile
 
-    # ---------------------------------------------------------
-    # 1. COOPERATIVE ADVISORY PIPELINE
-    # ---------------------------------------------------------
     def get_cooperative_recommendations(self, county="Nakuru", season="Long Rains (MAM)", farm_size_acres=2.0, category_filter="All", top_n=5):
         """
         Provides complete decision support for agricultural cooperatives:
@@ -117,13 +141,33 @@ class FinancialDecisionEngine:
         - Destination market arbitrage opportunities
         """
         profile = self.get_county_climate_profile(county, season)
-        
-        if self.crop_engine is None:
-            return pd.DataFrame(), profile
 
-        recs = self.crop_engine.recommend(profile, top_n=top_n, category_filter=category_filter)
-        
-        # Add Farm-Level Financial Scaling & Market Recommendations
+        if self.suitability_mode == "rule_based":
+            if self.rule_engine is None:
+                return pd.DataFrame(), profile
+            recs = self.rule_engine.recommend(profile, top_n=top_n, category_filter=category_filter)
+            suitability_provenance = SourcedValue(
+                value="suitability_score",
+                provenance=Provenance.ESTIMATED,
+                note="Transparent rule-based fit score (rain/temp band fit, drought & onset tolerance). See RuleBasedSuitabilityEngine docstring for the exact formula.",
+            )
+        else:
+            if self.crop_engine is None:
+                return pd.DataFrame(), profile
+            recs = self.crop_engine.recommend(profile, top_n=top_n, category_filter=category_filter)
+            suitability_provenance = SourcedValue(
+                value="suitability_score",
+                provenance=Provenance.MODELED,
+                note="Random Forest trained on synthetic data generated from the same crop thresholds it's scored against — treat as illustrative only, not validated against real outcomes.",
+            )
+
+        climate_provenance = SourcedValue(
+            value="climate_profile",
+            provenance=Provenance.ESTIMATED,
+            note="Rainfall aggregated from TAHMO-derived daily records; temperature is a modeled elevation/seasonal estimate, not a direct station measurement — see data_processing.py.",
+        )
+
+    
         enriched_recs = []
         for _, crop_row in recs.iterrows():
             crop_name = crop_row["crop"]
@@ -133,7 +177,7 @@ class FinancialDecisionEngine:
             total_farm_cost = cost_per_acre * farm_size_acres
             total_farm_yield_kg = yield_per_acre * farm_size_acres
             
-            # Check market opportunities
+            
             best_market = "Local Farm Gate"
             best_net_price = crop_row["expected_revenue_kes"] / max(1, yield_per_acre)
             extra_arbitrage_gain = 0.0
@@ -162,11 +206,19 @@ class FinancialDecisionEngine:
             })
             enriched_recs.append(rec_dict)
 
-        return pd.DataFrame(enriched_recs), profile
+        report = ProvenanceReport()
+        report.add("climate_profile", climate_provenance)
+        report.add("suitability_score", suitability_provenance)
+        report.add("crop_economics", self._crops_data_provenance())
+        report.add("market_prices", SourcedValue(
+            value="market_prices.csv",
+            provenance=Provenance.ASSUMED,
+            note="Synthetically generated multipliers + random volatility, not real AMIS/KACE price data. See src/data_sources/market_prices_ingest.py to load a real snapshot instead.",
+        ))
 
-    # ---------------------------------------------------------
-    # 2. BANK & SACCO CREDIT RISK UNDERWRITING PIPELINE
-    # ---------------------------------------------------------
+        return pd.DataFrame(enriched_recs), profile, report.to_dict()
+
+   
     def underwrite_agricultural_loan(self, county="Nakuru", crop_name="Maize", acres=3.0, season="Long Rains (MAM)", borrower_name="Farmer Group A"):
         """
         Underwrites an agricultural loan package:
@@ -177,32 +229,32 @@ class FinancialDecisionEngine:
         """
         profile = self.get_county_climate_profile(county, season)
         
-        # Crop metadata
+        
         crop_meta = self.crops_df[self.crops_df["crop"] == crop_name]
         if crop_meta.empty:
             crop_meta = self.crops_df.iloc[0]
         else:
             crop_meta = crop_meta.iloc[0]
 
-        # 1. Climate Risk Factor (0.0 to 1.0)
+        
         r_climate = profile.get("drought_risk_index", 0.3)
         if profile.get("cluster_id") == 1:
             r_climate = max(r_climate, 0.45)
 
-        # 2. Crop Suitability Factor
+        
         rain_fit = 1.0 - min(1.0, abs(profile["seasonal_rainfall_mm"] - (crop_meta["min_rain_mm"] + crop_meta["max_rain_mm"])/2) / (crop_meta["max_rain_mm"] - crop_meta["min_rain_mm"] + 1e-5))
         temp_fit = 1.0 - min(1.0, abs(profile["temp_mean_c"] - (crop_meta["min_temp_c"] + crop_meta["max_temp_c"])/2) / (crop_meta["max_temp_c"] - crop_meta["min_temp_c"] + 1e-5))
         suitability_pct = float(np.clip((rain_fit * 0.6 + temp_fit * 0.4) * 100, 15.0, 95.0))
         r_crop = 1.0 - (suitability_pct / 100.0)
 
-        # 3. Market Volatility Factor
+        
         market_opps = self.market_df[self.market_df["crop"] == crop_name] if self.market_df is not None else pd.DataFrame()
         r_market = float(market_opps["volatility_cv"].mean()) if not market_opps.empty else 0.20
 
-        # Composite Agricultural Risk Score (0.00 to 1.00)
+        
         r_agri = round(0.40 * r_climate + 0.35 * r_crop + 0.25 * r_market, 3)
 
-        # Credit Grade Mapping
+        
         if r_agri < 0.25:
             credit_grade = "AAA (Ultra-Low Risk)"
             risk_category = "Low"
@@ -224,25 +276,25 @@ class FinancialDecisionEngine:
             risk_category = "High"
             recommendation = "Decline or Require Alternative Resilient Crop"
 
-        # Financial Sizing
+        
         cost_per_acre = crop_meta["cost_per_acre_kes"]
         total_project_cost = cost_per_acre * acres
         loan_principal = round(total_project_cost * 0.70, 0)
 
-        # Risk-Weighted Interest Rate (Base 12.0% + Risk Premium)
+        
         base_rate = 0.120
         risk_premium = round(r_agri * 0.08, 3)
         risk_weighted_rate = round((base_rate + risk_premium) * 100, 2)
 
-        # Expected Default Probability
+        
         expected_default_rate = round(float(np.clip(r_agri * 0.24, 0.03, 0.35)) * 100, 2)
 
-        # Expected Yield and Revenue
+        
         expected_yield = round(crop_meta["yield_per_acre_kg"] * (0.55 + 0.45 * (suitability_pct / 100.0)) * acres, 0)
         expected_revenue = round(expected_yield * crop_meta["base_price_kes_per_kg"], 0)
         debt_service_coverage = round(expected_revenue / max(1.0, loan_principal * (1 + risk_weighted_rate/100)), 2)
 
-        # Mitigation Strategies
+        
         mitigations = []
         if r_climate > 0.40:
             mitigations.append("Tie loan disbursement to Certified Drought-Resistant Seed Varieties.")
@@ -253,6 +305,22 @@ class FinancialDecisionEngine:
             mitigations.append("Cooperative off-taker forward purchase contract recommended.")
         if not mitigations:
             mitigations.append("Standard seasonal farm monitoring.")
+
+        report = ProvenanceReport()
+        report.add("climate_risk_component", SourcedValue(
+            value=round(r_climate, 3), provenance=Provenance.ESTIMATED,
+            note="Derived from drought_risk_index, itself computed from TAHMO-derived rainfall aggregates plus a synthetic temperature estimate.",
+        ))
+        report.add("crop_suitability_component", self._crops_data_provenance())
+        report.add("market_volatility_component", SourcedValue(
+            value=round(r_market, 3), provenance=Provenance.ASSUMED,
+            note="volatility_cv in market_prices.csv is randomly generated (np.random.uniform), not measured price variance. Do not treat this as a real risk input.",
+        ))
+        report.add("risk_weights", SourcedValue(
+            value="0.40/0.35/0.25 climate/crop/market weighting; 12% base rate; premium/default formulas",
+            provenance=Provenance.ASSUMED,
+            note="Author-chosen constants, not calibrated against historical loan default data. Do not present interest_rate_pct or expected_default_rate_pct as actuarially validated until calibrated with a lending partner.",
+        ))
 
         return {
             "borrower_name": borrower_name,
@@ -274,12 +342,11 @@ class FinancialDecisionEngine:
             "expected_revenue_kes": int(expected_revenue),
             "debt_service_coverage_ratio": debt_service_coverage,
             "recommendation": recommendation,
-            "mitigation_strategies": mitigations
+            "mitigation_strategies": mitigations,
+            "provenance": report.to_dict(),
         }
 
-    # ---------------------------------------------------------
-    # 3. PORTFOLIO LEVEL SIMULATION
-    # ---------------------------------------------------------
+    
     def simulate_loan_portfolio(self, portfolio_items):
         """
         Simulates an aggregated agricultural loan portfolio for a Bank or SACCO.
@@ -321,4 +388,3 @@ class FinancialDecisionEngine:
         }
 
         return summary, df_port
-

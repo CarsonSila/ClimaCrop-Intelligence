@@ -1,13 +1,3 @@
-"""
-ClimaCrop Intelligence: Kilimo-Smart Climate Decision Support & Agri-Fintech De-Risking Platform.
-Features:
-- Mobile-First Responsive Design (Optimized for iOS, Android, Tablets & Desktops)
-- Multi-Theme Engine (🌿 Emerald Light, 🌙 Cyber Forest Dark, ⚙️ Minimal Modern)
-- Embedded Smart Agro-Meteorology Imagery
-- 14 Interactive Visualizations (Maps, Area/Line, Bubbles, Treemaps, Waterfalls, Gauges, Donut & Box plots)
-- Real-Time Cooperative Advisory & Institutional Bank Underwriting
-"""
-
 import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -23,9 +13,7 @@ import streamlit as st
 
 from src.financial_engine import FinancialDecisionEngine
 
-# ---------------------------------------------------------
-# 1. PAGE CONFIG & PERSISTENT SESSION STATE
-# ---------------------------------------------------------
+
 st.set_page_config(
     page_title="ClimaCrop Intelligence | Kilimo-Smart Mobile-Ready Platform",
     page_icon="🌿",
@@ -33,9 +21,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ---------------------------------------------------------
-# 2. SIDEBAR CONTROLS & THEME SWITCHER
-# ---------------------------------------------------------
+
 st.sidebar.image(
     "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80",
     caption="Smart Agro-Meteorology & Analytics",
@@ -49,7 +35,7 @@ theme_mode = st.sidebar.radio(
     index=0
 )
 
-# Define Theme Variables
+
 if theme_mode == "🌙 Cyber Forest Dark":
     is_dark = True
     plotly_theme = "plotly_dark"
@@ -90,7 +76,7 @@ else: # Emerald Light (Default)
     badge_low_txt = "#1b4332"
     hero_grad = "linear-gradient(135deg, rgba(20, 58, 38, 0.92) 0%, rgba(45, 106, 79, 0.88) 60%, rgba(64, 145, 108, 0.85) 100%)"
 
-# Dynamic & Mobile-First CSS Injection
+
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -276,14 +262,33 @@ st.markdown(f"""
 
 @st.cache_resource
 def load_engine():
-    return FinancialDecisionEngine()
+    return FinancialDecisionEngine(suitability_mode="rule_based")
+
+
+def render_provenance_badge(provenance_dict):
+    """Renders a data-quality banner so every recommendation/underwriting
+    result is shown next to an honest confidence indicator instead of
+    looking equally authoritative regardless of what's behind it."""
+    if not provenance_dict:
+        return
+    conf = provenance_dict.get("overall_confidence", 0.0)
+    summary = provenance_dict.get("summary", "")
+    weakest = provenance_dict.get("weakest_link") or {}
+    color = "#1e8e3e" if conf >= 0.85 else "#f9ab00" if conf >= 0.6 else "#e8710a" if conf >= 0.35 else "#d93025"
+
+    with st.expander(f"📋 Data confidence: {conf:.0%} — {summary}", expanded=(conf < 0.6)):
+        st.markdown(f"<div style='border-left:4px solid {color}; padding-left:0.75rem;'>"
+                     f"<b>Weakest input:</b> {weakest.get('value','–')} "
+                     f"({weakest.get('provenance_label','–')}) — {weakest.get('note','')}"
+                     f"</div>", unsafe_allow_html=True)
+        st.markdown("**Field-by-field breakdown:**")
+        for name, sv in provenance_dict.get("fields", {}).items():
+            st.markdown(f"- **{name}**: {sv.get('provenance_label')} — {sv.get('note') or sv.get('citation') or 'no note'}")
 
 
 engine = load_engine()
 
-# ---------------------------------------------------------
-# 3. SIDEBAR CONTROLS
-# ---------------------------------------------------------
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🌾 Region & Calendar")
 
@@ -324,7 +329,7 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 
-# Top Hero Banner with Smart Agriculture Visual
+
 st.markdown(f"""
 <div class="hero-banner">
     <div class="hero-tag">
@@ -338,9 +343,7 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
-# ---------------------------------------------------------
-# TAB 1: COOPERATIVE ADVISORY & MARKET ARBITRAGE
-# ---------------------------------------------------------
+
 if platform_view == "🌱 Agricultural Cooperative View":
     st.subheader(f"🌱 Cooperative Advisory Hub: {selected_county} County — {selected_season}")
     st.markdown("Translating 10-year local weather station trends into optimal crop selection, farm revenue projections, and regional wholesale market arbitrage.")
@@ -353,15 +356,17 @@ if platform_view == "🌱 Agricultural Cooperative View":
     with col_c3:
         top_k = st.slider("Top Recommendations Count", min_value=3, max_value=10, value=4)
 
-    recs_df, climate_profile = engine.get_cooperative_recommendations(
+    recs_df, climate_profile, provenance_report = engine.get_cooperative_recommendations(
         county=selected_county,
         season=selected_season,
         farm_size_acres=farm_size,
         category_filter=cat_filter,
         top_n=top_k
     )
+
+    render_provenance_badge(provenance_report)
     
-    # Climate Summary KPIs
+    
     k1, k2, k3, k4 = st.columns(4)
     with k1:
         st.markdown(f"""
@@ -399,7 +404,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
     if not recs_df.empty:
         st.markdown("### 🏆 Top Recommended Crops for This Season")
         
-        # Display Cards
+        
         for idx, row in recs_df.iterrows():
             badge_class = "badge-pill-low" if row["risk_level"] == "Low" else ("badge-pill-mod" if row["risk_level"] == "Moderate" else "badge-pill-high")
             
@@ -427,9 +432,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
                 
                 st.markdown("---")
 
-        # -----------------------------------------------------
-        # VISUALIZATION 1: STRATEGIC BUBBLE CHART
-        # -----------------------------------------------------
+    
         st.markdown("### 🫧 1. Strategic Decision Frontier: Suitability vs. Profitability vs. Yield")
         st.caption("Bubble size represents expected total yield in kg. Higher & further right indicates optimal commercial choices.")
         
@@ -454,9 +457,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
         fig_bubble.update_layout(height=420, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
         st.plotly_chart(fig_bubble, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-        # -----------------------------------------------------
-        # VISUALIZATION 2: FINANCIAL BREAKDOWN GROUPED BAR
-        # -----------------------------------------------------
+        
         col_v1, col_v2 = st.columns([1.1, 0.9])
         
         with col_v1:
@@ -501,9 +502,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
             fig_tree.update_layout(height=380, margin=dict(l=5, r=5, t=35, b=5), template=plotly_theme)
             st.plotly_chart(fig_tree, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-        # -----------------------------------------------------
-        # VISUALIZATION 4: REGIONAL MARKET ARBITRAGE
-        # -----------------------------------------------------
+        
         st.markdown("### 💰 4. Cross-Market Arbitrage & Transport Net Price Comparison")
         st.caption("Net price after deducting transportation costs from origin county to regional wholesale trading hubs.")
         
@@ -526,9 +525,7 @@ if platform_view == "🌱 Agricultural Cooperative View":
             st.plotly_chart(fig_mkt, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
 
-# ---------------------------------------------------------
-# TAB 2: BANK & SACCO CREDIT RISK PORTAL
-# ---------------------------------------------------------
+
 elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
     st.subheader("🏦 Agricultural Credit Underwriting & Risk De-Risking Portal")
     st.markdown("Automating agricultural loan sizing (70% CapEx), calculating risk-weighted interest rates, and stress-testing climate defaults.")
@@ -553,18 +550,24 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
             borrower_name=borrower_name
         )
 
+        render_provenance_badge(loan_res.get("provenance"))
+        st.warning(
+            "⚠️ The risk weights and interest-rate formula behind this credit grade are "
+            "author-chosen constants, not calibrated against real loan default data. "
+            "Treat this as a decision-support illustration, not a bankable underwriting output, "
+            "until calibrated with a lending partner."
+        )
+
         st.markdown("---")
         
-        # Credit Metrics Banner
+        
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Credit Grade", loan_res["credit_grade"], f"Risk: {loan_res['composite_risk_score']}")
         m2.metric("Eligible Loan (70% CapEx)", f"KES {loan_res['loan_amount_kes']:,}", f"Cost: KES {loan_res['total_project_cost_kes']:,}")
         m3.metric("Interest Rate", f"{loan_res['interest_rate_pct']:.2f}%", "Base 12% + Risk")
         m4.metric("Default Risk", f"{loan_res['expected_default_rate_pct']:.2f}%", f"DSCR: {loan_res['debt_service_coverage_ratio']}x")
 
-        # -----------------------------------------------------
-        # VISUALIZATION 5: GAUGE & DONUT CHARTS
-        # -----------------------------------------------------
+        
         col_g1, col_g2 = st.columns([1, 1])
         
         with col_g1:
@@ -615,9 +618,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
             fig_donut.update_layout(height=280, margin=dict(l=10, r=10, t=30, b=10), template=plotly_theme)
             st.plotly_chart(fig_donut, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-        # -----------------------------------------------------
-        # VISUALIZATION 6: WATERFALL FINANCING SIZING
-        # -----------------------------------------------------
+        
         st.markdown("#### 💧 Facility Sizing & Revenue Coverage Buffer (Waterfall)")
         
         fig_waterfall = go.Figure(go.Waterfall(
@@ -648,15 +649,13 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         fig_waterfall.update_layout(height=360, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme, title="Facility Sizing vs. Revenue Coverage")
         st.plotly_chart(fig_waterfall, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-        # Covenants & Mitigations
+        
         st.markdown("#### 🛡️ Required Loan Covenants & Climate Mitigations")
         st.success(f"**Underwriting Decision:** {loan_res['recommendation']}")
         for m in loan_res["mitigation_strategies"]:
             st.markdown(f"- 🔒 **{m}**")
 
-    # ---------------------------------------------------------
-    # TAB 2.2: PORTFOLIO STRESS TESTING
-    # ---------------------------------------------------------
+    
     with tab_portfolio:
         st.markdown("#### 💼 Institutional Loan Portfolio Simulation (10 Sample Borrowers)")
         sample_portfolio = [
@@ -680,9 +679,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         col_p3.metric("Expected Losses", f"KES {port_summary['expected_credit_losses_kes']:,}", f"{port_summary['weighted_expected_default_rate_pct']:.2f}% Default")
         col_p4.metric("Net Portfolio ROI", f"{port_summary['net_projected_roi_pct']:.2f}%", "After Credit Loss")
 
-        # -----------------------------------------------------
-        # VISUALIZATION 7: PORTFOLIO RISK-RETURN BUBBLE SCATTER
-        # -----------------------------------------------------
+        
         st.markdown("### 🫧 7. Portfolio Risk vs. Return Matrix")
         st.caption("Bubble size indicates loan disbursement amount (KES). Color represents credit grade.")
         
@@ -713,9 +710,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         )
 
 
-# ---------------------------------------------------------
-# TAB 3: 10-YEAR CLIMATE INTELLIGENCE
-# ---------------------------------------------------------
+
 elif platform_view == "🌍 10-Year Climate Trend Intelligence":
     st.subheader(f"🌍 10-Year Historical Climate Analysis (2015–2025): {selected_county} County")
     st.markdown("Aggregated from 116 high-resolution TAHMO ground meteorological stations across Kenya.")
@@ -725,7 +720,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
         if county_data.empty:
             county_data = engine.climate_df.head(20)
             
-        # KPI Cards
+        
         c1, c2, c3, c4 = st.columns(4)
         c1.metric("Seasonal Rainfall", f"{county_data['seasonal_rainfall_mm'].mean():.1f} mm", "10-Yr Mean")
         c2.metric("Mean Temp", f"{county_data['temp_mean_c'].mean():.1f} °C", "+0.08°C/yr")
@@ -734,14 +729,12 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
 
         st.markdown("---")
         
-        # -----------------------------------------------------
-        # VISUALIZATION 8: COMBINED AREA & DUAL AXIS LINE
-        # -----------------------------------------------------
+        
         st.markdown("### 📈 8. Seasonal Rainfall & Temperature Shift (Combined Area & Line)")
         
         fig_trend = make_subplots(specs=[[{"secondary_y": True}]])
         
-        # Shaded Rainfall Area
+        
         fig_trend.add_trace(
             go.Scatter(
                 x=county_data["year"].astype(str) + " " + county_data["season"],
@@ -754,7 +747,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             secondary_y=False
         )
         
-        # Temperature Line Curve
+        
         fig_trend.add_trace(
             go.Scatter(
                 x=county_data["year"].astype(str) + " " + county_data["season"],
@@ -776,9 +769,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
         fig_trend.update_yaxes(title_text="Temp (°C)", secondary_y=True)
         st.plotly_chart(fig_trend, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-        # -----------------------------------------------------
-        # VISUALIZATION 9: DISTRIBUTION BOX PLOTS & HISTOGRAM
-        # -----------------------------------------------------
+        
         col_c_v1, col_c_v2 = st.columns([1, 1])
         
         with col_c_v1:
@@ -809,9 +800,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             fig_hist.update_layout(height=340, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
             st.plotly_chart(fig_hist, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-        # -----------------------------------------------------
-        # VISUALIZATION 11: GEOSPATIAL MAP OF 116 STATIONS
-        # -----------------------------------------------------
+        
         if os.path.exists("data/stations_with_counties.csv"):
             stations_df = pd.read_csv("data/stations_with_counties.csv")
             st.markdown("### 🗺️ 11. TAHMO Ground Weather Stations Across Kenya (116 Stations)")
@@ -834,9 +823,7 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             st.plotly_chart(fig_map, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
 
-# ---------------------------------------------------------
-# TAB 4: 40-CROP & MARKET CATALOG
-# ---------------------------------------------------------
+
 elif platform_view == "📊 40-Crop & Market Price Catalog":
     st.subheader("📊 Kenyan 40-Crop Agronomic & Market Intelligence Catalog")
     st.markdown("Comprehensive benchmark database across 5 agricultural classes, production economics, and 5 major wholesale trading hubs.")
@@ -845,9 +832,7 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
         cat_sel = st.selectbox("Filter Category", ["All"] + list(engine.crops_df["category"].unique()))
         df_display = engine.crops_df if cat_sel == "All" else engine.crops_df[engine.crops_df["category"] == cat_sel]
         
-        # -----------------------------------------------------
-        # VISUALIZATION 12: 40-CROP HIERARCHICAL TREEMAP
-        # -----------------------------------------------------
+        
         st.markdown("### 🌳 12. 40-Crop Catalog Hierarchy & Yield Potential (Treemap)")
         
         fig_crop_tree = px.treemap(
@@ -866,9 +851,7 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
             use_container_width=True
         )
 
-        # -----------------------------------------------------
-        # VISUALIZATION 13: MULTI-MARKET REGIONAL PRICE COMPARISON
-        # -----------------------------------------------------
+        
         if engine.market_df is not None:
             st.markdown("### 💰 13. Regional Wholesale Prices across Key Trading Hubs")
             sample_crops = st.multiselect("Select Crops to Compare", df_display["crop"].unique(), default=list(df_display["crop"].head(4)))
@@ -887,9 +870,7 @@ elif platform_view == "📊 40-Crop & Market Price Catalog":
                 fig_m.update_layout(height=380, margin=dict(l=10, r=10, t=35, b=10), template=plotly_theme)
                 st.plotly_chart(fig_m, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
-            # -----------------------------------------------------
-            # VISUALIZATION 14: VOLATILITY BOX PLOTS BY CATEGORY
-            # -----------------------------------------------------
+            
             st.markdown("### 📦 14. Market Price Volatility by Agricultural Category")
             fig_vol_box = px.box(
                 engine.market_df,
