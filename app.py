@@ -851,20 +851,48 @@ elif platform_view == "🌍 10-Year Climate Trend Intelligence":
             stations_df = pd.read_csv("data/stations_with_counties.csv")
             st.markdown("### 🗺️ 11. TAHMO Ground Weather Stations Across Kenya (116 Stations)")
             
-            fig_map = px.scatter_mapbox(
-                stations_df,
-                lat="latitude",
-                lon="longitude",
-                hover_name="name",
-                hover_data=["county", "elevation_msl", "installation_date"],
-                color="elevation_msl",
-                size_max=12,
-                zoom=5.2,
-                center={"lat": 0.5, "lon": 37.5},
-                mapbox_style="carto-darkmatter" if is_dark else "carto-positron",
-                title="116 Ground Weather Stations Map",
-                color_continuous_scale="Greens"
-            )
+            map_style = "carto-darkmatter" if is_dark else "carto-positron"
+            if hasattr(px, "scatter_map"):
+                fig_map = px.scatter_map(
+                    stations_df,
+                    lat="latitude",
+                    lon="longitude",
+                    hover_name="name",
+                    hover_data=["county", "elevation_msl", "installation_date"],
+                    color="elevation_msl",
+                    size_max=12,
+                    zoom=5.2,
+                    center={"lat": 0.5, "lon": 37.5},
+                    map_style=map_style,
+                    title="116 Ground Weather Stations Map",
+                    color_continuous_scale="Greens"
+                )
+            elif hasattr(px, "scatter_mapbox"):
+                fig_map = px.scatter_mapbox(
+                    stations_df,
+                    lat="latitude",
+                    lon="longitude",
+                    hover_name="name",
+                    hover_data=["county", "elevation_msl", "installation_date"],
+                    color="elevation_msl",
+                    size_max=12,
+                    zoom=5.2,
+                    center={"lat": 0.5, "lon": 37.5},
+                    mapbox_style=map_style,
+                    title="116 Ground Weather Stations Map",
+                    color_continuous_scale="Greens"
+                )
+            else:
+                fig_map = px.scatter_geo(
+                    stations_df,
+                    lat="latitude",
+                    lon="longitude",
+                    hover_name="name",
+                    color="elevation_msl",
+                    scope="africa",
+                    title="116 Ground Weather Stations Map",
+                    color_continuous_scale="Greens"
+                )
             fig_map.update_layout(height=420, margin=dict(l=0, r=0, t=30, b=0))
             st.plotly_chart(fig_map, use_container_width=True, config={"responsive": True, "displayModeBar": False})
 
