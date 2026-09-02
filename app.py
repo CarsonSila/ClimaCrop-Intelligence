@@ -298,8 +298,9 @@ html, body, [data-testid="stAppViewContainer"] {{
 
 /* ── Footer ── */
 .footer {{
-    margin-top:40px;padding:18px 24px;background:{card_bg};border-radius:14px;
-    border:1px solid {card_border};font-size:0.78rem;color:{text_muted};text-align:center;line-height:1.7;
+    margin-top:48px;margin-bottom:24px;padding:22px 28px;background:{card_bg};border-radius:16px;
+    border:1px solid {card_border};text-align:center;line-height:1.6;
+    box-shadow:0 4px 16px rgba(0,0,0,{'0.25' if is_dark else '0.04'});
 }}
 
 /* ── Mobile ── */
@@ -1139,11 +1140,14 @@ with tab_ai:
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="footer">
-    <strong style="color:{primary_color};">🌿 ClimaCrop Intelligence</strong> &nbsp;·&nbsp;
-    Kilimo-Smart Decision Platform &nbsp;·&nbsp; Kenya 🇰🇪<br>
-    <span style="font-size:0.74rem;">
-        Data: TAHMO 116 Ground Stations · NASA POWER Satellite Reanalysis · FAOSTAT · Kenya National Bureau of Statistics<br>
+    <div style="font-size: 0.96rem; font-weight: 800; color: {primary_color}; margin-bottom: 6px; letter-spacing: -0.2px;">
+        🌿 ClimaCrop Intelligence &nbsp;·&nbsp; Kilimo-Smart Decision Platform &nbsp;·&nbsp; Kenya 🇰🇪
+    </div>
+    <div style="font-size: 0.82rem; color: {text_main}; margin-bottom: 4px; font-weight: 500;">
+        Data: TAHMO 116 Ground Stations · NASA POWER Satellite Reanalysis · FAOSTAT · Kenya National Bureau of Statistics
+    </div>
+    <div style="font-size: 0.78rem; color: {text_muted}; font-weight: 500;">
         Built for agricultural cooperatives, rural SACCOs, development finance institutions and agri-tech researchers.
-    </span>
+    </div>
 </div>
 """, unsafe_allow_html=True)
