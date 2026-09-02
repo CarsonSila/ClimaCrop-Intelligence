@@ -1,11 +1,13 @@
 """
 ClimaCrop Intelligence: Kilimo-Smart Climate Decision Support & Agri-Fintech De-Risking Platform.
 Features:
-- Mobile-First Responsive Design (Optimized for iOS, Android, Tablets & Desktops)
+- Dual Advisory Engines (📐 Explainable Rule-Based AEZ vs 🤖 Machine Learning Random Forest)
+- Humanized Farmer Advisories & Loan Officer Briefings (src.humanize)
+- Data Provenance & Confidence Auditing (src.provenance)
+- Multi-Source Satellite & Ground Climate Ingestors (TAHMO, NASA POWER, FAOSTAT)
+- Mobile-First Responsive Design (iOS, Android, Tablets & Desktops)
 - Multi-Theme Engine (🌿 Emerald Light, 🌙 Cyber Forest Dark, ⚙️ Minimal Modern)
-- Embedded Smart Agro-Meteorology Imagery
 - 14 Interactive Visualizations (Maps, Area/Line, Bubbles, Treemaps, Waterfalls, Gauges, Donut & Box plots)
-- Real-Time Cooperative Advisory & Institutional Bank Underwriting
 """
 
 import sys
@@ -22,12 +24,13 @@ from plotly.subplots import make_subplots
 import streamlit as st
 
 from src.financial_engine import FinancialDecisionEngine
+from src.humanize import humanize_crop_recommendation, humanize_loan_decision, humanize_provenance_report
 
 # ---------------------------------------------------------
 # 1. PAGE CONFIG & PERSISTENT SESSION STATE
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="ClimaCrop Intelligence | Kilimo-Smart Mobile-Ready Platform",
+    page_title="ClimaCrop Intelligence | Kilimo-Smart Platform",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -282,7 +285,7 @@ def load_engine():
 engine = load_engine()
 
 # ---------------------------------------------------------
-# 3. SIDEBAR CONTROLS
+# 3. SIDEBAR CONTROLS & ENGINE SELECTOR
 # ---------------------------------------------------------
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🌾 Region & Calendar")
@@ -295,6 +298,18 @@ counties_list = [
 
 selected_county = st.sidebar.selectbox("📍 Select County", counties_list, index=0)
 selected_season = st.sidebar.selectbox("📅 Planting Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🧠 Advisory Engine Mode")
+engine_mode = st.sidebar.radio(
+    "Select Model Logic",
+    [
+        "📐 Rule-Based (Agro-Ecological Zones)",
+        "🤖 Machine Learning (Random Forest)"
+    ],
+    index=0
+)
+use_rule_based = (engine_mode == "📐 Rule-Based (Agro-Ecological Zones)")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🏢 Platform Mode")
@@ -315,10 +330,10 @@ st.sidebar.markdown(f"""
         📡 LIVE DATA STACK
     </div>
     <div style="font-size: 0.82rem; color: {text_main}; font-weight: 600; line-height: 1.4;">
-        • 116 Weather Stations<br>
-        • 10-Yr Series (2015–2025)<br>
-        • 40-Crop Economic Model<br>
-        • 5 Wholesale Markets
+        • 116 TAHMO Weather Stations<br>
+        • NASA POWER Satellite Reanalysis<br>
+        • FAOSTAT & KNBS 40-Crop Matrix<br>
+        • 5 Wholesale Arbitrage Hubs
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -328,7 +343,7 @@ st.sidebar.markdown(f"""
 st.markdown(f"""
 <div class="hero-banner">
     <div class="hero-tag">
-        <span style="color: #4ade80;">●</span> 116 ACTIVE STATIONS • SEASONAL ADVISORY
+        <span style="color: #4ade80;">●</span> 116 ACTIVE STATIONS • { 'AGRONOMIC RULES' if use_rule_based else 'RANDOM FOREST ML' } ENGINE
     </div>
     <div class="hero-title">KILIMO-SMART DECISION ENGINE</div>
     <div class="hero-subtitle">
@@ -343,7 +358,7 @@ st.markdown(f"""
 # ---------------------------------------------------------
 if platform_view == "🌱 Agricultural Cooperative View":
     st.subheader(f"🌱 Cooperative Advisory Hub: {selected_county} County — {selected_season}")
-    st.markdown("Translating 10-year local weather station trends into optimal crop selection, farm revenue projections, and regional wholesale market arbitrage.")
+    st.markdown(f"Running **{engine_mode}** to evaluate 40 Kenyan crops against local temperature, rainfall bands, and dry-spell risk.")
     
     col_c1, col_c2, col_c3 = st.columns([1.2, 1.2, 1])
     with col_c1:
@@ -353,12 +368,13 @@ if platform_view == "🌱 Agricultural Cooperative View":
     with col_c3:
         top_k = st.slider("Top Recommendations Count", min_value=3, max_value=10, value=4)
 
-    recs_df, climate_profile = engine.get_cooperative_recommendations(
+    recs_df, climate_profile, provenance = engine.get_cooperative_recommendations(
         county=selected_county,
         season=selected_season,
         farm_size_acres=farm_size,
         category_filter=cat_filter,
-        top_n=top_k
+        top_n=top_k,
+        use_rule_based=use_rule_based
     )
     
     # Climate Summary KPIs
@@ -396,12 +412,21 @@ if platform_view == "🌱 Agricultural Cooperative View":
         </div>
         """, unsafe_allow_html=True)
 
+    # Provenance Audit Accordion
+    with st.expander("🔍 Data Quality & Source Provenance Report", expanded=False):
+        conf = provenance.get("overall_confidence", 0.75)
+        st.progress(conf)
+        st.markdown(f"**Confidence Level:** `{conf*100:.1f}%` — *{provenance.get('summary', '')}*")
+        for f_name, f_data in provenance.get("fields", {}).items():
+            st.markdown(f"- **`{f_name}`** (`{f_data.get('provenance_label', '')}`): {f_data.get('note', '')}")
+
     if not recs_df.empty:
         st.markdown("### 🏆 Top Recommended Crops for This Season")
         
         # Display Cards
         for idx, row in recs_df.iterrows():
             badge_class = "badge-pill-low" if row["risk_level"] == "Low" else ("badge-pill-mod" if row["risk_level"] == "Moderate" else "badge-pill-high")
+            advice_narrative = humanize_crop_recommendation(row.to_dict())
             
             with st.container():
                 st.markdown(f"""
@@ -409,11 +434,14 @@ if platform_view == "🌱 Agricultural Cooperative View":
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
                         <div>
                             <span style="font-size: 1.25rem; font-weight: 800; color: {primary_color};">#{idx+1} {row['crop']}</span>
-                            <span style="color: {text_muted}; margin-left: 8px; font-weight: 600;">({row['category']} • {row['growth_days']}d)</span>
+                            <span style="color: {text_muted}; margin-left: 8px; font-weight: 600;">({row['category']} • {row['growth_days']}d cycle)</span>
                         </div>
                         <div>
                             <span class="{badge_class}">Suitability: {row['suitability_score']}% ({row['risk_level']} Risk)</span>
                         </div>
+                    </div>
+                    <div style="font-size: 0.9rem; color: {text_main}; margin-bottom: 12px; line-height: 1.45; background: {'rgba(16, 185, 129, 0.08)' if is_dark else '#f0fdf4'}; padding: 10px 14px; border-radius: 8px; border-left: 3px solid {primary_color};">
+                        🌾 <b>Farmer Advisory Note:</b> {advice_narrative}
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -561,6 +589,13 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
         m2.metric("Eligible Loan (70% CapEx)", f"KES {loan_res['loan_amount_kes']:,}", f"Cost: KES {loan_res['total_project_cost_kes']:,}")
         m3.metric("Interest Rate", f"{loan_res['interest_rate_pct']:.2f}%", "Base 12% + Risk")
         m4.metric("Default Risk", f"{loan_res['expected_default_rate_pct']:.2f}%", f"DSCR: {loan_res['debt_service_coverage_ratio']}x")
+
+        # Humanized Loan Decision Briefing
+        st.markdown(f"""
+        <div style="font-size: 0.92rem; color: {text_main}; margin-top: 10px; margin-bottom: 14px; line-height: 1.5; background: {'rgba(59, 130, 246, 0.12)' if is_dark else '#eff6ff'}; padding: 12px 16px; border-radius: 10px; border-left: 4px solid #3b82f6;">
+            📋 <b>Credit Officer Executive Briefing:</b> {humanize_loan_decision(loan_res)}
+        </div>
+        """, unsafe_allow_html=True)
 
         # -----------------------------------------------------
         # VISUALIZATION 5: GAUGE & DONUT CHARTS
@@ -718,7 +753,7 @@ elif platform_view == "🏦 Bank & SACCO Credit Risk Portal":
 # ---------------------------------------------------------
 elif platform_view == "🌍 10-Year Climate Trend Intelligence":
     st.subheader(f"🌍 10-Year Historical Climate Analysis (2015–2025): {selected_county} County")
-    st.markdown("Aggregated from 116 high-resolution TAHMO ground meteorological stations across Kenya.")
+    st.markdown("Aggregated from 116 high-resolution TAHMO ground meteorological stations across Kenya with NASA POWER satellite reanalysis.")
 
     if engine.climate_df is not None and not engine.climate_df.empty:
         county_data = engine.climate_df[engine.climate_df["county"] == selected_county]

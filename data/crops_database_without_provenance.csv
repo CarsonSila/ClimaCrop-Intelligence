@@ -1,0 +1,41 @@
+crop,category,min_rain_mm,max_rain_mm,min_temp_c,max_temp_c,growth_days,drought_tolerance,cost_per_acre_kes,yield_per_acre_kg,base_price_kes_per_kg
+Maize,Cereals,450,1100,17,30,120,5,28000,2400,42
+Sorghum,Cereals,250,700,20,36,100,9,16000,1800,50
+Finger Millet,Cereals,300,800,18,32,110,8,18000,1200,75
+Pearl Millet,Cereals,200,600,22,38,85,10,14000,1100,70
+Wheat,Cereals,400,900,13,24,130,6,32000,2000,52
+Rice,Cereals,900,1800,20,34,125,2,38000,2800,90
+Common Beans,Pulses,350,800,16,28,85,6,20000,900,120
+Cowpeas (Kunde),Pulses,200,600,20,35,75,9,15000,800,95
+Green Grams (Ndengu),Pulses,250,650,22,36,70,9,16000,750,110
+Pigeon Peas (Mbaazi),Pulses,300,800,18,34,150,9,17000,1000,100
+Soybeans,Pulses,450,950,19,30,105,6,22000,1100,85
+Groundnuts,Pulses,400,850,20,32,115,7,24000,1000,130
+Irish Potatoes,Roots & Tubers,500,1100,14,24,105,4,45000,7000,35
+Sweet Potatoes,Roots & Tubers,350,900,18,30,120,8,22000,5500,30
+Cassava,Roots & Tubers,250,1000,20,36,240,10,20000,8000,25
+Arrowroots (Nduma),Roots & Tubers,800,1600,18,28,210,3,35000,6000,60
+Tomatoes,Horticulture,400,900,18,29,85,4,65000,12000,45
+Bulb Onions,Horticulture,350,750,15,28,110,6,55000,9000,55
+Cabbage,Horticulture,450,1000,14,24,80,5,40000,15000,20
+Kales (Sukuma Wiki),Horticulture,350,900,15,27,60,6,30000,10000,25
+Spinach,Horticulture,400,950,14,25,55,5,32000,9000,30
+Capsicum (Hoho),Horticulture,450,900,18,28,90,5,70000,8000,65
+French Beans,Horticulture,450,850,16,26,50,4,45000,3500,80
+Carrots,Horticulture,450,900,15,24,90,5,38000,8000,35
+Watermelon,Horticulture,300,700,22,35,85,7,50000,14000,30
+Butternut Squash,Horticulture,350,750,18,32,95,7,32000,7500,40
+Pumpkin,Horticulture,350,800,18,32,100,7,28000,8000,35
+Garden Peas,Horticulture,500,950,13,23,75,4,42000,2500,90
+Coffee (Arabica),Cash Crops,800,1600,15,25,365,5,55000,2500,110
+Tea,Cash Crops,1100,2000,14,24,365,4,60000,3500,60
+Sugarcane,Cash Crops,950,1800,20,34,420,6,48000,28000,6
+Avocado (Hass),Cash Crops,650,1400,16,28,365,6,40000,5000,75
+Mangoes,Cash Crops,400,1100,21,35,365,8,30000,6000,40
+Bananas,Cash Crops,800,1600,18,30,365,4,38000,10000,30
+Macadamia,Cash Crops,700,1400,16,27,365,7,35000,2200,140
+Cotton,Cash Crops,350,850,21,36,160,8,26000,900,65
+Pyrethrum,Cash Crops,750,1300,12,22,210,5,34000,450,250
+Cashew Nuts,Cash Crops,500,1200,23,36,365,9,28000,1200,100
+Passion Fruit,Cash Crops,700,1300,17,28,240,5,48000,4000,85
+Miraa (Khat),Cash Crops,600,1400,17,29,365,7,50000,1500,350

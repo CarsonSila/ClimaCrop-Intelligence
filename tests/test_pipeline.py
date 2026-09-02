@@ -1,8 +1,3 @@
-"""
-Automated Test Suite for Kilimo-Smart Agricultural Advisory & De-Risking Platform.
-Verifies data integrity, ML engines, fintech underwriting, and portfolio simulations.
-"""
-
 import os
 import unittest
 import pandas as pd
@@ -28,7 +23,7 @@ class TestKilimoSmartPipeline(unittest.TestCase):
         for col in required_cols:
             self.assertIn(col, df_crops.columns, f"Missing column: {col}")
             
-        # Ensure categories are present
+        
         categories = set(df_crops["category"].unique())
         expected_cats = {"Cereals", "Pulses", "Roots & Tubers", "Horticulture", "Cash Crops"}
         self.assertEqual(categories, expected_cats, "All 5 crop categories must be present")
@@ -44,8 +39,7 @@ class TestKilimoSmartPipeline(unittest.TestCase):
         self.assertEqual(markets, expected_markets, "All 5 trading hubs must exist")
 
     def test_03_cooperative_recommendations(self):
-        """Test the cooperative crop recommendation logic."""
-        recs, climate = self.engine.get_cooperative_recommendations(
+        recs, climate, provenance = self.engine.get_cooperative_recommendations(
             county="Nakuru",
             season="Long Rains (MAM)",
             farm_size_acres=3.0,
@@ -55,13 +49,24 @@ class TestKilimoSmartPipeline(unittest.TestCase):
         self.assertFalse(recs.empty, "Recommendations should not be empty")
         self.assertLessEqual(len(recs), 5, "Should return at most top_n crops")
         
-        # Check financial logic
+        
         for _, row in recs.iterrows():
             self.assertGreater(row["suitability_score"], 0, "Suitability score must be positive")
             self.assertGreater(row["total_production_cost_kes"], 0, "Production cost must be positive")
             self.assertGreater(row["total_farm_yield_kg"], 0, "Yield must be positive")
             self.assertGreater(row["benefit_cost_ratio"], 0.5, "BCR must be reasonable")
             self.assertIn(row["risk_level"], ["Low", "Moderate", "High"], "Risk level must be valid")
+
+    def test_03b_provenance_report_present(self):
+        """Every recommendation batch must ship a provenance report, and it
+        must not silently claim high confidence for placeholder data."""
+        recs, climate, provenance = self.engine.get_cooperative_recommendations(
+            county="Nakuru", season="Long Rains (MAM)", farm_size_acres=3.0
+        )
+        self.assertIn("overall_confidence", provenance)
+        self.assertIn("weakest_link", provenance)
+        self.assertLess(provenance["overall_confidence"], 0.85,
+                         "Confidence should reflect that crop economics and market prices are still unverified placeholders.")
 
     def test_04_bank_loan_underwriting(self):
         """Test agricultural loan underwriting for banks and SACCOs."""
@@ -73,21 +78,27 @@ class TestKilimoSmartPipeline(unittest.TestCase):
             borrower_name="Test Farmer Group"
         )
         
-        # Validate loan sizing (70% CapEx)
+        
         expected_loan = round(loan["total_project_cost_kes"] * 0.70, 0)
         self.assertEqual(loan["loan_amount_kes"], int(expected_loan), "Loan facility should equal 70% of CapEx")
         
-        # Validate Composite Risk Score
+        
         self.assertGreaterEqual(loan["composite_risk_score"], 0.0)
         self.assertLessEqual(loan["composite_risk_score"], 1.0)
         
-        # Validate Risk-Adjusted Interest Rate (>= Base 12%)
+        
         self.assertGreaterEqual(loan["interest_rate_pct"], 12.0, "Interest rate must be >= Base 12%")
         self.assertLessEqual(loan["interest_rate_pct"], 22.0, "Interest rate should not exceed ceiling")
         
-        # Validate Mitigations
+        
         self.assertIsInstance(loan["mitigation_strategies"], list)
         self.assertGreater(len(loan["mitigation_strategies"]), 0, "Must recommend mitigations")
+
+        
+        self.assertIn("provenance", loan)
+        self.assertIn("risk_weights", loan["provenance"]["fields"])
+        self.assertEqual(loan["provenance"]["fields"]["risk_weights"]["provenance"], "assumed",
+                          "Risk-weighting constants must be flagged as unvalidated until calibrated against real default data.")
 
     def test_05_portfolio_simulation(self):
         """Test aggregate portfolio simulation."""
@@ -106,4 +117,3 @@ class TestKilimoSmartPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
