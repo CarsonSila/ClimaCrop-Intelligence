@@ -17,6 +17,7 @@ import streamlit as st
 
 from src.financial_engine import FinancialDecisionEngine
 from src.humanize import humanize_crop_recommendation, humanize_loan_decision
+from src.ai_agent import GEMINI_AVAILABLE, get_api_key, init_chat_session, ask_kiilimobot, generate_offline_response
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PAGE CONFIG
@@ -32,7 +33,7 @@ st.set_page_config(
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SIDEBAR — THEME, REGION, ENGINE & NAVIGATION
+# SIDEBAR — SETTINGS ONLY (theme, county, season, engine)
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.image(
@@ -88,21 +89,6 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # Navigation
-    st.markdown("#### 🗂 Platform Views")
-    platform_view = st.radio(
-        "View",
-        [
-            "🌱 Cooperative Advisory",
-            "🏦 Bank & Credit Risk",
-            "🌍 Climate Trend Analysis",
-            "📊 Crop & Market Catalog"
-        ],
-        label_visibility="collapsed"
-    )
-
-    st.markdown("---")
-
     # Live Data Stack info card
     st.markdown("""
 <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 14px;">
@@ -115,6 +101,9 @@ with st.sidebar:
 </div>
 </div>
 """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.caption("Navigation is at the top of the main page. Scroll up to switch views.")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # THEME VARIABLES
@@ -417,10 +406,23 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# TOP-TAB NAVIGATION — 5 tabs displayed in main content area
+# ─────────────────────────────────────────────────────────────────────────────
+tab_coop, tab_bank, tab_climate, tab_catalog, tab_ai = st.tabs([
+    "🌱 Cooperative Advisory",
+    "🏦 Bank & Credit Risk",
+    "🌍 Climate Trends",
+    "📊 Crop & Market Catalog",
+    "🤖 KilimoBot AI Assistant"
+])
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
-# VIEW 1 — COOPERATIVE ADVISORY
+# TAB 1 — COOPERATIVE ADVISORY
 # ═══════════════════════════════════════════════════════════════════════════════
-if platform_view == "🌱 Cooperative Advisory":
+with tab_coop:
+    platform_view = "🌱 Cooperative Advisory"  # local alias for section calls
 
     section("🌱", f"Cooperative Advisory — {selected_county} County",
             f"Evaluating 40 Kenyan crops using {engine_badge} for the {selected_season} season")
@@ -634,9 +636,9 @@ if platform_view == "🌱 Cooperative Advisory":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# VIEW 2 — BANK & CREDIT RISK
+# TAB 2 — BANK & CREDIT RISK
 # ═══════════════════════════════════════════════════════════════════════════════
-elif platform_view == "🏦 Bank & Credit Risk":
+with tab_bank:
 
     section("🏦", "Agricultural Credit Underwriting Portal",
             "Automated loan sizing (70% CapEx rule), climate-adjusted interest rates, and portfolio stress testing")
@@ -824,9 +826,9 @@ elif platform_view == "🏦 Bank & Credit Risk":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# VIEW 3 — CLIMATE TREND ANALYSIS
+# TAB 3 — CLIMATE TREND ANALYSIS
 # ═══════════════════════════════════════════════════════════════════════════════
-elif platform_view == "🌍 Climate Trend Analysis":
+with tab_climate:
 
     section("🌍", f"10-Year Climate Intelligence — {selected_county} County",
             "Aggregated from 116 TAHMO ground stations and NASA POWER satellite reanalysis (2015–2025)")
@@ -924,9 +926,9 @@ elif platform_view == "🌍 Climate Trend Analysis":
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# VIEW 4 — CROP & MARKET CATALOG
+# TAB 4 — CROP & MARKET CATALOG
 # ═══════════════════════════════════════════════════════════════════════════════
-elif platform_view == "📊 Crop & Market Catalog":
+with tab_catalog:
 
     section("📊", "40-Crop Agronomic & Market Intelligence Catalog",
             "Complete crop database across 5 classes with production economics and 5 regional wholesale market prices")
@@ -1007,6 +1009,129 @@ elif platform_view == "📊 Crop & Market Catalog":
 
     else:
         st.info("⚠️ Crop database not loaded. Ensure `data/crops_database.csv` is available.")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TAB 5 — KILIMOBOT AI ADVISORY AGENT
+# ═══════════════════════════════════════════════════════════════════════════════
+with tab_ai:
+    section("🤖", "KilimoBot AI Advisory Agent",
+            f"Ask real-time questions about agriculture, climate risks in {selected_county}, credit underwriting, and market arbitrage")
+
+    # API key and engine status banner
+    api_key = get_api_key()
+    has_gemini = bool(api_key and GEMINI_AVAILABLE)
+
+    col_ai_stat, col_ai_cfg = st.columns([1.8, 1.2])
+    with col_ai_stat:
+        if has_gemini:
+            st.markdown(f"""
+            <div style="background:{'rgba(16,185,129,0.12)' if is_dark else '#f0fdf4'};
+                        border:1px solid {'#059669' if is_dark else '#86efac'};border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+                <span style="color:#10b981;font-weight:800;">● LIVE AI CONNECTED</span> &nbsp;·&nbsp;
+                <span style="font-size:0.85rem;color:{text_main};">Powered by <strong>Google Gemini 1.5 Flash</strong> with real-time agronomic reasoning</span>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div style="background:{'rgba(59,130,246,0.12)' if is_dark else '#eff6ff'};
+                        border:1px solid {'#2563eb' if is_dark else '#bfdbfe'};border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+                <span style="color:#3b82f6;font-weight:800;">💡 PLATFORM KNOWLEDGE ENGINE ACTIVE</span> &nbsp;·&nbsp;
+                <span style="font-size:0.85rem;color:{text_main};">Instant offline answers from 116 TAHMO stations & 40-crop database</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col_ai_cfg:
+        with st.expander("⚙️ AI Configuration & API Key", expanded=False):
+            st.caption("Enter a Google Gemini API Key for multi-turn generative AI, or use the built-in Knowledge Engine without a key.")
+            user_key_input = st.text_input(
+                "Gemini API Key",
+                value=st.session_state.get("user_gemini_api_key", ""),
+                type="password",
+                help="Get a free key from Google AI Studio: https://aistudio.google.com/"
+            )
+            if user_key_input != st.session_state.get("user_gemini_api_key", ""):
+                st.session_state.user_gemini_api_key = user_key_input
+                if "gemini_chat" in st.session_state:
+                    del st.session_state["gemini_chat"]
+                st.rerun()
+
+    # Quick question suggestions
+    st.markdown("##### 💡 Suggested Questions")
+    q_col1, q_col2, q_col3 = st.columns(3)
+    quick_prompt = None
+    with q_col1:
+        if st.button(f"🌾 Best crops for {selected_county}?", use_container_width=True):
+            quick_prompt = f"What are the best crops to plant in {selected_county} County for the {selected_season} season?"
+        if st.button("🏦 How does the bank calculate my loan?", use_container_width=True):
+            quick_prompt = "How does the platform calculate eligible loan amount, DSCR, and interest rate?"
+    with q_col2:
+        if st.button(f"🌧️ Climate risk in {selected_county}?", use_container_width=True):
+            quick_prompt = f"What is the rainfall, temperature, and dry spell risk for {selected_county} in {selected_season}?"
+        if st.button("🧠 Rules (AEZ) vs Machine Learning?", use_container_width=True):
+            quick_prompt = "What is the difference between Agro-Ecological Rules (AEZ) and Machine Learning models?"
+    with q_col3:
+        if st.button("💰 Best market for high profit?", use_container_width=True):
+            quick_prompt = f"Which regional market hub gives the highest arbitrage price for crops from {selected_county}?"
+        if st.button("🗑️ Reset Chat History", use_container_width=True):
+            st.session_state.chat_messages = []
+            if "gemini_chat" in st.session_state:
+                del st.session_state["gemini_chat"]
+            st.rerun()
+
+    st.markdown("---")
+
+    # Initialise chat message history in session state
+    if "chat_messages" not in st.session_state or not st.session_state.chat_messages:
+        st.session_state.chat_messages = [
+            {
+                "role": "assistant",
+                "content": (
+                    f"👋 Hello! I'm **KilimoBot**, your ClimaCrop Intelligence AI assistant.\n\n"
+                    f"I'm currently loaded with data for **{selected_county} County** ({selected_season}) using the **{engine_mode}**.\n\n"
+                    f"Ask me anything about:\n"
+                    f"- 🌾 **Crop recommendations** & agronomic cycle\n"
+                    f"- 🌧️ **Rainfall, temperature & dry spell risks** from 116 TAHMO stations\n"
+                    f"- 💰 **Wholesale market price arbitrage** across Nairobi, Mombasa, Kisumu, Nakuru & Eldoret\n"
+                    f"- 🏦 **Agricultural credit sizing, DSCR, and interest rate calculation**\n\n"
+                    f"Type your question below or click any of the suggested question buttons above! 🌿"
+                )
+            }
+        ]
+
+    # Display all messages in history
+    for msg in st.session_state.chat_messages:
+        with st.chat_message(msg["role"], avatar="🌿" if msg["role"] == "assistant" else None):
+            st.markdown(msg["content"])
+
+    # Handle user input from chat_input or quick buttons
+    user_input = st.chat_input(f"Ask KilimoBot about agriculture, {selected_county} climate, loans, or markets...")
+    prompt_to_run = quick_prompt or user_input
+
+    if prompt_to_run:
+        # Add user message
+        st.session_state.chat_messages.append({"role": "user", "content": prompt_to_run})
+        with st.chat_message("user"):
+            st.markdown(prompt_to_run)
+
+        # Generate assistant response
+        with st.chat_message("assistant", avatar="🌿"):
+            with st.spinner("KilimoBot is analyzing climate data & crop parameters..."):
+                response_text = ""
+                # If Gemini API key is available, use Gemini chat
+                if has_gemini:
+                    chat_sess = init_chat_session(selected_county, selected_season, engine_mode, api_key)
+                    if chat_sess:
+                        response_text = ask_kiilimobot(chat_sess, prompt_to_run)
+                    else:
+                        response_text = generate_offline_response(prompt_to_run, selected_county, selected_season, engine, engine_mode)
+                else:
+                    # Instant built-in Knowledge Engine response
+                    response_text = generate_offline_response(prompt_to_run, selected_county, selected_season, engine, engine_mode)
+
+                st.markdown(response_text)
+                st.session_state.chat_messages.append({"role": "assistant", "content": response_text})
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
