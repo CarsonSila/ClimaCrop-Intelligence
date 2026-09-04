@@ -20,17 +20,6 @@ if "__main__" in sys.modules:
 
 class FinancialDecisionEngine:
     def __init__(self, models_dir="models", data_dir="data", suitability_mode="rule_based"):
-        """
-        suitability_mode:
-          "rule_based" (default) - transparent, documented scoring, no
-            circular synthetic-data ML. Recommended until real yield-outcome
-            training data exists.
-          "ml_legacy" - the original Random Forest, trained on synthetic
-            samples generated from the same thresholds it's scored against.
-            Kept available for comparison/audit purposes only — NOT
-            recommended for real decisions. Every output using this mode is
-            tagged Provenance.MODELED with a note explaining the caveat.
-        """
         self.models_dir = models_dir
         self.data_dir = data_dir
         self.suitability_mode = suitability_mode
@@ -55,12 +44,24 @@ class FinancialDecisionEngine:
         if os.path.exists(market_eng_path):
             self.market_engine = joblib.load(market_eng_path)
 
-        climate_data_path = os.path.join(self.data_dir, "county_climate_historical.csv")
+        
+        real_climate_path = os.path.join(self.data_dir, "county_climate_historical_real.csv")
+        synthetic_climate_path = os.path.join(self.data_dir, "county_climate_historical.csv")
         crops_data_path = os.path.join(self.data_dir, "crops_database.csv")
         market_data_path = os.path.join(self.data_dir, "market_prices.csv")
 
-        if os.path.exists(climate_data_path):
-            self.climate_df = pd.read_csv(climate_data_path)
+        if os.path.exists(real_climate_path):
+            self.climate_df = pd.read_csv(real_climate_path)
+            self.climate_data_provenance = Provenance.MEASURED
+            self.climate_data_note = "NASA POWER real daily temperature/precipitation, aggregated per county/season from actual station coordinates. Run scripts/rebuild_climate_data.py to refresh."
+        elif os.path.exists(synthetic_climate_path):
+            self.climate_df = pd.read_csv(synthetic_climate_path)
+            self.climate_data_provenance = Provenance.ESTIMATED
+            self.climate_data_note = "Rainfall aggregated from TAHMO-derived daily records; temperature is a modeled elevation/seasonal estimate, not measured. Run scripts/rebuild_climate_data.py to replace with real NASA POWER data."
+        else:
+            self.climate_df = None
+            self.climate_data_provenance = Provenance.ASSUMED
+            self.climate_data_note = "No climate data file found."
         if os.path.exists(crops_data_path):
             self.crops_df = pd.read_csv(crops_data_path)
             if self.suitability_mode == "rule_based":
@@ -69,10 +70,6 @@ class FinancialDecisionEngine:
             self.market_df = pd.read_csv(market_data_path)
 
     def _crops_data_provenance(self) -> SourcedValue:
-        """crops_database.csv currently carries hand-authored placeholder
-        economics (see its 'source'/'confidence' columns) pending real
-        KALRO/FAO citations. Surface that honestly rather than implying the
-        figures are verified."""
         if self.crops_df is not None and "confidence" in self.crops_df.columns:
             if (self.crops_df["confidence"] == "assumed").all():
                 return SourcedValue(
@@ -163,8 +160,8 @@ class FinancialDecisionEngine:
 
         climate_provenance = SourcedValue(
             value="climate_profile",
-            provenance=Provenance.ESTIMATED,
-            note="Rainfall aggregated from TAHMO-derived daily records; temperature is a modeled elevation/seasonal estimate, not a direct station measurement — see data_processing.py.",
+            provenance=self.climate_data_provenance,
+            note=self.climate_data_note,
         )
 
     
@@ -308,8 +305,8 @@ class FinancialDecisionEngine:
 
         report = ProvenanceReport()
         report.add("climate_risk_component", SourcedValue(
-            value=round(r_climate, 3), provenance=Provenance.ESTIMATED,
-            note="Derived from drought_risk_index, itself computed from TAHMO-derived rainfall aggregates plus a synthetic temperature estimate.",
+            value=round(r_climate, 3), provenance=self.climate_data_provenance,
+            note=f"Derived from drought_risk_index. {self.climate_data_note}",
         ))
         report.add("crop_suitability_component", self._crops_data_provenance())
         report.add("market_volatility_component", SourcedValue(
