@@ -817,16 +817,21 @@ if tab_coop is not None:
                 "Bubble size = expected yield · Move right and up for the best crops")
         fig1 = px.scatter(recs_df,
             x="suitability_score", y="total_farm_net_profit_kes",
-            size="total_farm_yield_kg", color="risk_level", hover_name="crop", text="crop",
+            size="total_farm_yield_kg", color="risk_level", hover_name="crop",
             color_discrete_map={"Low": "#10b981", "Moderate": "#f59e0b", "High": "#ef4444"},
             labels={"suitability_score": "Climate Suitability (%)",
                     "total_farm_net_profit_kes": "Estimated Net Profit (KES)",
                     "total_farm_yield_kg": "Total Yield (kg)", "risk_level": "Risk Level"}
         )
-        fig1.update_traces(textposition="top center",
-                           marker=dict(opacity=0.86, line=dict(width=1.5, color="#fff" if is_dark else "#14532d")))
+        fig1.update_traces(marker=dict(opacity=0.86, line=dict(width=1.5, color="#fff" if is_dark else "#14532d")))
         fig1.update_layout(xaxis=dict(ticksuffix="%", gridcolor=card_border),
                            yaxis=dict(tickprefix="KES ", gridcolor=card_border))
+        # Annotate only the #1 ranked crop (recs_df is already sorted) instead of labeling every bubble
+        _top = recs_df.iloc[0]
+        fig1.add_annotation(x=_top["suitability_score"], y=_top["total_farm_net_profit_kes"],
+            text=f"⭐ {_top['crop']} — top pick", showarrow=True, arrowhead=2, ax=30, ay=-35,
+            font=dict(size=12, color=text_main, family="Inter"),
+            bgcolor=card_bg, bordercolor=primary_color, borderwidth=1, borderpad=4)
         chart_caption("Each bubble = one crop. Rightmost = best climate fit. Highest = most profitable. Larger bubble = more yield volume.")
         st.plotly_chart(apply_chart_style(fig1, 430), use_container_width=True, config={"displayModeBar": False})
 
@@ -835,6 +840,7 @@ if tab_coop is not None:
         with col_v2:
             section("📊", "Financial Breakdown per Crop",
                     "Red = production cost · Blue = gross revenue · Green = net profit")
+            _crop_order = recs_df.sort_values("total_farm_net_profit_kes", ascending=False)["crop"].tolist()
             df_melt = recs_df.melt(id_vars=["crop"],
                 value_vars=["total_production_cost_kes", "total_farm_revenue_kes", "total_farm_net_profit_kes"],
                 var_name="Metric", value_name="KES")
@@ -844,6 +850,7 @@ if tab_coop is not None:
                 "total_farm_net_profit_kes": "✅ Profit"
             })
             fig2 = px.bar(df_melt, x="crop", y="KES", color="Metric", barmode="group",
+                category_orders={"crop": _crop_order},
                 color_discrete_map={"📦 Cost": "#f87171", "💰 Revenue": "#60a5fa", "✅ Profit": "#34d399"},
                 labels={"KES": "Amount (KES)", "crop": "Crop", "Metric": ""})
             fig2.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
@@ -867,18 +874,26 @@ if tab_coop is not None:
                     "expected_yield_kg_per_acre", "optimized_net_price_kes_per_kg"]
             dim_labels = ["Suitability\n(%)", "BCR\n(Return)", "Drought\nTolerance",
                           "Yield / Acre\n(kg)", "Price / kg\n(KES)"]
-            maxvals = [100, 5, 100, 5000, 200]
             radar_colors = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#f43f5e"]
+            # Normalize each dimension against the min/max of the crops actually shown, so the
+            # radar reflects *relative* ranking here rather than clipping against a fixed scale
+            # that can make every crop look artificially small (or identically maxed-out).
+            dim_min = {d: recs_df[d].min() for d in dims}
+            dim_max = {d: recs_df[d].max() for d in dims}
             radar_fig = go.Figure()
             for i, (_, row) in enumerate(recs_df.iterrows()):
-                raw = [row.get(d, 0) for d in dims]
-                norm = [min(v / m * 100, 100) for v, m in zip(raw, maxvals)]
+                norm = []
+                for d in dims:
+                    span = dim_max[d] - dim_min[d]
+                    norm.append(50.0 if span == 0 else (row.get(d, 0) - dim_min[d]) / span * 100)
                 norm.append(norm[0])
                 lbl = dim_labels + [dim_labels[0]]
+                raw_vals = [row.get(d, 0) for d in dims] + [row.get(dims[0], 0)]
                 radar_fig.add_trace(go.Scatterpolar(
                     r=norm, theta=lbl, name=row["crop"], fill="toself",
                     line=dict(color=radar_colors[i % len(radar_colors)], width=2.2),
-                    opacity=0.72
+                    opacity=0.72, customdata=raw_vals,
+                    hovertemplate="%{theta}: %{customdata:.1f}<extra>%{fullData.name}</extra>"
                 ))
             radar_fig.update_layout(
                 polar=dict(bgcolor="rgba(0,0,0,0)",
@@ -886,7 +901,7 @@ if tab_coop is not None:
                     angularaxis=dict(gridcolor=card_border)),
                 legend=dict(orientation="h", yanchor="bottom", y=-0.25)
             )
-            chart_caption("Larger filled area = stronger crop across all 5 criteria. Look for crops that dominate in the dimensions most important to your cooperative.")
+            chart_caption("Each axis is scaled relative to the crops shown here (100% = best among this set, 0% = weakest). Larger filled area = stronger all-round crop. Hover a point for its actual value.")
             st.plotly_chart(apply_chart_style(radar_fig, 430), use_container_width=True, config={"displayModeBar": False})
 
         # ── VIZ 5: Market Arbitrage ──
@@ -1012,6 +1027,10 @@ if tab_bank is not None:
             ))
             fig_gauge.update_layout(height=270, margin=dict(l=20, r=20, t=30, b=10),
                                     template=plotly_theme, paper_bgcolor="rgba(0,0,0,0)")
+            _zone_txt = "LOW RISK" if risk_val < 0.35 else ("MODERATE RISK" if risk_val < 0.6 else "HIGH RISK")
+            _zone_clr = "#10b981" if risk_val < 0.35 else ("#f59e0b" if risk_val < 0.6 else "#ef4444")
+            fig_gauge.add_annotation(text=_zone_txt, x=0.5, y=0.24, showarrow=False,
+                font=dict(size=13, color=_zone_clr, family="Inter"))
             st.plotly_chart(fig_gauge, use_container_width=True, config={"displayModeBar": False})
             chart_caption("Green (< 0.40) = low risk. Amber (0.40–0.60) = monitor closely. Red (> 0.60) = high risk — require additional collateral.")
 
@@ -1034,7 +1053,7 @@ if tab_bank is not None:
                 "How the loan fits within the overall farm financial structure")
         fig_wf = go.Figure(go.Waterfall(
             orientation="v", measure=["relative", "relative", "total", "relative", "total"],
-            x=["👨‍🌾 Farmer Equity\n(30%)", "🏦 Bank Loan\n(70%)", "Total CapEx", "📈 Operating\nMargin", "🌾 Gross\nRevenue"],
+            x=["Farmer Equity\n(30%)", "Bank Loan\n(70%)", "Total CapEx", "Operating\nMargin", "Gross\nRevenue"],
             text=[f"KES {loan_res['total_project_cost_kes']*0.3:,.0f}",
                   f"KES {loan_res['loan_amount_kes']:,}",
                   f"KES {loan_res['total_project_cost_kes']:,}",
@@ -1088,14 +1107,16 @@ if tab_bank is not None:
                 "Each bubble = one borrower · Bubble size = loan amount · Top-left = best risk-return position")
         fig_port = px.scatter(port_df,
             x="expected_default_rate_pct", y="interest_rate_pct",
-            size="loan_amount_kes", color="credit_grade", hover_name="borrower_name", text="crop",
+            size="loan_amount_kes", color="credit_grade", hover_name="borrower_name",
             labels={"expected_default_rate_pct": "Default Risk (%)", "interest_rate_pct": "Interest Rate (%)",
                     "loan_amount_kes": "Loan (KES)", "credit_grade": "Credit Grade"},
             color_discrete_sequence=["#10b981", "#34d399", "#60a5fa", "#f59e0b", "#ef4444"]
         )
-        fig_port.update_traces(textposition="top center",
-                               marker=dict(opacity=0.85, line=dict(width=1, color=card_border)))
-        chart_caption("Ideal loans are top-left (high interest rate, low default risk). Loans in the bottom-right quadrant carry the most credit risk and should have enhanced collateral.")
+        fig_port.update_traces(marker=dict(opacity=0.85, line=dict(width=1, color=card_border)))
+        # Reverse the risk axis so "up and to the right = best" holds everywhere in the dashboard,
+        # matching the Strategic Decision Frontier and Yield vs. Cost charts.
+        fig_port.update_xaxes(autorange="reversed", title_text="Default Risk (%) — lower is safer, further right")
+        chart_caption("Ideal loans sit top-right here (low default risk, healthy interest rate) — same 'up and right is best' rule as the other charts in this app. Bottom-left loans carry the most credit risk and should have enhanced collateral.")
         st.plotly_chart(apply_chart_style(fig_port, 430), use_container_width=True, config={"displayModeBar": False})
 
         section("📋", "Full Portfolio Loan Breakdown", "Complete detail for all 10 simulated facilities")
@@ -1238,19 +1259,26 @@ if tab_catalog is not None:
                 color_continuous_scale=["#bbf7d0", "#16a34a", "#052e16"] if not is_dark else ["#064e3b", "#10b981", "#d1fae5"],
                 labels={"yield_per_acre_kg": "Yield (kg/acre)", "base_price_kes_per_kg": "Price (KES/kg)"})
             fig12.update_traces(textinfo="label+percent parent", textfont_size=12)
-            chart_caption("Larger boxes = higher yield potential. Darker green = higher market price. Click any category to zoom in, then click the header to zoom back out.")
+            fig12.update_layout(uniformtext=dict(minsize=9, mode="hide"))
+            chart_caption("Larger boxes = higher yield potential. Darker green = higher market price. Boxes too small to label are still there — hover or zoom in. Click a category to zoom, click the header to zoom back out.")
             st.plotly_chart(apply_chart_style(fig12, 430), use_container_width=True, config={"displayModeBar": False})
 
             # ── VIZ 13: Yield vs Cost Efficiency ──
             section("🔍", "Yield vs. Cost Efficiency",
                     "Find the best-value crops — high yield at low cost per acre")
             fig13 = px.scatter(df_display, x="cost_per_acre_kes", y="yield_per_acre_kg",
-                color="category", hover_name="crop", size="base_price_kes_per_kg", text="crop",
+                color="category", hover_name="crop", size="base_price_kes_per_kg",
                 labels={"cost_per_acre_kes": "Production Cost (KES/acre)", "yield_per_acre_kg": "Yield (kg/acre)",
                         "base_price_kes_per_kg": "Price (KES/kg)", "category": "Category"})
-            fig13.update_traces(textposition="top center",
-                                marker=dict(opacity=0.82, line=dict(width=1, color=card_border)))
-            chart_caption("Top-left zone = HIGH yield at LOW cost — the sweet spot. Bubble size = market price per kg. Crops with big bubbles in the top-left are the most commercially attractive.")
+            fig13.update_traces(marker=dict(opacity=0.82, line=dict(width=1, color=card_border)))
+            # With up to 40 crops on screen, labeling every point makes it unreadable — call out
+            # only the single best yield-per-cost-shilling crop instead.
+            _best_val = df_display.loc[(df_display["yield_per_acre_kg"] / df_display["cost_per_acre_kes"]).idxmax()]
+            fig13.add_annotation(x=_best_val["cost_per_acre_kes"], y=_best_val["yield_per_acre_kg"],
+                text=f"⭐ {_best_val['crop']} — best value", showarrow=True, arrowhead=2, ax=30, ay=-30,
+                font=dict(size=12, color=text_main, family="Inter"),
+                bgcolor=card_bg, bordercolor=primary_color, borderwidth=1, borderpad=4)
+            chart_caption("Top-left zone = HIGH yield at LOW cost — the sweet spot. Bubble size = market price per kg. Hover any bubble for its name; the starred crop has the best yield-per-shilling ratio.")
             st.plotly_chart(apply_chart_style(fig13, 430), use_container_width=True, config={"displayModeBar": False})
 
             # ── Data Table ──
@@ -1275,7 +1303,10 @@ if tab_catalog is not None:
 
                 if sel_crops_cat:
                     m_sub = engine.market_df[engine.market_df["crop"].isin(sel_crops_cat)]
+                    _crop_price_order = (m_sub.groupby("crop")["market_price"].mean()
+                                          .sort_values(ascending=False).index.tolist())
                     fig14 = px.bar(m_sub, x="crop", y="market_price", color="market", barmode="group",
+                        category_orders={"crop": _crop_price_order},
                         labels={"market_price": "Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
                         color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"]
                         if is_dark else ["#14532d", "#1e40af", "#4c1d95", "#78350f", "#0e7490"])
