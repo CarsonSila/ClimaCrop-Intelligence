@@ -508,6 +508,7 @@ if not st.session_state.authenticated:
                     reg_name  = st.text_input("Full Name", placeholder="e.g. Samuel Kipchumba")
                     reg_user  = st.text_input("Username",  placeholder="e.g. sam_farmer")
                     reg_pass  = st.text_input("Password",  type="password", placeholder="Min 4 characters")
+                    reg_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter your password")
                 with su_c2:
                     role_options = {
                         "cooperative":  "👨‍🌾 Cooperative Member / Farmer",
@@ -534,6 +535,9 @@ if not st.session_state.authenticated:
                         st.error("Full name, username and password are all required.")
                     elif len(reg_pass) < 4:
                         st.error("Password must be at least 4 characters long.")
+                    elif reg_pass != reg_pass2:
+                        st.error("⚠️ Passwords do not match. Please re-enter them.")
+
                     else:
                         ok, msg = register_user(
                             username=reg_user,
@@ -987,10 +991,17 @@ if tab_coop is not None:
             fig2 = px.bar(df_melt, x="crop", y="KES", color="Metric", barmode="group",
                 category_orders={"crop": _crop_order},
                 color_discrete_map={"📦 Cost": "#f87171", "💰 Revenue": "#60a5fa", "✅ Profit": "#34d399"},
-                labels={"KES": "Amount (KES)", "crop": "Crop", "Metric": ""})
-            fig2.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1))
+                labels={"KES": "Amount (KES)", "crop": "Crop", "Metric": ""},
+                text_auto=".3s")
+            fig2.update_traces(textposition="outside", textfont_size=10)
+            fig2.update_layout(
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                yaxis=dict(tickprefix="KES ", gridcolor=card_border),
+                bargap=0.2, bargroupgap=0.06
+            )
             chart_caption(f"Compare cost, revenue and profit side-by-side for your {farm_size}-acre farm. The green profit bar should always exceed the red cost bar.")
             st.plotly_chart(apply_chart_style(fig2, 380), use_container_width=True, config={"displayModeBar": False})
+
 
         with col_v3:
             section("🌳", "Profit Share by Category", "Area = profit share · Color = Benefit-Cost Ratio (BCR)")
@@ -1189,10 +1200,15 @@ if tab_bank is not None:
             fig_donut = px.pie(risk_breakdown, values="Score", names="Factor", hole=0.58,
                 color_discrete_sequence=["#ef4444", "#10b981", "#3b82f6"])
             fig_donut.update_traces(textinfo="percent+label", textfont_size=11, pull=[0.04, 0, 0])
-            fig_donut.update_layout(height=270, margin=dict(l=10, r=10, t=30, b=10),
-                                    template=plotly_theme, paper_bgcolor="rgba(0,0,0,0)")
+            fig_donut.update_layout(
+                height=290, margin=dict(l=10, r=10, t=30, b=40),
+                template=plotly_theme, paper_bgcolor="rgba(0,0,0,0)",
+                legend=dict(orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
+                            font=dict(size=10))
+            )
             st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
             chart_caption("The largest slice is the primary risk driver. Mitigation efforts should focus there first to reduce the composite risk score.")
+
 
         section("💧", "Facility Sizing & Revenue Coverage",
                 "How the loan fits within the overall farm financial structure")
@@ -1308,8 +1324,9 @@ if tab_climate is not None:
             fig8.add_trace(go.Scatter(
                 x=label_x, y=county_data["seasonal_rainfall_mm"], name="🌧️ Rainfall (mm)",
                 fill="tozeroy",
-                fillcolor="rgba(16,185,129,0.18)" if is_dark else "rgba(22,163,74,0.15)",
-                line=dict(color="#10b981" if is_dark else "#16a34a", width=2.5)
+                fillcolor="rgba(16,185,129,0.22)" if is_dark else "rgba(22,163,74,0.18)",
+                line=dict(color="#10b981" if is_dark else "#16a34a", width=2.8),
+                mode="lines+markers", marker=dict(size=6, symbol="circle")
             ), secondary_y=False)
             fig8.add_trace(go.Scatter(
                 x=label_x, y=county_data["temp_mean_c"], name="🌡️ Temperature (°C)",
@@ -1318,10 +1335,14 @@ if tab_climate is not None:
             ), secondary_y=True)
             fig8.update_yaxes(title_text="Rainfall (mm)", secondary_y=False, gridcolor=card_border)
             fig8.update_yaxes(title_text="Temperature (°C)", secondary_y=True, gridcolor="rgba(0,0,0,0)")
-            fig8.update_layout(hovermode="x unified",
-                               legend=dict(orientation="h", yanchor="bottom", y=1.02))
+            fig8.update_layout(
+                hovermode="x unified",
+                legend=dict(orientation="h", yanchor="bottom", y=1.02, bgcolor="rgba(0,0,0,0)"),
+                xaxis=dict(tickangle=-35, gridcolor=card_border, title="Season / Year")
+            )
             chart_caption("Look for years where the green area drops sharply — these are drought years that strongly affect crop yield. The rising red line indicates regional warming over time.")
             st.plotly_chart(apply_chart_style(fig8, 430), use_container_width=True, config={"displayModeBar": False})
+
 
             # ── VIZ 9 + 10: Box + Histogram ──
             col_c1, col_c2 = st.columns(2)
@@ -1454,19 +1475,40 @@ if tab_catalog is not None:
                         category_orders={"crop": _crop_price_order},
                         labels={"market_price": "Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
                         color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"]
-                        if is_dark else ["#14532d", "#1e40af", "#4c1d95", "#78350f", "#0e7490"])
-                    fig14.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02))
+                        if is_dark else ["#14532d", "#1e40af", "#4c1d95", "#78350f", "#0e7490"],
+                        text_auto=".0f")
+                    fig14.update_traces(texttemplate="KES %{text}", textposition="outside", textfont_size=10)
+                    fig14.update_layout(
+                        legend=dict(orientation="h", yanchor="bottom", y=1.02),
+                        yaxis=dict(tickprefix="KES ", gridcolor=card_border),
+                        bargap=0.18, bargroupgap=0.04
+                    )
                     chart_caption("Taller bar = higher price at that market hub. Always sell where your crop's bar is tallest to maximise revenue. Shorter bars still may make sense if transport costs are lower.")
-                    st.plotly_chart(apply_chart_style(fig14, 400), use_container_width=True, config={"displayModeBar": False})
+                    st.plotly_chart(apply_chart_style(fig14, 420), use_container_width=True, config={"displayModeBar": False})
 
                 section("📦", "Price Volatility by Agricultural Category",
-                        "How stable are market prices across each crop class?")
+                        "How stable are market prices across each crop class? Lower = more predictable income")
                 fig15 = px.box(engine.market_df, x="category", y="volatility_cv",
                     color="category",
+                    color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"],
                     labels={"volatility_cv": "Price Volatility (CV)", "category": "Crop Category"})
-                fig15.update_layout(showlegend=False, xaxis_tickangle=-20)
-                chart_caption("Higher box position = more unpredictable prices. Cash crops (e.g., coffee, tea) often have higher volatility. Lower volatility = more predictable income — better for loan repayment planning.")
-                st.plotly_chart(apply_chart_style(fig15, 370), use_container_width=True, config={"displayModeBar": False})
+                fig15.update_layout(
+                    showlegend=False, xaxis_tickangle=-20,
+                    yaxis=dict(gridcolor=card_border),
+                    shapes=[dict(
+                        type="line", x0=-0.5, x1=len(engine.market_df["category"].unique())-0.5,
+                        y0=0.25, y1=0.25, yref="y", xref="x",
+                        line=dict(color="#ef4444", dash="dash", width=1.5)
+                    )],
+                    annotations=[dict(
+                        x=len(engine.market_df["category"].unique())-1, y=0.26,
+                        text="High Volatility Threshold (CV=0.25)",
+                        showarrow=False, font=dict(size=10, color="#ef4444"), xanchor="right"
+                    )]
+                )
+                chart_caption("Higher box = more unpredictable prices. Red dashed line = high-volatility threshold (CV 0.25). Crops below the line offer more stable income — better for loan repayment planning.")
+                st.plotly_chart(apply_chart_style(fig15, 380), use_container_width=True, config={"displayModeBar": False})
+
 
         else:
             st.info("⚠️ Crop database not loaded. Ensure `data/crops_database.csv` is available.")

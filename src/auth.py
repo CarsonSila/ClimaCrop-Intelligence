@@ -193,3 +193,4 @@ def get_demo_account(role_key: str) -> Optional[Dict[str, Any]]:
         safe_copy.pop("password_hash", None)
         return safe_copy
     return None
+
