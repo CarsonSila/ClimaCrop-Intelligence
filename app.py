@@ -650,9 +650,9 @@ html, body, [data-testid="stAppViewContainer"] {{
 .login-wrap {{
     background: {card_bg};
     border: 1px solid {card_border};
-    border-radius: 20px;
-    padding: 28px 30px;
-    box-shadow: 0 16px 48px rgba(0,0,0,{'0.35' if is_dark else '0.08'});
+    border-radius: 18px;
+    padding: 20px 24px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,{'0.30' if is_dark else '0.07'});
     position: relative;
     overflow: hidden;
 }}
@@ -663,22 +663,6 @@ html, body, [data-testid="stAppViewContainer"] {{
     height: 4px;
     background: linear-gradient(90deg, #10b981 0%, #0284c7 33%, #8b5cf6 66%, #f59e0b 100%);
 }}
-.demo-role-chip {{
-    border-radius: 12px;
-    padding: 10px 12px;
-    text-align: center;
-    border: 1px solid {card_border};
-    background: {'rgba(255,255,255,0.04)' if is_dark else '#f9fafb'};
-    margin-bottom: 6px;
-    transition: transform 0.16s ease, border-color 0.16s ease;
-}}
-.demo-role-chip:hover {{
-    transform: translateY(-2px);
-    border-color: #10b981;
-}}
-.demo-chip-icon {{ font-size: 1.4rem; margin-bottom: 2px; }}
-.demo-chip-title {{ font-size: 0.8rem; font-weight: 800; color: {text_main}; line-height: 1.2; }}
-.demo-chip-user {{ font-size: 0.7rem; color: {text_muted}; font-weight: 600; margin-top: 2px; }}
 
 /* Workspace Top Command Strip */
 .workspace-command-strip {{
@@ -911,129 +895,47 @@ if not st.session_state.authenticated:
         render_overview_page()
         st.stop()
 
-    # Top Navigation Row
-    top_nav_c1, top_nav_c2 = st.columns([1, 2])
-    with top_nav_c1:
+    # Compact Navigation & Header
+    top_c1, top_c2 = st.columns([1, 2.5])
+    with top_c1:
         if st.button("← Back to Overview", key="btn_back_to_overview"):
             st.session_state.entered_platform = False
             st.rerun()
-    with top_nav_c2:
+    with top_c2:
         st.markdown(f"""
-        <div style="text-align:right;font-size:0.78rem;color:{text_muted};padding-top:8px;">
+        <div style="text-align:right;font-size:0.75rem;color:{text_muted};padding-top:6px;">
             <span class="live-dot"></span>
-            <strong>TAHMO Kenya Pipeline:</strong> 116 Weather Stations Active · 26 Counties
+            <strong>TAHMO Live:</strong> 116 Ground Stations · NASA POWER Sync
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Centered logo & title ──
+    # ── Centered Brand Header (compact, horizontal) ──
     st.markdown(f"""
-    <div style="text-align:center;margin:18px 0 24px;">
-        <div style="font-size:2.8rem;line-height:1;margin-bottom:6px;">🌿</div>
-        <div style="font-size:1.65rem;font-weight:900;letter-spacing:-0.6px;color:{primary_color};">
-            ClimaCrop Intelligence Portal
-        </div>
-        <div style="font-size:0.88rem;color:{text_muted};margin-top:4px;font-weight:500;">
-            Kilimo-Smart Climate Decision &amp; Agri-Fintech De-Risking Platform · Kenya 🇰🇪
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 16px;">
+        <span style="font-size:2.2rem;line-height:1;">🌿</span>
+        <div>
+            <div style="font-size:1.55rem;font-weight:900;letter-spacing:-0.5px;color:{primary_color};line-height:1.15;">
+                ClimaCrop Intelligence Portal
+            </div>
+            <div style="font-size:0.8rem;color:{text_muted};font-weight:500;">
+                Kilimo-Smart Climate Decision &amp; Agri-Fintech De-Risking Platform · Kenya 🇰🇪
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── 1-CLICK INSTANT DEMO ACCESS CARDS ──
-    st.markdown(f"""
-    <div style="text-align:center;margin-bottom:12px;">
-        <span style="font-size:0.82rem;font-weight:800;color:{text_main};text-transform:uppercase;letter-spacing:0.6px;">
-            🚀 1-Click Instant Persona Launch (No Password Required)
-        </span>
-        <div style="font-size:0.75rem;color:{text_muted};margin-top:2px;">
-            Select a stakeholder role to preview their tailored analytics console immediately:
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    demo_c1, demo_c2, demo_c3, demo_c4 = st.columns(4)
-    with demo_c1:
-        st.markdown(f"""
-        <div class="demo-role-chip" style="border-top:3px solid #10b981;">
-            <div class="demo-chip-icon">👨‍🌾</div>
-            <div class="demo-chip-title" style="color:#10b981;">Cooperative Member</div>
-            <div class="demo-chip-user">Wanjiku Mwangi · Nakuru</div>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("🌱 Launch Co-op View", key="btn_quick_coop", use_container_width=True):
-            d_acc = get_demo_account("cooperative")
-            if d_acc:
-                st.session_state.authenticated = True
-                st.session_state.user          = d_acc
-                st.session_state.active_role   = d_acc["role"]
-                st.rerun()
-
-    with demo_c2:
-        st.markdown(f"""
-        <div class="demo-role-chip" style="border-top:3px solid #0284c7;">
-            <div class="demo-chip-icon">🏦</div>
-            <div class="demo-chip-title" style="color:#0284c7;">Bank &amp; SACCO Officer</div>
-            <div class="demo-chip-user">Kevin Kiprop · Agri-SACCO</div>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("🏦 Launch Bank View", key="btn_quick_bank", use_container_width=True):
-            d_acc = get_demo_account("bank_officer")
-            if d_acc:
-                st.session_state.authenticated = True
-                st.session_state.user          = d_acc
-                st.session_state.active_role   = d_acc["role"]
-                st.rerun()
-
-    with demo_c3:
-        st.markdown(f"""
-        <div class="demo-role-chip" style="border-top:3px solid #8b5cf6;">
-            <div class="demo-chip-icon">🌍</div>
-            <div class="demo-chip-title" style="color:#8b5cf6;">Climate Researcher</div>
-            <div class="demo-chip-user">Dr. Amina Ochieng · Agro-Lab</div>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("🌍 Launch Researcher View", key="btn_quick_res", use_container_width=True):
-            d_acc = get_demo_account("researcher")
-            if d_acc:
-                st.session_state.authenticated = True
-                st.session_state.user          = d_acc
-                st.session_state.active_role   = d_acc["role"]
-                st.rerun()
-
-    with demo_c4:
-        st.markdown(f"""
-        <div class="demo-role-chip" style="border-top:3px solid #f59e0b;">
-            <div class="demo-chip-icon">👑</div>
-            <div class="demo-chip-title" style="color:#f59e0b;">System Administrator</div>
-            <div class="demo-chip-user">Carson Sila · Core Ops</div>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("👑 Launch Admin View", key="btn_quick_admin", use_container_width=True):
-            d_acc = get_demo_account("admin")
-            if d_acc:
-                st.session_state.authenticated = True
-                st.session_state.user          = d_acc
-                st.session_state.active_role   = d_acc["role"]
-                st.rerun()
-
-    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
-
-    # ── MAIN AUTHENTICATION CONTAINER (TABS) ──
-    _lc, _mc, _rc = st.columns([1, 2.2, 1])
+    # ── FIXED SINGLE-VIEWPORT LOGIN CONTAINER ──
+    _lc, _mc, _rc = st.columns([1, 1.8, 1])
     with _mc:
         st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
-        tab_signin, tab_signup = st.tabs(["🔑 Sign In with Credentials", "📝 Create First-Time Account"])
+        tab_signin, tab_signup = st.tabs(["🔑 Sign In", "📝 Create Account"])
 
         with tab_signin:
-            st.markdown(f"""
-            <div style="font-size:0.82rem;color:{text_muted};margin-bottom:14px;margin-top:6px;">
-                Enter your registered username and password to access your customized dashboard.
-            </div>
-            """, unsafe_allow_html=True)
             with st.form("form_signin_main", clear_on_submit=False):
-                in_username = st.text_input("👤 Username", placeholder="e.g. coop_user or your registered handle")
+                in_username = st.text_input("👤 Username", placeholder="e.g. coop_user or your username")
                 in_password = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
-                st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
-                btn_submit = st.form_submit_button("🚀 Enter ClimaCrop Portal", use_container_width=True)
+                st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
+                btn_submit = st.form_submit_button("🚀 Sign In to Portal", use_container_width=True)
 
                 if btn_submit:
                     if not in_username or not in_password:
@@ -1048,19 +950,23 @@ if not st.session_state.authenticated:
                         else:
                             st.error("❌ Invalid username or password. Please try again.")
 
-        with tab_signup:
+            # Compact inline demo credentials
             st.markdown(f"""
-            <div style="font-size:0.82rem;color:{text_muted};margin-bottom:14px;margin-top:6px;">
-                Register a new profile. You will be assigned persona-specific tools and signed in automatically.
+            <div style="text-align:center;font-size:0.73rem;color:{text_muted};margin-top:10px;line-height:1.5;">
+                <strong>Demo Logins:</strong><br>
+                <code>coop_user</code> (<code>kilimo2025</code>) · <code>bank_officer</code> (<code>sacco2025</code>)<br>
+                <code>researcher</code> (<code>tahmo2025</code>) · <code>admin</code> (<code>admin2025</code>)
             </div>
             """, unsafe_allow_html=True)
+
+        with tab_signup:
             with st.form("form_signup_new", clear_on_submit=True):
                 su_c1, su_c2 = st.columns(2)
                 with su_c1:
                     reg_name  = st.text_input("Full Name", placeholder="e.g. Samuel Kipchumba")
                     reg_user  = st.text_input("Username",  placeholder="e.g. sam_farmer")
-                    reg_pass  = st.text_input("Password",  type="password", placeholder="Min 4 characters")
-                    reg_pass2 = st.text_input("Confirm Password", type="password", placeholder="Re-enter your password")
+                    reg_pass  = st.text_input("Password",  type="password", placeholder="Min 4 chars")
+                    reg_pass2 = st.text_input("Confirm Password", type="password", placeholder="Repeat password")
                 with su_c2:
                     role_options = {
                         "cooperative":  "👨‍🌾 Cooperative Member / Farmer",
@@ -1072,7 +978,7 @@ if not st.session_state.authenticated:
                         list(role_options.keys()),
                         format_func=lambda x: role_options[x]
                     )
-                    reg_org = st.text_input("Organization / SACCO", placeholder="e.g. Molo Agribusiness Sacco")
+                    reg_org = st.text_input("Organization / SACCO", placeholder="e.g. Molo Agribusiness")
                     reg_county = st.selectbox("Primary County", [
                         "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua",
                         "Machakos", "Makueni", "Kitui", "Bungoma", "Kakamega",
@@ -1081,7 +987,7 @@ if not st.session_state.authenticated:
                         "Mombasa", "Taita Taveta", "West Pokot", "Turkana", "Laikipia"
                     ])
 
-                btn_signup = st.form_submit_button("🌿 Create Account & Sign In", use_container_width=True)
+                btn_signup = st.form_submit_button("🌿 Register & Sign In", use_container_width=True)
                 if btn_signup:
                     if not reg_user or not reg_pass or not reg_name:
                         st.error("Full name, username and password are all required.")
@@ -1111,7 +1017,7 @@ if not st.session_state.authenticated:
 
         # Security Trust strip inside login card
         st.markdown(f"""
-        <div class="sec-trust-bar">
+        <div class="sec-trust-bar" style="margin-top:10px;padding-top:8px;font-size:0.7rem;">
             <span>🔒 SHA-256 Encrypted</span>
             <span>·</span>
             <span>🛡️ Role-Based Segmentation</span>
