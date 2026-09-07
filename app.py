@@ -39,6 +39,8 @@ if "user" not in st.session_state:
     st.session_state.user = None
 if "active_role" not in st.session_state:
     st.session_state.active_role = None
+if "entered_platform" not in st.session_state:
+    st.session_state.entered_platform = False
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DISPLAY THEME SELECTION & THEME VARIABLES
@@ -134,6 +136,8 @@ html, body, [data-testid="stAppViewContainer"] {{
     font-family: 'Inter', sans-serif !important;
     color: {text_main} !important;
 }}
+/* Reserve space at the bottom of every page so the fixed footer never covers content */
+.block-container {{ padding-bottom: 76px !important; }}
 [data-testid="stSidebar"] {{
     background-color: {card_bg} !important;
     border-right: 1px solid {card_border} !important;
@@ -269,11 +273,52 @@ html, body, [data-testid="stAppViewContainer"] {{
     border-left:2px solid {primary_color};line-height:1.45;
 }}
 
-/* ── Footer ── */
+/* ── Footer — fixed to viewport bottom so it stays in one place regardless of page length ── */
 .footer {{
-    margin-top:48px;margin-bottom:24px;padding:22px 28px;background:{card_bg};border-radius:16px;
-    border:1px solid {card_border};text-align:center;line-height:1.6;
-    box-shadow:0 4px 16px rgba(0,0,0,{'0.25' if is_dark else '0.04'});
+    position:fixed;left:0;right:0;bottom:0;z-index:998;
+    margin:0;border-radius:0;padding:8px 20px;background:{card_bg};
+    border-top:1px solid {card_border};text-align:center;line-height:1.35;
+    box-shadow:0 -4px 16px rgba(0,0,0,{'0.30' if is_dark else '0.06'});
+    backdrop-filter:blur(6px);
+}}
+.footer .footer-line {{ font-size:0.74rem;color:{text_muted};font-weight:500; }}
+.footer .footer-brand {{ font-size:0.8rem;font-weight:800;color:{primary_color}; }}
+
+/* ── Overview / Landing Page ── */
+.landing-hero {{
+    position:relative;border-radius:24px;overflow:hidden;margin-bottom:26px;
+    padding:64px 40px 54px;text-align:center;color:#fff;
+    background:linear-gradient(135deg,rgba(6,30,18,0.90) 0%,rgba(15,70,42,0.85) 55%,rgba(16,120,80,0.80) 100%),
+               url('https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1600&auto=format&fit=crop&q=85') center/cover no-repeat;
+    box-shadow:0 20px 50px rgba(0,0,0,{'0.5' if is_dark else '0.18'});
+}}
+.landing-hero-title {{ font-size:2.4rem;font-weight:800;letter-spacing:-0.8px;margin-bottom:10px;line-height:1.15; }}
+.landing-hero-sub {{ font-size:1.05rem;color:rgba(255,255,255,0.9);max-width:700px;margin:0 auto 22px;line-height:1.6; }}
+.landing-badge {{
+    display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.14);
+    backdrop-filter:blur(8px);color:#d1fae5;padding:6px 16px;border-radius:20px;
+    font-size:0.78rem;font-weight:700;letter-spacing:0.5px;border:1px solid rgba(255,255,255,0.25);
+    margin-bottom:16px;
+}}
+.feature-card {{
+    background:{card_bg};border:1px solid {card_border};border-radius:16px;padding:20px 20px 18px;
+    height:100%;box-shadow:0 4px 16px rgba(0,0,0,{'0.22' if is_dark else '0.05'});
+    transition:transform 0.18s ease,box-shadow 0.18s ease;
+}}
+.feature-card:hover {{ transform:translateY(-4px);box-shadow:0 10px 26px rgba(0,0,0,{'0.32' if is_dark else '0.1'}); }}
+.feature-icon {{
+    font-size:1.6rem;width:48px;height:48px;border-radius:12px;display:flex;
+    align-items:center;justify-content:center;margin-bottom:10px;
+}}
+.feature-title {{ font-size:1.02rem;font-weight:800;color:{text_main};margin-bottom:6px; }}
+.feature-desc {{ font-size:0.84rem;color:{text_muted};line-height:1.55; }}
+.gallery-card {{
+    border-radius:16px;overflow:hidden;position:relative;box-shadow:0 6px 20px rgba(0,0,0,{'0.3' if is_dark else '0.08'});
+}}
+.gallery-caption {{
+    position:absolute;left:0;right:0;bottom:0;padding:12px 16px 10px;
+    background:linear-gradient(to top,rgba(0,0,0,0.75),rgba(0,0,0,0));
+    color:#fff;font-size:0.85rem;font-weight:700;
 }}
 
 /* ── Mobile ── */
@@ -288,16 +333,113 @@ html, body, [data-testid="stAppViewContainer"] {{
     .kpi-val {{ font-size:1.25rem; }}
     .crop-card {{ padding:14px 14px 10px; }}
     .crop-name {{ font-size:1.0rem; }}
-    .block-container {{ padding-top:1rem !important;padding-left:0.5rem !important;padding-right:0.5rem !important; }}
+    .block-container {{ padding-top:1rem !important;padding-left:0.5rem !important;padding-right:0.5rem !important;padding-bottom:64px !important; }}
     .sec-title {{ font-size:1rem; }}
+    .footer {{ padding:6px 10px; }}
+    .footer .footer-line {{ font-size:0.66rem;display:block;white-space:normal; }}
+    .footer .footer-brand {{ font-size:0.74rem; }}
 }}
 </style>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# AUTHENTICATION GATEWAY — If not authenticated, show login / signup screen
+# OVERVIEW / LANDING PAGE — first thing a visitor sees, before sign in / sign up
+# ─────────────────────────────────────────────────────────────────────────────
+def render_overview_page():
+    st.markdown(f"""
+    <div class="landing-hero">
+        <div class="landing-badge">🌍 Kenya · 26 Counties · 10 Years of Climate Data</div>
+        <div class="landing-hero-title">🌾 ClimaCrop Intelligence</div>
+        <div class="landing-hero-sub">
+            Bridging 10-year localized climate patterns, optimal 40-crop selection, and institutional
+            credit underwriting for Kenyan agriculture — one platform for cooperatives, banks &amp; SACCOs,
+            and climate researchers.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div style="text-align:center;max-width:760px;margin:0 auto 30px;">
+        <div style="font-size:1.05rem;font-weight:800;color:{primary_color};margin-bottom:8px;">What ClimaCrop Intelligence Actually Does</div>
+        <div style="font-size:0.92rem;color:{text_muted};line-height:1.7;">
+            Traditional weather apps only answer <em>"will it rain tomorrow?"</em> ClimaCrop goes further —
+            for a cooperative, it recommends what to plant this season and where to sell it for the best price.
+            For a bank or SACCO, it prices agricultural loans against real climate and market risk.
+            Everything is powered by 116 TAHMO ground weather stations, NASA POWER satellite reanalysis,
+            and FAOSTAT/KNBS crop economics.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Colorful feature grid (green stays primary; each card gets its own accent) ──
+    features = [
+        ("🌱", "#dcfce7", "#166534", "Cooperative Advisory",
+         "Rank the best of 40 Kenyan crops for your county and season by climate fit, expected yield, and net farm profit."),
+        ("🏦", "#dbeafe", "#1e40af", "Bank & Credit Risk",
+         "Automated 70% CapEx loan sizing, climate-adjusted interest rates, and portfolio-level default risk stress testing."),
+        ("🌍", "#ede9fe", "#5b21b6", "Climate Intelligence",
+         "10 years of rainfall, temperature and dry-spell trends across 116 ground stations, visualized county by county."),
+        ("📊", "#fef3c7", "#92400e", "Crop & Market Catalog",
+         "Full agronomic and financial profiles for 40 crops, plus live price comparison across 5 regional wholesale hubs."),
+    ]
+    fcols = st.columns(4)
+    for col, (icon, bg, fg, title, desc) in zip(fcols, features):
+        with col:
+            st.markdown(f"""
+            <div class="feature-card">
+                <div class="feature-icon" style="background:{bg};color:{fg};">{icon}</div>
+                <div class="feature-title">{title}</div>
+                <div class="feature-desc">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
+
+    # ── Photo gallery ──
+    gcol1, gcol2 = st.columns(2)
+    with gcol1:
+        st.markdown("""
+        <div class="gallery-card">
+            <img src="https://images.unsplash.com/photo-1715198901384-0b7ff9f37a77?w=900&auto=format&fit=crop&q=80"
+                 style="width:100%;height:260px;object-fit:cover;display:block;">
+            <div class="gallery-caption">🌾 Precision crop planning, county by county</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with gcol2:
+        st.markdown("""
+        <div class="gallery-card">
+            <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=900&auto=format&fit=crop&q=80"
+                 style="width:100%;height:260px;object-fit:cover;display:block;">
+            <div class="gallery-caption">🌿 From field data to financing decisions</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # ── Call to action ──
+    st.markdown("<div style='margin-top:34px;'></div>", unsafe_allow_html=True)
+    _lc, _mc, _rc = st.columns([1, 1.1, 1])
+    with _mc:
+        if st.button("🚀 Get Started — Sign In / Sign Up", use_container_width=True, key="btn_enter_platform"):
+            st.session_state.entered_platform = True
+            st.rerun()
+    st.markdown(f"""
+    <div style="text-align:center;font-size:0.78rem;color:{text_muted};margin-top:10px;">
+        Free demo accounts available for cooperatives, banks &amp; SACCOs, and researchers.
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTHENTICATION GATEWAY — If not authenticated, show overview → login / signup
 # ─────────────────────────────────────────────────────────────────────────────
 if not st.session_state.authenticated:
+    if not st.session_state.entered_platform:
+        render_overview_page()
+        st.stop()
+
+    if st.button("← Back to overview", key="btn_back_to_overview"):
+        st.session_state.entered_platform = False
+        st.rerun()
+
     # ── Centered logo / title ──
     st.markdown(f"""
     <div style="display:flex;justify-content:center;margin-bottom:28px;margin-top:36px;">
@@ -433,15 +575,8 @@ if not st.session_state.authenticated:
     # Footer on login screen
     st.markdown(f"""
     <div class="footer">
-        <div style="font-size: 0.96rem; font-weight: 800; color: {primary_color}; margin-bottom: 6px; letter-spacing: -0.2px;">
-            🌿 ClimaCrop Intelligence &nbsp;·&nbsp; Kilimo-Smart Decision Platform &nbsp;·&nbsp; Kenya 🇰🇪
-        </div>
-        <div style="font-size: 0.82rem; color: {text_main}; margin-bottom: 4px; font-weight: 500;">
-            Data: TAHMO 116 Ground Stations · NASA POWER Satellite Reanalysis · FAOSTAT · Kenya National Bureau of Statistics
-        </div>
-        <div style="font-size: 0.78rem; color: {text_muted}; font-weight: 500;">
-            Built for agricultural cooperatives, rural SACCOs, development finance institutions and agri-tech researchers.
-        </div>
+        <span class="footer-brand">🌿 ClimaCrop Intelligence</span>
+        <span class="footer-line">&nbsp;·&nbsp; Kilimo-Smart Decision Platform · Kenya 🇰🇪 &nbsp;·&nbsp; TAHMO · NASA POWER · FAOSTAT · KNBS</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1465,14 +1600,7 @@ if tab_ai is not None:
 # ─────────────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="footer">
-    <div style="font-size: 0.96rem; font-weight: 800; color: {primary_color}; margin-bottom: 6px; letter-spacing: -0.2px;">
-        🌿 ClimaCrop Intelligence &nbsp;·&nbsp; Kilimo-Smart Decision Platform &nbsp;·&nbsp; Kenya 🇰🇪
-    </div>
-    <div style="font-size: 0.82rem; color: {text_main}; margin-bottom: 4px; font-weight: 500;">
-        Data: TAHMO 116 Ground Stations · NASA POWER Satellite Reanalysis · FAOSTAT · Kenya National Bureau of Statistics
-    </div>
-    <div style="font-size: 0.78rem; color: {text_muted}; font-weight: 500;">
-        Built for agricultural cooperatives, rural SACCOs, development finance institutions and agri-tech researchers.
-    </div>
+    <span class="footer-brand">🌿 ClimaCrop Intelligence</span>
+    <span class="footer-line">&nbsp;·&nbsp; Kilimo-Smart Decision Platform · Kenya 🇰🇪 &nbsp;·&nbsp; TAHMO · NASA POWER · FAOSTAT · KNBS &nbsp;·&nbsp; Built for cooperatives, SACCOs, DFIs & agri-tech researchers</span>
 </div>
 """, unsafe_allow_html=True)
