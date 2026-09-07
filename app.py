@@ -647,7 +647,7 @@ html, body, [data-testid="stAppViewContainer"] {{
 /* ══════════════════════════════════════════════════════
    MULTI-COLOR ACCENTS & COMMAND STRIP
 ══════════════════════════════════════════════════════ */
-.login-wrap {
+.login-wrap {{
     background: {card_bg};
     border: 1px solid {card_border};
     border-radius: 20px;
@@ -655,15 +655,15 @@ html, body, [data-testid="stAppViewContainer"] {{
     box-shadow: 0 16px 48px rgba(0,0,0,{'0.35' if is_dark else '0.08'});
     position: relative;
     overflow: hidden;
-}
-.login-wrap::before {
+}}
+.login-wrap::before {{
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 4px;
     background: linear-gradient(90deg, #10b981 0%, #0284c7 33%, #8b5cf6 66%, #f59e0b 100%);
-}
-.demo-role-chip {
+}}
+.demo-role-chip {{
     border-radius: 12px;
     padding: 10px 12px;
     text-align: center;
@@ -671,17 +671,17 @@ html, body, [data-testid="stAppViewContainer"] {{
     background: {'rgba(255,255,255,0.04)' if is_dark else '#f9fafb'};
     margin-bottom: 6px;
     transition: transform 0.16s ease, border-color 0.16s ease;
-}
-.demo-role-chip:hover {
+}}
+.demo-role-chip:hover {{
     transform: translateY(-2px);
     border-color: #10b981;
-}
-.demo-chip-icon { font-size: 1.4rem; margin-bottom: 2px; }
-.demo-chip-title { font-size: 0.8rem; font-weight: 800; color: {text_main}; line-height: 1.2; }
-.demo-chip-user { font-size: 0.7rem; color: {text_muted}; font-weight: 600; margin-top: 2px; }
+}}
+.demo-chip-icon {{ font-size: 1.4rem; margin-bottom: 2px; }}
+.demo-chip-title {{ font-size: 0.8rem; font-weight: 800; color: {text_main}; line-height: 1.2; }}
+.demo-chip-user {{ font-size: 0.7rem; color: {text_muted}; font-weight: 600; margin-top: 2px; }}
 
 /* Workspace Top Command Strip */
-.workspace-command-strip {
+.workspace-command-strip {{
     background: {card_bg};
     border: 1px solid {card_border};
     border-radius: 14px;
@@ -692,8 +692,8 @@ html, body, [data-testid="stAppViewContainer"] {{
     align-items: center;
     gap: 14px;
     box-shadow: 0 2px 12px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
-}
-.command-pill {
+}}
+.command-pill {{
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -701,31 +701,31 @@ html, body, [data-testid="stAppViewContainer"] {{
     border-radius: 10px;
     font-size: 0.8rem;
     font-weight: 700;
-}
-.pill-location {
+}}
+.pill-location {{
     background: {'rgba(245,158,11,0.12)' if is_dark else '#fef3c7'};
     color: {'#fbbf24' if is_dark else '#92400e'};
     border: 1px solid {'rgba(245,158,11,0.3)' if is_dark else '#fde68a'};
-}
-.pill-season {
+}}
+.pill-season {{
     background: {'rgba(2,132,199,0.12)' if is_dark else '#e0f2fe'};
     color: {'#38bdf8' if is_dark else '#0369a1'};
     border: 1px solid {'rgba(2,132,199,0.3)' if is_dark else '#bae6fd'};
-}
-.pill-pipeline {
+}}
+.pill-pipeline {{
     background: {'rgba(16,185,129,0.12)' if is_dark else '#dcfce7'};
     color: {'#4ade80' if is_dark else '#15803d'};
     border: 1px solid {'rgba(16,185,129,0.3)' if is_dark else '#bbf7d0'};
     margin-left: auto;
-}
-.pill-engine {
+}}
+.pill-engine {{
     background: {'rgba(139,92,246,0.12)' if is_dark else '#ede9fe'};
     color: {'#c084fc' if is_dark else '#6d28d9'};
     border: 1px solid {'rgba(139,92,246,0.3)' if is_dark else '#ddd6fe'};
-}
+}}
 
 /* Security footer pill */
-.sec-trust-bar {
+.sec-trust-bar {{
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -737,7 +737,7 @@ html, body, [data-testid="stAppViewContainer"] {{
     font-size: 0.74rem;
     color: {text_muted};
     font-weight: 600;
-}
+}}
 
 </style>
 """, unsafe_allow_html=True)
