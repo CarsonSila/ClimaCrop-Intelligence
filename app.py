@@ -1,6 +1,6 @@
 """
 ClimaCrop Intelligence — Kilimo-Smart Climate Decision Support & Agri-Fintech De-Risking Platform
-Version 3.0 | Enhanced UX & Data Visualisation Edition
+Version 4.0 | Multi-Persona Role-Based Authentication Edition
 """
 
 import sys
@@ -18,9 +18,10 @@ import streamlit as st
 from src.financial_engine import FinancialDecisionEngine
 from src.humanize import humanize_crop_recommendation, humanize_loan_decision
 from src.ai_agent import GEMINI_AVAILABLE, get_api_key, init_chat_session, ask_kiilimobot, generate_offline_response
+from src.auth import authenticate_user, register_user, get_demo_account, ROLES, DEFAULT_USERS
 
 # ─────────────────────────────────────────────────────────────────────────────
-# PAGE CONFIG
+# PAGE CONFIG & SESSION INITIALIZATION
 # ─────────────────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="ClimaCrop Intelligence | Kilimo-Smart Platform",
@@ -32,8 +33,15 @@ st.set_page_config(
     }
 )
 
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+if "user" not in st.session_state:
+    st.session_state.user = None
+if "active_role" not in st.session_state:
+    st.session_state.active_role = None
+
 # ─────────────────────────────────────────────────────────────────────────────
-# SIDEBAR — SETTINGS ONLY (theme, county, season, engine)
+# DISPLAY THEME SELECTION & THEME VARIABLES
 # ─────────────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.image(
@@ -47,7 +55,7 @@ with st.sidebar:
     )
     st.markdown("---")
 
-    # Theme
+    # Display Theme
     st.markdown("#### 🎨 Display Theme")
     theme_mode = st.radio(
         "Theme",
@@ -56,58 +64,6 @@ with st.sidebar:
         label_visibility="collapsed"
     )
 
-    st.markdown("---")
-
-    # Region & Calendar
-    st.markdown("#### 📍 Location & Season")
-    counties_list = [
-        "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
-        "Bungoma", "Kakamega", "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
-        "Narok", "Embu", "Tharaka Nithi", "Kwale", "Kilifi", "Mombasa", "Taita Taveta",
-        "West Pokot", "Turkana", "Laikipia"
-    ]
-    selected_county = st.selectbox("📍 County", counties_list, index=0)
-    selected_season = st.selectbox("📅 Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
-
-    st.markdown("---")
-
-    # Engine mode
-    st.markdown("#### 🧠 Advisory Engine")
-    st.caption("Choose how crop suitability scores are calculated.")
-    engine_mode = st.radio(
-        "Engine",
-        ["📐 Agro-Ecological Rules (AEZ)", "🤖 Machine Learning (Random Forest)"],
-        index=0,
-        label_visibility="collapsed"
-    )
-    use_rule_based = engine_mode.startswith("📐")
-    st.info(
-        "📐 **Rules (AEZ):** Transparent, explainable scores based on Kenya's Agro-Ecological Zone rainfall & temperature bands."
-        if use_rule_based else
-        "🤖 **ML Model:** Probabilistic Random Forest recommendations — great for comparing against rule-based outputs."
-    )
-
-    st.markdown("---")
-
-    # Live Data Stack info card
-    st.markdown("""
-<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 14px;">
-<div style="font-size:0.72rem;font-weight:800;letter-spacing:0.6px;color:#059669;margin-bottom:6px;">📡 DATA SOURCES</div>
-<div style="font-size:0.8rem;line-height:1.6;">
-🌡️ 116 TAHMO Ground Stations<br>
-🛰️ NASA POWER Satellite Reanalysis<br>
-📋 FAOSTAT & KNBS 40-Crop Matrix<br>
-🏪 5 Regional Wholesale Hubs
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.caption("Navigation is at the top of the main page. Scroll up to switch views.")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# THEME VARIABLES
-# ─────────────────────────────────────────────────────────────────────────────
 if theme_mode == "🌙 Dark Forest":
     is_dark = True
     plotly_theme = "plotly_dark"
@@ -187,7 +143,7 @@ html, body, [data-testid="stAppViewContainer"] {{
 .hero {{
     background: {hero_bg},
         url('https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1600&auto=format&fit=crop&q=85') center/cover no-repeat;
-    color:#fff; padding:34px 36px 28px; border-radius:20px; margin-bottom:22px;
+    color:#fff; padding:32px 34px 26px; border-radius:20px; margin-bottom:20px;
     box-shadow:0 16px 40px rgba(0,0,0,{'0.45' if is_dark else '0.14'});
     border:1px solid rgba(255,255,255,0.12);
 }}
@@ -198,20 +154,20 @@ html, body, [data-testid="stAppViewContainer"] {{
     font-size:0.75rem;font-weight:700;letter-spacing:0.7px;
     border:1px solid rgba(74,222,128,0.3);margin-bottom:12px;
 }}
-.hero-title {{ font-size:2.0rem;font-weight:800;letter-spacing:-0.6px;line-height:1.15;margin-bottom:8px;color:#fff; }}
-.hero-subtitle {{ font-size:0.95rem;color:rgba(255,255,255,0.82);line-height:1.55;max-width:780px;font-weight:400; }}
-.hero-stats {{ display:flex;flex-wrap:wrap;gap:16px;margin-top:18px; }}
+.hero-title {{ font-size:1.95rem;font-weight:800;letter-spacing:-0.6px;line-height:1.15;margin-bottom:8px;color:#fff; }}
+.hero-subtitle {{ font-size:0.94rem;color:rgba(255,255,255,0.85);line-height:1.55;max-width:820px;font-weight:400; }}
+.hero-stats {{ display:flex;flex-wrap:wrap;gap:14px;margin-top:16px; }}
 .hero-stat {{
     background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);
-    padding:8px 18px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);
+    padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);
 }}
-.hero-stat-val {{ font-size:1.3rem;font-weight:800;color:#4ade80; }}
+.hero-stat-val {{ font-size:1.25rem;font-weight:800;color:#4ade80; }}
 .hero-stat-lbl {{ font-size:0.68rem;color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:0.5px; }}
 
 /* ── Section Header ── */
 .sec-header {{
     display:flex;align-items:flex-start;gap:12px;
-    margin:26px 0 12px;padding-bottom:12px;border-bottom:2px solid {card_border};
+    margin:24px 0 12px;padding-bottom:12px;border-bottom:2px solid {card_border};
 }}
 .sec-icon {{ font-size:1.4rem;flex-shrink:0;padding-top:1px; }}
 .sec-title {{ font-size:1.1rem;font-weight:800;color:{text_main}; }}
@@ -271,6 +227,23 @@ html, body, [data-testid="stAppViewContainer"] {{
     font-size:0.86rem;color:{text_muted};line-height:1.55;
 }}
 
+/* ── Persona Cards (Login Portal) ── */
+.persona-card {{
+    background:{card_bg};border:1px solid {card_border};
+    border-radius:16px;padding:20px;margin-bottom:14px;
+    box-shadow:0 4px 16px rgba(0,0,0,{'0.25' if is_dark else '0.05'});
+    transition:transform 0.18s ease, box-shadow 0.18s ease;
+}}
+.persona-card:hover {{
+    transform:translateY(-3px);
+    box-shadow:0 8px 24px rgba(0,0,0,{'0.35' if is_dark else '0.1'});
+}}
+.user-profile-box {{
+    background:{card_bg};border:1px solid {card_border};border-radius:14px;
+    padding:14px 16px;margin-bottom:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+}}
+
 /* ── Metrics ── */
 [data-testid="stMetricValue"] {{ font-size:1.2rem !important;font-weight:800 !important;color:{kpi_val_color} !important; }}
 [data-testid="stMetricLabel"] {{ font-size:0.74rem !important;font-weight:700 !important;color:{text_muted} !important; }}
@@ -321,9 +294,346 @@ html, body, [data-testid="stAppViewContainer"] {{
 </style>
 """, unsafe_allow_html=True)
 
+# ─────────────────────────────────────────────────────────────────────────────
+# AUTHENTICATION GATEWAY — If not authenticated, show login / signup screen
+# ─────────────────────────────────────────────────────────────────────────────
+if not st.session_state.authenticated:
+    st.markdown(f"""
+    <div class="hero">
+        <div class="hero-pill">
+            <span style="color:#4ade80;font-size:0.55rem;">●</span>
+            AUTHENTICATION & STAKEHOLDER PORTAL
+        </div>
+        <div class="hero-title">ClimaCrop Intelligence</div>
+        <div class="hero-subtitle">
+            Welcome to Kenya's climate-smart decision engine. Sign in to access your role-tailored intelligence portal — whether you're managing a farmer cooperative, underwriting agricultural credit, or conducting climate research.
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-val">4</div><div class="hero-stat-lbl">STAKEHOLDER ROLES</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-val">116</div><div class="hero-stat-lbl">TAHMO STATIONS</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-val">40</div><div class="hero-stat-lbl">KENYAN CROPS</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-val">26</div><div class="hero-stat-lbl">COUNTIES</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    auth_tab_demo, auth_tab_login, auth_tab_signup = st.tabs([
+        "⚡ 1-Click Demo Login",
+        "🔑 Standard Sign In",
+        "📝 Create Account"
+    ])
+
+    # 1. 1-CLICK DEMO LOGIN TAB
+    with auth_tab_demo:
+        st.markdown("##### 🚀 Experience ClimaCrop by Stakeholder Persona")
+        st.caption("Click any persona below to log in instantly and experience that role's customized platform interface:")
+
+        d_col1, d_col2 = st.columns(2)
+
+        with d_col1:
+            # 1. Cooperative Farmer
+            st.markdown(f"""
+            <div class="persona-card" style="border-left: 5px solid #10b981;">
+                <div style="font-size: 1.15rem; font-weight: 800; color: {primary_color}; margin-bottom: 4px;">
+                    👨‍🌾 1. Cooperative Member / Farmer
+                </div>
+                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
+                    <strong>Demo User:</strong> <code>coop_user</code> · Nakuru Grain Growers Co-op
+                </div>
+                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
+                    Tailored for farmers and co-op managers. Focuses on seasonal crop selection, acreage profit maximization, best wholesale market trading hubs, and farmer advisory notes.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("🌾 Log in as Cooperative Member", key="btn_demo_coop", use_container_width=True):
+                user_info = get_demo_account("cooperative")
+                st.session_state.authenticated = True
+                st.session_state.user = user_info
+                st.session_state.active_role = "cooperative"
+                st.rerun()
+
+            # 2. Bank Officer
+            st.markdown(f"""
+            <div class="persona-card" style="border-left: 5px solid #3b82f6; margin-top: 14px;">
+                <div style="font-size: 1.15rem; font-weight: 800; color: #3b82f6; margin-bottom: 4px;">
+                    🏦 2. Bank & SACCO Credit Officer
+                </div>
+                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
+                    <strong>Demo User:</strong> <code>bank_officer</code> · Agricultural Finance SACCO
+                </div>
+                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
+                    Tailored for credit analysts. Automated 70% CapEx loan sizing, climate-adjusted interest rates, Debt Service Coverage Ratio (DSCR), and multi-borrower portfolio stress testing.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("💳 Log in as Credit Officer", key="btn_demo_bank", use_container_width=True):
+                user_info = get_demo_account("bank_officer")
+                st.session_state.authenticated = True
+                st.session_state.user = user_info
+                st.session_state.active_role = "bank_officer"
+                st.rerun()
+
+        with d_col2:
+            # 3. Climate Researcher
+            st.markdown(f"""
+            <div class="persona-card" style="border-left: 5px solid #8b5cf6;">
+                <div style="font-size: 1.15rem; font-weight: 800; color: #8b5cf6; margin-bottom: 4px;">
+                    🌍 3. Climate & Agronomy Researcher
+                </div>
+                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
+                    <strong>Demo User:</strong> <code>researcher</code> · Kenya Agro-Meteorological Lab
+                </div>
+                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
+                    Tailored for meteorologists and researchers. Deep 10-year historical climate analytics, 116 TAHMO station mapping, FAOSTAT data provenance audits, and AEZ vs ML model benchmarking.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("📊 Log in as Climate Researcher", key="btn_demo_research", use_container_width=True):
+                user_info = get_demo_account("researcher")
+                st.session_state.authenticated = True
+                st.session_state.user = user_info
+                st.session_state.active_role = "researcher"
+                st.rerun()
+
+            # 4. System Admin
+            st.markdown(f"""
+            <div class="persona-card" style="border-left: 5px solid #f59e0b; margin-top: 14px;">
+                <div style="font-size: 1.15rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px;">
+                    👑 4. System Administrator
+                </div>
+                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
+                    <strong>Demo User:</strong> <code>admin</code> · ClimaCrop Core Engineering
+                </div>
+                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
+                    Superuser privileges across all modules, plus dynamic persona preview switcher to test any role experience on the fly.
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            if st.button("👑 Log in as Administrator", key="btn_demo_admin", use_container_width=True):
+                user_info = get_demo_account("admin")
+                st.session_state.authenticated = True
+                st.session_state.user = user_info
+                st.session_state.active_role = "admin"
+                st.rerun()
+
+    # 2. STANDARD SIGN IN TAB
+    with auth_tab_login:
+        st.markdown("##### 🔑 Sign In with Credentials")
+        col_l1, col_l2 = st.columns([1.2, 1])
+        with col_l1:
+            with st.form("form_signin"):
+                in_username = st.text_input("Username", placeholder="e.g. coop_user, bank_officer, admin")
+                in_password = st.text_input("Password", type="password", placeholder="Enter your password")
+                btn_submit = st.form_submit_button("Sign In", use_container_width=True)
+
+                if btn_submit:
+                    if not in_username or not in_password:
+                        st.error("Please enter both username and password.")
+                    else:
+                        user_auth = authenticate_user(in_username, in_password)
+                        if user_auth:
+                            st.session_state.authenticated = True
+                            st.session_state.user = user_auth
+                            st.session_state.active_role = user_auth["role"]
+                            st.success(f"Welcome back, {user_auth['full_name']}!")
+                            st.rerun()
+                        else:
+                            st.error("Invalid username or password. Please try again or use a 1-Click Demo account.")
+        with col_l2:
+            st.markdown(f"""
+            <div class="info-box">
+                <strong>💡 Pre-registered Credentials:</strong><br><br>
+                • <code>coop_user</code> / <code>kilimo2025</code> (Co-op)<br>
+                • <code>bank_officer</code> / <code>sacco2025</code> (Bank)<br>
+                • <code>researcher</code> / <code>tahmo2025</code> (Researcher)<br>
+                • <code>admin</code> / <code>admin2025</code> (Admin)
+            </div>
+            """, unsafe_allow_html=True)
+
+    # 3. CREATE ACCOUNT TAB
+    with auth_tab_signup:
+        st.markdown("##### 📝 Create a New Stakeholder Account")
+        with st.form("form_signup"):
+            c_s1, c_s2 = st.columns(2)
+            with c_s1:
+                reg_name = st.text_input("Full Name", placeholder="e.g. Samuel Kipchumba")
+                reg_user = st.text_input("Desired Username", placeholder="e.g. sam_farmer")
+                reg_pass = st.text_input("Password", type="password", placeholder="Min 4 characters")
+            with c_s2:
+                role_options = {
+                    "cooperative": "👨‍🌾 Cooperative Member / Farmer",
+                    "bank_officer": "🏦 Bank & SACCO Credit Officer",
+                    "researcher": "🌍 Climate & Agronomy Researcher"
+                }
+                reg_role_key = st.selectbox("Your Role", list(role_options.keys()), format_func=lambda x: role_options[x])
+                reg_org = st.text_input("Organization / SACCO Group", placeholder="e.g. Molo Agribusiness Sacco")
+                reg_county = st.selectbox("Primary County", [
+                    "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
+                    "Bungoma", "Kakamega", "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
+                    "Narok", "Embu", "Tharaka Nithi", "Kwale", "Kilifi", "Mombasa", "Taita Taveta",
+                    "West Pokot", "Turkana", "Laikipia"
+                ])
+
+            btn_signup = st.form_submit_button("Create Account & Sign In", use_container_width=True)
+            if btn_signup:
+                if not reg_user or not reg_pass:
+                    st.error("Username and password are required.")
+                else:
+                    ok, msg = register_user(
+                        username=reg_user,
+                        password=reg_pass,
+                        full_name=reg_name,
+                        role=reg_role_key,
+                        organization=reg_org,
+                        county=reg_county
+                    )
+                    if ok:
+                        st.success(msg)
+                        # Automatically log user in
+                        user_auth = authenticate_user(reg_user, reg_pass)
+                        if user_auth:
+                            st.session_state.authenticated = True
+                            st.session_state.user = user_auth
+                            st.session_state.active_role = user_auth["role"]
+                            st.rerun()
+                    else:
+                        st.error(msg)
+
+    # Footer on login screen
+    st.markdown(f"""
+    <div class="footer">
+        <div style="font-size: 0.96rem; font-weight: 800; color: {primary_color}; margin-bottom: 6px; letter-spacing: -0.2px;">
+            🌿 ClimaCrop Intelligence &nbsp;·&nbsp; Kilimo-Smart Decision Platform &nbsp;·&nbsp; Kenya 🇰🇪
+        </div>
+        <div style="font-size: 0.82rem; color: {text_main}; margin-bottom: 4px; font-weight: 500;">
+            Data: TAHMO 116 Ground Stations · NASA POWER Satellite Reanalysis · FAOSTAT · Kenya National Bureau of Statistics
+        </div>
+        <div style="font-size: 0.78rem; color: {text_muted}; font-weight: 500;">
+            Built for agricultural cooperatives, rural SACCOs, development finance institutions and agri-tech researchers.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Stop rendering the rest of the application when not logged in
+    st.stop()
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# LOAD ENGINE
+# AUTHENTICATED USER SESSION & SIDEBAR CONTROLS
+# ─────────────────────────────────────────────────────────────────────────────
+current_user = st.session_state.user or {}
+user_role = st.session_state.active_role or current_user.get("role", "cooperative")
+role_meta = ROLES.get(user_role, ROLES["cooperative"])
+
+with st.sidebar:
+    st.markdown("---")
+    # User profile badge card
+    st.markdown(f"""
+    <div class="user-profile-box">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <div style="font-size: 1.6rem;">{role_meta['icon']}</div>
+            <div>
+                <div style="font-size: 0.92rem; font-weight: 800; color: {text_main}; line-height: 1.2;">
+                    {current_user.get('full_name', 'Authorized User')}
+                </div>
+                <div style="font-size: 0.75rem; color: {text_muted}; font-weight: 600;">
+                    {current_user.get('organization', 'ClimaCrop Partner')}
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 6px;">
+            <span style="background: {role_meta['badge_color']}; color: #ffffff; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.4px;">
+                {role_meta['name'].upper()}
+            </span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # If user is admin, allow switching persona on the fly
+    if current_user.get("role") == "admin":
+        st.markdown("#### 🎭 Persona Preview Mode")
+        st.caption("Admin superpower: switch roles to experience any persona's view.")
+        selected_preview_role = st.selectbox(
+            "Active Role View",
+            list(ROLES.keys()),
+            format_func=lambda r: f"{ROLES[r]['icon']} {ROLES[r]['name']}",
+            index=list(ROLES.keys()).index(user_role)
+        )
+        if selected_preview_role != user_role:
+            st.session_state.active_role = selected_preview_role
+            st.rerun()
+
+    # Sign Out Button
+    if st.button("🚪 Sign Out", key="btn_logout", use_container_width=True):
+        st.session_state.authenticated = False
+        st.session_state.user = None
+        st.session_state.active_role = None
+        if "gemini_chat" in st.session_state:
+            del st.session_state["gemini_chat"]
+        st.rerun()
+
+    st.markdown("---")
+
+    # Region & Calendar
+    st.markdown("#### 📍 Location & Season")
+    counties_list = [
+        "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
+        "Bungoma", "Kakamega", "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
+        "Narok", "Embu", "Tharaka Nithi", "Kwale", "Kilifi", "Mombasa", "Taita Taveta",
+        "West Pokot", "Turkana", "Laikipia"
+    ]
+    # Default to user's registered county if valid
+    default_county_idx = 0
+    if current_user.get("county") in counties_list:
+        default_county_idx = counties_list.index(current_user["county"])
+
+    selected_county = st.selectbox("📍 County", counties_list, index=default_county_idx)
+    selected_season = st.selectbox("📅 Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
+
+    st.markdown("---")
+
+    # Engine mode
+    st.markdown("#### 🧠 Advisory Engine")
+    st.caption("Choose how crop suitability scores are calculated.")
+    engine_mode = st.radio(
+        "Engine",
+        ["📐 Agro-Ecological Rules (AEZ)", "🤖 Machine Learning (Random Forest)"],
+        index=0,
+        label_visibility="collapsed"
+    )
+    use_rule_based = engine_mode.startswith("📐")
+    st.info(
+        "📐 **Rules (AEZ):** Transparent, explainable scores based on Kenya's Agro-Ecological Zone rainfall & temperature bands."
+        if use_rule_based else
+        "🤖 **ML Model:** Probabilistic Random Forest recommendations — great for comparing against rule-based outputs."
+    )
+
+    st.markdown("---")
+
+    # Live Data Stack info card
+    st.markdown("""
+<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 14px;">
+<div style="font-size:0.72rem;font-weight:800;letter-spacing:0.6px;color:#059669;margin-bottom:6px;">📡 DATA SOURCES</div>
+<div style="font-size:0.8rem;line-height:1.6;">
+🌡️ 116 TAHMO Ground Stations<br>
+🛰️ NASA POWER Satellite Reanalysis<br>
+📋 FAOSTAT & KNBS 40-Crop Matrix<br>
+🏪 5 Regional Wholesale Hubs
+</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LOAD ENGINES & HELPERS
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner="🌱 Loading ClimaCrop intelligence engines...")
 def load_engine():
@@ -332,9 +642,6 @@ def load_engine():
 engine = load_engine()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
 def section(icon, title, desc=""):
     st.markdown(f"""
 <div class="sec-header">
@@ -374,20 +681,29 @@ def kpi(icon, label, value, sub):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# HERO BANNER
+# PERSONALIZED HERO BANNER
 # ─────────────────────────────────────────────────────────────────────────────
 engine_badge = "📐 Agro-Ecological Rules (AEZ)" if use_rule_based else "🤖 Random Forest ML"
+
+# Role-specific subtitle
+if user_role == "cooperative":
+    role_subtitle = f"Welcome **{current_user.get('full_name')}**! You are viewing the **Cooperative Advisory Console** for **{current_user.get('organization', 'your cooperative')}**. Optimize member crop selection, compare farm yield payoffs, and find the highest-paying wholesale market hubs."
+elif user_role == "bank_officer":
+    role_subtitle = f"Welcome **{current_user.get('full_name')}**! You are viewing the **Institutional Credit Underwriting Portal** for **{current_user.get('organization', 'your financial institution')}**. Automate 70% CapEx facility sizing, test DSCR coverage, and simulate multi-borrower climate risk defaults."
+elif user_role == "researcher":
+    role_subtitle = f"Welcome **{current_user.get('full_name')}**! You are viewing the **Agro-Meteorology & Climate Research Console** for **{current_user.get('organization', 'your institution')}**. Access 10-year historical climate reanalysis, 116 TAHMO ground stations, and benchmark rule-based vs ML models."
+else:
+    role_subtitle = f"Welcome **{current_user.get('full_name')}**! You have **Full Administrator Access**. Monitor live engines, evaluate all 4 stakeholder perspectives, and audit data provenance."
+
 st.markdown(f"""
 <div class="hero">
     <div class="hero-pill">
         <span style="color:#4ade80;font-size:0.55rem;">●</span>
-        LIVE — {selected_county.upper()} · {selected_season.upper()} · {engine_badge.upper()}
+        {role_meta['icon']} {role_meta['name'].upper()} · {selected_county.upper()} · {selected_season.upper()}
     </div>
     <div class="hero-title">ClimaCrop Intelligence</div>
     <div class="hero-subtitle">
-        Kenya's climate-smart agri-decision platform — translating 10 years of localized rainfall,
-        temperature and market data into optimal crop choices, farm profit projections,
-        and institutional credit de-risking for cooperatives and banks.
+        {role_subtitle}
     </div>
     <div class="hero-stats">
         <div class="hero-stat">
@@ -408,7 +724,7 @@ st.markdown(f"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# TOP-TAB NAVIGATION — 5 tabs displayed in main content area
+# TOP-TAB NAVIGATION — 5 Platform Views
 # ─────────────────────────────────────────────────────────────────────────────
 tab_coop, tab_bank, tab_climate, tab_catalog, tab_ai = st.tabs([
     "🌱 Cooperative Advisory",
@@ -423,7 +739,7 @@ tab_coop, tab_bank, tab_climate, tab_catalog, tab_ai = st.tabs([
 # TAB 1 — COOPERATIVE ADVISORY
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab_coop:
-    platform_view = "🌱 Cooperative Advisory"  # local alias for section calls
+    platform_view = "🌱 Cooperative Advisory"
 
     section("🌱", f"Cooperative Advisory — {selected_county} County",
             f"Evaluating 40 Kenyan crops using {engine_badge} for the {selected_season} season")
@@ -640,9 +956,16 @@ with tab_coop:
 # TAB 2 — BANK & CREDIT RISK
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab_bank:
-
     section("🏦", "Agricultural Credit Underwriting Portal",
             "Automated loan sizing (70% CapEx rule), climate-adjusted interest rates, and portfolio stress testing")
+
+    # If Cooperative role is active, add helpful guidance banner
+    if user_role == "cooperative":
+        st.markdown(f"""
+        <div style="background:{'rgba(16,185,129,0.08)' if is_dark else '#f0fdf4'};border-left:4px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:0.86rem;">
+            👨‍🌾 <strong>Farmer Loan Pre-Qualification View:</strong> Use this calculator to see what agricultural loan size and interest rate your cooperative would qualify for from our partner banks.
+        </div>
+        """, unsafe_allow_html=True)
 
     tab_single, tab_port = st.tabs(["📝 Single Loan Assessment", "💼 Portfolio Stress Test"])
 
@@ -651,7 +974,7 @@ with tab_bank:
 
         col_b1, col_b2 = st.columns(2)
         with col_b1:
-            borrower_name = st.text_input("🏢 Borrower / SACCO Name", "Nakuru Grain Growers Co-op")
+            borrower_name = st.text_input("🏢 Borrower / SACCO Name", current_user.get("organization", "Nakuru Grain Growers Co-op"))
             underwrite_crop = st.selectbox("🌾 Crop to Finance",
                 engine.crops_df["crop"].unique() if engine.crops_df is not None else ["Maize"], index=0)
         with col_b2:
@@ -830,7 +1153,6 @@ with tab_bank:
 # TAB 3 — CLIMATE TREND ANALYSIS
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab_climate:
-
     section("🌍", f"10-Year Climate Intelligence — {selected_county} County",
             "Aggregated from 116 TAHMO ground stations and NASA POWER satellite reanalysis (2015–2025)")
 
@@ -930,7 +1252,6 @@ with tab_climate:
 # TAB 4 — CROP & MARKET CATALOG
 # ═══════════════════════════════════════════════════════════════════════════════
 with tab_catalog:
-
     section("📊", "40-Crop Agronomic & Market Intelligence Catalog",
             "Complete crop database across 5 classes with production economics and 5 regional wholesale market prices")
 
@@ -1088,8 +1409,8 @@ with tab_ai:
             {
                 "role": "assistant",
                 "content": (
-                    f"👋 Hello! I'm **KilimoBot**, your ClimaCrop Intelligence AI assistant.\n\n"
-                    f"I'm currently loaded with data for **{selected_county} County** ({selected_season}) using the **{engine_mode}**.\n\n"
+                    f"👋 Hello **{current_user.get('full_name', 'there')}**! I'm **KilimoBot**, your ClimaCrop Intelligence AI assistant.\n\n"
+                    f"I'm loaded with data for **{selected_county} County** ({selected_season}) tailored for your role as **{role_meta['name']}**.\n\n"
                     f"Ask me anything about:\n"
                     f"- 🌾 **Crop recommendations** & agronomic cycle\n"
                     f"- 🌧️ **Rainfall, temperature & dry spell risks** from 116 TAHMO stations\n"
@@ -1132,7 +1453,6 @@ with tab_ai:
 
                 st.markdown(response_text)
                 st.session_state.chat_messages.append({"role": "assistant", "content": response_text})
-
 
 
 # ─────────────────────────────────────────────────────────────────────────────

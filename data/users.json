@@ -1,0 +1,56 @@
+{
+  "coop_user": {
+    "username": "coop_user",
+    "password_hash": "05d67f62a03f715bcd479f4aac2fdbbd6f9e94621de3573a8300e9b2317bba4e",
+    "full_name": "Wanjiku Mwangi",
+    "role": "cooperative",
+    "organization": "Nakuru Grain Growers Co-op",
+    "email": "wanjiku@nakurugrain.co.ke",
+    "county": "Nakuru"
+  },
+  "bank_officer": {
+    "username": "bank_officer",
+    "password_hash": "85139b7057cf9e2d21a841571ad34ca81bfc4097bd295aee2a6844d43d9e9644",
+    "full_name": "Kevin Kiprop",
+    "role": "bank_officer",
+    "organization": "Agricultural Finance SACCO",
+    "email": "k.kiprop@agrifinance.co.ke",
+    "county": "Uasin Gishu"
+  },
+  "researcher": {
+    "username": "researcher",
+    "password_hash": "1029fcab14d830802f5be2160333c3193bb6e5b6eb638848178a1c65d23b3201",
+    "full_name": "Dr. Amina Ochieng",
+    "role": "researcher",
+    "organization": "Kenya Agro-Meteorological Lab",
+    "email": "a.ochieng@agrometeorology.ke",
+    "county": "Machakos"
+  },
+  "admin": {
+    "username": "admin",
+    "password_hash": "4ee135577a5b0134920a150e1ea7a4afb33fc653134fd1f0310ee2206d849433",
+    "full_name": "Carson Sila",
+    "role": "admin",
+    "organization": "ClimaCrop Core Engineering",
+    "email": "admin@climacrop.ai",
+    "county": "Nakuru"
+  },
+  "test_farmer_999": {
+    "username": "test_farmer_999",
+    "password_hash": "9b74c91b64c01922cf0125d209f1ceaf05cd02d93bdec69ea6e3377307b5a050",
+    "full_name": "John Doe",
+    "role": "cooperative",
+    "organization": "Eldoret Farmers Sacco",
+    "email": "johndoe@test.com",
+    "county": "Uasin Gishu"
+  },
+  "farmer_46b22589": {
+    "username": "farmer_46b22589",
+    "password_hash": "9b74c91b64c01922cf0125d209f1ceaf05cd02d93bdec69ea6e3377307b5a050",
+    "full_name": "John Doe",
+    "role": "cooperative",
+    "organization": "Eldoret Farmers Sacco",
+    "email": "johndoe@test.com",
+    "county": "Uasin Gishu"
+  }
+}
