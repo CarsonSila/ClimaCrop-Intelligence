@@ -341,6 +341,77 @@ if not st.session_state.authenticated:
                     else:
                         st.error("❌ Invalid username or password. Please try again.")
 
+        # ── Divider between Sign In and Create Account ──
+        st.markdown(f"""
+        <div style="display:flex;align-items:center;gap:10px;margin:16px 0 12px;">
+            <div style="flex:1;height:1px;background:{card_border};"></div>
+            <div style="font-size:0.78rem;color:{text_muted};white-space:nowrap;font-weight:600;">
+                New here?
+            </div>
+            <div style="flex:1;height:1px;background:{card_border};"></div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Sign-Up / Create Account section ──
+        with st.expander("📝 Create a new account", expanded=False):
+            st.markdown(f"""
+            <div style="font-size:0.84rem;color:{text_muted};margin-bottom:14px;line-height:1.55;">
+                Fill in your details below. You'll be signed in automatically after registration.
+            </div>
+            """, unsafe_allow_html=True)
+
+            with st.form("form_signup_new", clear_on_submit=True):
+                su_c1, su_c2 = st.columns(2)
+                with su_c1:
+                    reg_name  = st.text_input("Full Name", placeholder="e.g. Samuel Kipchumba")
+                    reg_user  = st.text_input("Username",  placeholder="e.g. sam_farmer")
+                    reg_pass  = st.text_input("Password",  type="password", placeholder="Min 4 characters")
+                with su_c2:
+                    role_options = {
+                        "cooperative":  "👨‍🌾 Cooperative Member / Farmer",
+                        "bank_officer": "🏦 Bank & SACCO Credit Officer",
+                        "researcher":   "🌍 Climate & Agronomy Researcher",
+                    }
+                    reg_role_key = st.selectbox(
+                        "Your Role",
+                        list(role_options.keys()),
+                        format_func=lambda x: role_options[x]
+                    )
+                    reg_org = st.text_input("Organization / SACCO", placeholder="e.g. Molo Agribusiness Sacco")
+                    reg_county = st.selectbox("Primary County", [
+                        "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua",
+                        "Machakos", "Makueni", "Kitui", "Bungoma", "Kakamega",
+                        "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
+                        "Narok", "Embu", "Tharaka Nithi", "Kwale", "Kilifi",
+                        "Mombasa", "Taita Taveta", "West Pokot", "Turkana", "Laikipia"
+                    ])
+
+                btn_signup = st.form_submit_button("🌿 Create Account & Sign In", use_container_width=True)
+                if btn_signup:
+                    if not reg_user or not reg_pass or not reg_name:
+                        st.error("Full name, username and password are all required.")
+                    elif len(reg_pass) < 4:
+                        st.error("Password must be at least 4 characters long.")
+                    else:
+                        ok, msg = register_user(
+                            username=reg_user,
+                            password=reg_pass,
+                            full_name=reg_name,
+                            role=reg_role_key,
+                            organization=reg_org or "ClimaCrop Partner",
+                            county=reg_county
+                        )
+                        if ok:
+                            st.success(f"✅ Account created! Signing you in as {reg_name}…")
+                            new_auth = authenticate_user(reg_user, reg_pass)
+                            if new_auth:
+                                st.session_state.authenticated = True
+                                st.session_state.user          = new_auth
+                                st.session_state.active_role   = new_auth["role"]
+                                st.rerun()
+                        else:
+                            st.error(f"❌ {msg}")
+
         with st.expander("🔐 View demo credentials", expanded=False):
             st.markdown(f"""
             <div class="info-box" style="margin:0;">
@@ -351,6 +422,10 @@ if not st.session_state.authenticated:
                 👑 <code>admin</code> / <code>admin2025</code> — Administrator
             </div>
             """, unsafe_allow_html=True)
+
+
+
+
 
 
 
