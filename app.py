@@ -298,214 +298,62 @@ html, body, [data-testid="stAppViewContainer"] {{
 # AUTHENTICATION GATEWAY — If not authenticated, show login / signup screen
 # ─────────────────────────────────────────────────────────────────────────────
 if not st.session_state.authenticated:
+    # ── Centered logo / title ──
     st.markdown(f"""
-    <div class="hero">
-        <div class="hero-pill">
-            <span style="color:#4ade80;font-size:0.55rem;">●</span>
-            AUTHENTICATION & STAKEHOLDER PORTAL
-        </div>
-        <div class="hero-title">ClimaCrop Intelligence</div>
-        <div class="hero-subtitle">
-            Welcome to Kenya's climate-smart decision engine. Sign in to access your role-tailored intelligence portal — whether you're managing a farmer cooperative, underwriting agricultural credit, or conducting climate research.
-        </div>
-        <div class="hero-stats">
-            <div class="hero-stat">
-                <div class="hero-stat-val">4</div><div class="hero-stat-lbl">STAKEHOLDER ROLES</div>
+    <div style="display:flex;justify-content:center;margin-bottom:28px;margin-top:36px;">
+        <div style="text-align:center;">
+            <div style="font-size:3rem;margin-bottom:4px;">🌿</div>
+            <div style="font-size:1.5rem;font-weight:800;color:{primary_color};letter-spacing:-0.5px;">
+                ClimaCrop Intelligence
             </div>
-            <div class="hero-stat">
-                <div class="hero-stat-val">116</div><div class="hero-stat-lbl">TAHMO STATIONS</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-val">40</div><div class="hero-stat-lbl">KENYAN CROPS</div>
-            </div>
-            <div class="hero-stat">
-                <div class="hero-stat-val">26</div><div class="hero-stat-lbl">COUNTIES</div>
+            <div style="font-size:0.84rem;color:{text_muted};margin-top:3px;">
+                Kilimo-Smart Decision Platform · Kenya 🇰🇪
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    auth_tab_demo, auth_tab_login, auth_tab_signup = st.tabs([
-        "⚡ 1-Click Demo Login",
-        "🔑 Standard Sign In",
-        "📝 Create Account"
-    ])
+    _lc, _mc, _rc = st.columns([1, 1.5, 1])
+    with _mc:
+        st.markdown(f"""
+        <div style="background:{card_bg};border:1px solid {card_border};border-radius:18px;
+             padding:32px 32px 24px;box-shadow:0 12px 40px rgba(0,0,0,{'0.30' if is_dark else '0.10'});">
+        </div>
+        """, unsafe_allow_html=True)
 
-    # 1. 1-CLICK DEMO LOGIN TAB
-    with auth_tab_demo:
-        st.markdown("##### 🚀 Experience ClimaCrop by Stakeholder Persona")
-        st.caption("Click any persona below to log in instantly and experience that role's customized platform interface:")
+        with st.form("form_signin_main", clear_on_submit=False):
+            in_username = st.text_input("Username", placeholder="Enter your username")
+            in_password = st.text_input("Password", type="password",
+                                        placeholder="Enter your password")
+            st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
+            btn_submit = st.form_submit_button("🔑  Sign In", use_container_width=True)
 
-        d_col1, d_col2 = st.columns(2)
-
-        with d_col1:
-            # 1. Cooperative Farmer
-            st.markdown(f"""
-            <div class="persona-card" style="border-left: 5px solid #10b981;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: {primary_color}; margin-bottom: 4px;">
-                    👨‍🌾 1. Cooperative Member / Farmer
-                </div>
-                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
-                    <strong>Demo User:</strong> <code>coop_user</code> · Nakuru Grain Growers Co-op
-                </div>
-                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
-                    Tailored for farmers and co-op managers. Focuses on seasonal crop selection, acreage profit maximization, best wholesale market trading hubs, and farmer advisory notes.
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("🌾 Log in as Cooperative Member", key="btn_demo_coop", use_container_width=True):
-                user_info = get_demo_account("cooperative")
-                st.session_state.authenticated = True
-                st.session_state.user = user_info
-                st.session_state.active_role = "cooperative"
-                st.rerun()
-
-            # 2. Bank Officer
-            st.markdown(f"""
-            <div class="persona-card" style="border-left: 5px solid #3b82f6; margin-top: 14px;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #3b82f6; margin-bottom: 4px;">
-                    🏦 2. Bank & SACCO Credit Officer
-                </div>
-                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
-                    <strong>Demo User:</strong> <code>bank_officer</code> · Agricultural Finance SACCO
-                </div>
-                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
-                    Tailored for credit analysts. Automated 70% CapEx loan sizing, climate-adjusted interest rates, Debt Service Coverage Ratio (DSCR), and multi-borrower portfolio stress testing.
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("💳 Log in as Credit Officer", key="btn_demo_bank", use_container_width=True):
-                user_info = get_demo_account("bank_officer")
-                st.session_state.authenticated = True
-                st.session_state.user = user_info
-                st.session_state.active_role = "bank_officer"
-                st.rerun()
-
-        with d_col2:
-            # 3. Climate Researcher
-            st.markdown(f"""
-            <div class="persona-card" style="border-left: 5px solid #8b5cf6;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #8b5cf6; margin-bottom: 4px;">
-                    🌍 3. Climate & Agronomy Researcher
-                </div>
-                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
-                    <strong>Demo User:</strong> <code>researcher</code> · Kenya Agro-Meteorological Lab
-                </div>
-                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
-                    Tailored for meteorologists and researchers. Deep 10-year historical climate analytics, 116 TAHMO station mapping, FAOSTAT data provenance audits, and AEZ vs ML model benchmarking.
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("📊 Log in as Climate Researcher", key="btn_demo_research", use_container_width=True):
-                user_info = get_demo_account("researcher")
-                st.session_state.authenticated = True
-                st.session_state.user = user_info
-                st.session_state.active_role = "researcher"
-                st.rerun()
-
-            # 4. System Admin
-            st.markdown(f"""
-            <div class="persona-card" style="border-left: 5px solid #f59e0b; margin-top: 14px;">
-                <div style="font-size: 1.15rem; font-weight: 800; color: #f59e0b; margin-bottom: 4px;">
-                    👑 4. System Administrator
-                </div>
-                <div style="font-size: 0.83rem; color: {text_muted}; margin-bottom: 8px;">
-                    <strong>Demo User:</strong> <code>admin</code> · ClimaCrop Core Engineering
-                </div>
-                <div style="font-size: 0.86rem; color: {text_main}; line-height: 1.45; margin-bottom: 12px;">
-                    Superuser privileges across all modules, plus dynamic persona preview switcher to test any role experience on the fly.
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("👑 Log in as Administrator", key="btn_demo_admin", use_container_width=True):
-                user_info = get_demo_account("admin")
-                st.session_state.authenticated = True
-                st.session_state.user = user_info
-                st.session_state.active_role = "admin"
-                st.rerun()
-
-    # 2. STANDARD SIGN IN TAB
-    with auth_tab_login:
-        st.markdown("##### 🔑 Sign In with Credentials")
-        col_l1, col_l2 = st.columns([1.2, 1])
-        with col_l1:
-            with st.form("form_signin"):
-                in_username = st.text_input("Username", placeholder="e.g. coop_user, bank_officer, admin")
-                in_password = st.text_input("Password", type="password", placeholder="Enter your password")
-                btn_submit = st.form_submit_button("Sign In", use_container_width=True)
-
-                if btn_submit:
-                    if not in_username or not in_password:
-                        st.error("Please enter both username and password.")
-                    else:
-                        user_auth = authenticate_user(in_username, in_password)
-                        if user_auth:
-                            st.session_state.authenticated = True
-                            st.session_state.user = user_auth
-                            st.session_state.active_role = user_auth["role"]
-                            st.success(f"Welcome back, {user_auth['full_name']}!")
-                            st.rerun()
-                        else:
-                            st.error("Invalid username or password. Please try again or use a 1-Click Demo account.")
-        with col_l2:
-            st.markdown(f"""
-            <div class="info-box">
-                <strong>💡 Pre-registered Credentials:</strong><br><br>
-                • <code>coop_user</code> / <code>kilimo2025</code> (Co-op)<br>
-                • <code>bank_officer</code> / <code>sacco2025</code> (Bank)<br>
-                • <code>researcher</code> / <code>tahmo2025</code> (Researcher)<br>
-                • <code>admin</code> / <code>admin2025</code> (Admin)
-            </div>
-            """, unsafe_allow_html=True)
-
-    # 3. CREATE ACCOUNT TAB
-    with auth_tab_signup:
-        st.markdown("##### 📝 Create a New Stakeholder Account")
-        with st.form("form_signup"):
-            c_s1, c_s2 = st.columns(2)
-            with c_s1:
-                reg_name = st.text_input("Full Name", placeholder="e.g. Samuel Kipchumba")
-                reg_user = st.text_input("Desired Username", placeholder="e.g. sam_farmer")
-                reg_pass = st.text_input("Password", type="password", placeholder="Min 4 characters")
-            with c_s2:
-                role_options = {
-                    "cooperative": "👨‍🌾 Cooperative Member / Farmer",
-                    "bank_officer": "🏦 Bank & SACCO Credit Officer",
-                    "researcher": "🌍 Climate & Agronomy Researcher"
-                }
-                reg_role_key = st.selectbox("Your Role", list(role_options.keys()), format_func=lambda x: role_options[x])
-                reg_org = st.text_input("Organization / SACCO Group", placeholder="e.g. Molo Agribusiness Sacco")
-                reg_county = st.selectbox("Primary County", [
-                    "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
-                    "Bungoma", "Kakamega", "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
-                    "Narok", "Embu", "Tharaka Nithi", "Kwale", "Kilifi", "Mombasa", "Taita Taveta",
-                    "West Pokot", "Turkana", "Laikipia"
-                ])
-
-            btn_signup = st.form_submit_button("Create Account & Sign In", use_container_width=True)
-            if btn_signup:
-                if not reg_user or not reg_pass:
-                    st.error("Username and password are required.")
+            if btn_submit:
+                if not in_username or not in_password:
+                    st.error("Please enter both username and password.")
                 else:
-                    ok, msg = register_user(
-                        username=reg_user,
-                        password=reg_pass,
-                        full_name=reg_name,
-                        role=reg_role_key,
-                        organization=reg_org,
-                        county=reg_county
-                    )
-                    if ok:
-                        st.success(msg)
-                        # Automatically log user in
-                        user_auth = authenticate_user(reg_user, reg_pass)
-                        if user_auth:
-                            st.session_state.authenticated = True
-                            st.session_state.user = user_auth
-                            st.session_state.active_role = user_auth["role"]
-                            st.rerun()
+                    user_auth = authenticate_user(in_username, in_password)
+                    if user_auth:
+                        st.session_state.authenticated = True
+                        st.session_state.user          = user_auth
+                        st.session_state.active_role   = user_auth["role"]
+                        st.rerun()
                     else:
-                        st.error(msg)
+                        st.error("❌ Invalid username or password. Please try again.")
+
+        with st.expander("🔐 View demo credentials", expanded=False):
+            st.markdown(f"""
+            <div class="info-box" style="margin:0;">
+                <strong>Pre-registered demo accounts:</strong><br><br>
+                👨‍🌾 <code>coop_user</code> / <code>kilimo2025</code> — Cooperative Member<br>
+                🏦 <code>bank_officer</code> / <code>sacco2025</code> — Credit Officer<br>
+                🌍 <code>researcher</code> / <code>tahmo2025</code> — Climate Researcher<br>
+                👑 <code>admin</code> / <code>admin2025</code> — Administrator
+            </div>
+            """, unsafe_allow_html=True)
+
+
+
 
     # Footer on login screen
     st.markdown(f"""
@@ -724,64 +572,99 @@ st.markdown(f"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# TOP-TAB NAVIGATION — 5 Platform Views
+# TOP-TAB NAVIGATION — Role-specific platform views
 # ─────────────────────────────────────────────────────────────────────────────
-tab_coop, tab_bank, tab_climate, tab_catalog, tab_ai = st.tabs([
-    "🌱 Cooperative Advisory",
-    "🏦 Bank & Credit Risk",
-    "🌍 Climate Trends",
-    "📊 Crop & Market Catalog",
-    "🤖 KilimoBot AI Assistant"
-])
+# Tab definitions per role:
+#   cooperative  → Cooperative Advisory | Crop & Market Catalog | KilimoBot AI
+#   bank_officer → Bank & Credit Risk   | Crop & Market Catalog | KilimoBot AI
+#   researcher   → Climate Trends | Cooperative Advisory (read-only) | Crop & Market Catalog | KilimoBot AI
+#   admin        → All 5 tabs
+
+_ALL_TAB_LABELS = {
+    "coop":    "🌱 Cooperative Advisory",
+    "bank":    "🏦 Bank & Credit Risk",
+    "climate": "🌍 Climate Trends",
+    "catalog": "📊 Crop & Market Catalog",
+    "ai":      "🤖 KilimoBot AI Assistant",
+}
+
+# Map role → ordered list of tab keys shown
+_ROLE_TABS = {
+    "cooperative":  ["coop",    "catalog", "ai"],
+    "bank_officer": ["bank",    "catalog", "ai"],
+    "researcher":   ["climate", "coop",    "catalog", "ai"],
+    "admin":        ["coop",    "bank",    "climate", "catalog", "ai"],
+}
+_active_keys = _ROLE_TABS.get(user_role, _ROLE_TABS["admin"])
+_tab_labels   = [_ALL_TAB_LABELS[k] for k in _active_keys]
+_tab_objects  = st.tabs(_tab_labels)
+_tab_map      = dict(zip(_active_keys, _tab_objects))
+
+# Provide None-safe handles: only keys in _tab_map are real
+tab_coop    = _tab_map.get("coop")
+tab_bank    = _tab_map.get("bank")
+tab_climate = _tab_map.get("climate")
+tab_catalog = _tab_map.get("catalog")
+tab_ai      = _tab_map.get("ai")
+
+# Helper: render a tab block only when that tab is part of the current role's view
+from contextlib import nullcontext as _nullctx
+
+def _tab(t):
+    """Return the tab context or a no-op context if the tab is hidden for this role."""
+    return t if t is not None else _nullctx()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 1 — COOPERATIVE ADVISORY
 # ═══════════════════════════════════════════════════════════════════════════════
-with tab_coop:
-    platform_view = "🌱 Cooperative Advisory"
+if tab_coop is not None:
+    with tab_coop:
+        platform_view = "🌱 Cooperative Advisory"
 
-    section("🌱", f"Cooperative Advisory — {selected_county} County",
-            f"Evaluating 40 Kenyan crops using {engine_badge} for the {selected_season} season")
+        section("🌱", f"Cooperative Advisory — {selected_county} County",
+                f"Evaluating 40 Kenyan crops using {engine_badge} for the {selected_season} season")
 
-    col_c1, col_c2, col_c3 = st.columns([1.2, 1.2, 0.8])
-    with col_c1:
-        farm_size = st.slider("🌾 Farm Size (Acres)", 0.5, 30.0, 3.0, 0.5,
-                              help="Total cultivated acreage for your cooperative members")
-    with col_c2:
-        cat_filter = st.selectbox("🌿 Crop Category",
-                                  ["All", "Cereals", "Pulses", "Roots & Tubers", "Horticulture", "Cash Crops"],
-                                  help="Filter crop recommendations by agricultural class")
-    with col_c3:
-        top_k = st.slider("🏆 Show Top N", 3, 10, 4, help="Number of top-ranked crops to display")
+        col_c1, col_c2, col_c3 = st.columns([1.2, 1.2, 0.8])
+        with col_c1:
+            farm_size = st.slider("🌾 Farm Size (Acres)", 0.5, 30.0, 3.0, 0.5,
+                                  help="Total cultivated acreage for your cooperative members")
+        with col_c2:
+            cat_filter = st.selectbox("🌿 Crop Category",
+                                      ["All", "Cereals", "Pulses", "Roots & Tubers", "Horticulture", "Cash Crops"],
+                                      help="Filter crop recommendations by agricultural class")
+        with col_c3:
+            top_k = st.slider("🏆 Show Top N", 3, 10, 4, help="Number of top-ranked crops to display")
 
-    with st.spinner("Calculating recommendations for your county & season..."):
-        recs_df, climate_profile, provenance = engine.get_cooperative_recommendations(
-            county=selected_county, season=selected_season,
-            farm_size_acres=farm_size, category_filter=cat_filter,
-            top_n=top_k, use_rule_based=use_rule_based
-        )
+        with st.spinner("Calculating recommendations for your county & season..."):
+            recs_df, climate_profile, provenance = engine.get_cooperative_recommendations(
+                county=selected_county, season=selected_season,
+                farm_size_acres=farm_size, category_filter=cat_filter,
+                top_n=top_k, use_rule_based=use_rule_based
+            )
 
-    # ── Climate KPIs ──
-    section("🌡️", "Local Climate Snapshot",
-            f"10-year meteorological averages for {selected_county} · {selected_season}")
-    st.markdown(
-        '<div class="kpi-grid">'
-        + kpi("🌧️", "Seasonal Rainfall", f"{climate_profile['seasonal_rainfall_mm']} mm", f"{selected_season} mean")
-        + kpi("🌡️", "Mean Temperature", f"{climate_profile['temp_mean_c']} °C",
-              f"Min {climate_profile['temp_min_c']}°C · Max {climate_profile['temp_max_c']}°C")
-        + kpi("☀️", "Dry Spell Risk", f"{climate_profile['max_dry_spell_days']} days",
-              "Consecutive days with rain < 2 mm")
-        + kpi("🗺️", "Climate Zone", climate_profile['cluster_name'],
-              f"AEZ cluster #{climate_profile['cluster_id']}")
-        + '</div>', unsafe_allow_html=True)
+        # ── Climate KPIs ──
+        section("🌡️", "Local Climate Snapshot",
+                f"10-year meteorological averages for {selected_county} · {selected_season}")
+        st.markdown(
+            '<div class="kpi-grid">'
+            + kpi("🌧️", "Seasonal Rainfall", f"{climate_profile['seasonal_rainfall_mm']} mm", f"{selected_season} mean")
+            + kpi("🌡️", "Mean Temperature", f"{climate_profile['temp_mean_c']} °C",
+                  f"Min {climate_profile['temp_min_c']}°C · Max {climate_profile['temp_max_c']}°C")
+            + kpi("☀️", "Dry Spell Risk", f"{climate_profile['max_dry_spell_days']} days",
+                  "Consecutive days with rain < 2 mm")
+            + kpi("🗺️", "Climate Zone", climate_profile['cluster_name'],
+                  f"AEZ cluster #{climate_profile['cluster_id']}")
+            + '</div>', unsafe_allow_html=True)
 
-    # ── Data Quality Expander ──
-    with st.expander("🔍 Data Quality & Source Confidence Report", expanded=False):
-        conf = provenance.get("overall_confidence", 0.75)
-        conf_pct = conf * 100
-        conf_color = "#10b981" if conf >= 0.8 else ("#f59e0b" if conf >= 0.6 else "#ef4444")
-        st.markdown(f"""
+        # ── Data Quality Expander ──
+        with st.expander("🔍 Data Quality & Source Confidence Report", expanded=False):
+            conf = provenance.get("overall_confidence", 0.75)
+            conf_pct = conf * 100
+            conf_color = "#10b981" if conf >= 0.8 else ("#f59e0b" if conf >= 0.6 else "#ef4444")
+            st.markdown(f"""
+
+
 <div style="display:flex;align-items:center;gap:14px;padding:10px 0 4px;">
     <div style="flex:1;background:{'rgba(255,255,255,0.08)' if is_dark else '#e5e7eb'};
                 border-radius:8px;height:12px;overflow:hidden;">
@@ -955,46 +838,49 @@ with tab_coop:
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 2 — BANK & CREDIT RISK
 # ═══════════════════════════════════════════════════════════════════════════════
-with tab_bank:
-    section("🏦", "Agricultural Credit Underwriting Portal",
-            "Automated loan sizing (70% CapEx rule), climate-adjusted interest rates, and portfolio stress testing")
+if tab_bank is not None:
+    with tab_bank:
+        section("🏦", "Agricultural Credit Underwriting Portal",
+                "Automated loan sizing (70% CapEx rule), climate-adjusted interest rates, and portfolio stress testing")
 
-    # If Cooperative role is active, add helpful guidance banner
-    if user_role == "cooperative":
-        st.markdown(f"""
-        <div style="background:{'rgba(16,185,129,0.08)' if is_dark else '#f0fdf4'};border-left:4px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:0.86rem;">
-            👨‍🌾 <strong>Farmer Loan Pre-Qualification View:</strong> Use this calculator to see what agricultural loan size and interest rate your cooperative would qualify for from our partner banks.
-        </div>
-        """, unsafe_allow_html=True)
+        # If Cooperative role is active, add helpful guidance banner
+        if user_role == "cooperative":
+            st.markdown(f"""
+            <div style="background:{'rgba(16,185,129,0.08)' if is_dark else '#f0fdf4'};border-left:4px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:14px;font-size:0.86rem;">
+                👨‍🌾 <strong>Farmer Loan Pre-Qualification View:</strong> Use this calculator to see what agricultural loan size and interest rate your cooperative would qualify for from our partner banks.
+            </div>
+            """, unsafe_allow_html=True)
 
-    tab_single, tab_port = st.tabs(["📝 Single Loan Assessment", "💼 Portfolio Stress Test"])
+        tab_single, tab_port = st.tabs(["📝 Single Loan Assessment", "💼 Portfolio Stress Test"])
 
-    with tab_single:
-        st.markdown('<div class="info-box">ℹ️ <strong>How it works:</strong> Enter the borrower details below. The system calculates the recommended loan amount as 70% of total production CapEx, adjusts the interest rate upward for higher climate and crop risk, and shows the Debt Service Coverage Ratio (DSCR). A DSCR ≥ 1.2× means the farm revenue can comfortably cover loan repayments.</div>', unsafe_allow_html=True)
+        with tab_single:
+            st.markdown('<div class="info-box">ℹ️ <strong>How it works:</strong> Enter the borrower details below. The system calculates the recommended loan amount as 70% of total production CapEx, adjusts the interest rate upward for higher climate and crop risk, and shows the Debt Service Coverage Ratio (DSCR). A DSCR ≥ 1.2× means the farm revenue can comfortably cover loan repayments.</div>', unsafe_allow_html=True)
 
-        col_b1, col_b2 = st.columns(2)
-        with col_b1:
-            borrower_name = st.text_input("🏢 Borrower / SACCO Name", current_user.get("organization", "Nakuru Grain Growers Co-op"))
-            underwrite_crop = st.selectbox("🌾 Crop to Finance",
-                engine.crops_df["crop"].unique() if engine.crops_df is not None else ["Maize"], index=0)
-        with col_b2:
-            loan_acres = st.number_input("🌱 Farm Size (Acres)", 1.0, 200.0, 6.0, 1.0)
-            underwrite_county = st.selectbox("📍 Farm County", counties_list,
-                                             index=counties_list.index(selected_county))
+            col_b1, col_b2 = st.columns(2)
+            with col_b1:
+                borrower_name = st.text_input("🏢 Borrower / SACCO Name", current_user.get("organization", "Nakuru Grain Growers Co-op"))
+                underwrite_crop = st.selectbox("🌾 Crop to Finance",
+                    engine.crops_df["crop"].unique() if engine.crops_df is not None else ["Maize"], index=0)
+            with col_b2:
+                loan_acres = st.number_input("🌱 Farm Size (Acres)", 1.0, 200.0, 6.0, 1.0)
+                underwrite_county = st.selectbox("📍 Farm County", counties_list,
+                                                 index=counties_list.index(selected_county))
 
-        with st.spinner("Running credit underwriting..."):
-            loan_res = engine.underwrite_agricultural_loan(
-                county=underwrite_county, crop_name=underwrite_crop,
-                acres=loan_acres, season=selected_season, borrower_name=borrower_name
-            )
+            with st.spinner("Running credit underwriting..."):
+                loan_res = engine.underwrite_agricultural_loan(
+                    county=underwrite_county, crop_name=underwrite_crop,
+                    acres=loan_acres, season=selected_season, borrower_name=borrower_name
+                )
 
-        st.markdown(f'<hr style="margin:14px 0;border:none;border-top:1px solid {card_border};">', unsafe_allow_html=True)
+            st.markdown(f'<hr style="margin:14px 0;border:none;border-top:1px solid {card_border};">', unsafe_allow_html=True)
 
-        grade = loan_res.get("credit_grade", "C")
-        grade_color = {"A+": "#10b981", "A": "#10b981", "B+": "#34d399", "B": "#6ee7b7",
-                       "C+": "#f59e0b", "C": "#f59e0b", "D": "#ef4444", "E": "#dc2626"}.get(grade, "#6b7280")
+            grade = loan_res.get("credit_grade", "C")
+            grade_color = {"A+": "#10b981", "A": "#10b981", "B+": "#34d399", "B": "#6ee7b7",
+                           "C+": "#f59e0b", "C": "#f59e0b", "D": "#ef4444", "E": "#dc2626"}.get(grade, "#6b7280")
 
-        st.markdown(f"""
+            st.markdown(f"""
+
+
 <div style="display:flex;align-items:center;gap:16px;padding:14px 20px;background:{card_bg};
             border-radius:14px;border:1px solid {card_border};margin-bottom:16px;flex-wrap:wrap;gap:12px;">
     <div style="width:56px;height:56px;border-radius:50%;background:{grade_color};
@@ -1152,307 +1038,310 @@ with tab_bank:
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 3 — CLIMATE TREND ANALYSIS
 # ═══════════════════════════════════════════════════════════════════════════════
-with tab_climate:
-    section("🌍", f"10-Year Climate Intelligence — {selected_county} County",
-            "Aggregated from 116 TAHMO ground stations and NASA POWER satellite reanalysis (2015–2025)")
+if tab_climate is not None:
+    with tab_climate:
+        section("🌍", f"10-Year Climate Intelligence — {selected_county} County",
+                "Aggregated from 116 TAHMO ground stations and NASA POWER satellite reanalysis (2015–2025)")
 
-    if engine.climate_df is not None and not engine.climate_df.empty:
-        county_data = engine.climate_df[engine.climate_df["county"] == selected_county]
-        if county_data.empty:
-            st.info(f"💡 No specific data for {selected_county}. Showing national trend as a reference.")
-            county_data = engine.climate_df.head(24)
+        if engine.climate_df is not None and not engine.climate_df.empty:
+            county_data = engine.climate_df[engine.climate_df["county"] == selected_county]
+            if county_data.empty:
+                st.info(f"💡 No specific data for {selected_county}. Showing national trend as a reference.")
+                county_data = engine.climate_df.head(24)
 
-        st.markdown(
-            '<div class="kpi-grid">'
-            + kpi("🌧️", "Avg Seasonal Rainfall", f"{county_data['seasonal_rainfall_mm'].mean():.0f} mm", "10-year average")
-            + kpi("🌡️", "Mean Temperature", f"{county_data['temp_mean_c'].mean():.1f} °C", "+0.08 °C/year trend")
-            + kpi("☀️", "Avg Dry Spell", f"{county_data['max_dry_spell_days'].mean():.0f} days", "Consecutive days < 2 mm rain")
-            + kpi("📉", "Rainfall Variability", f"{county_data['seasonal_rainfall_mm'].std()/county_data['seasonal_rainfall_mm'].mean():.2f} CV", "Higher = more unpredictable")
-            + '</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="kpi-grid">'
+                + kpi("🌧️", "Avg Seasonal Rainfall", f"{county_data['seasonal_rainfall_mm'].mean():.0f} mm", "10-year average")
+                + kpi("🌡️", "Mean Temperature", f"{county_data['temp_mean_c'].mean():.1f} °C", "+0.08 °C/year trend")
+                + kpi("☀️", "Avg Dry Spell", f"{county_data['max_dry_spell_days'].mean():.0f} days", "Consecutive days < 2 mm rain")
+                + kpi("📉", "Rainfall Variability", f"{county_data['seasonal_rainfall_mm'].std()/county_data['seasonal_rainfall_mm'].mean():.2f} CV", "Higher = more unpredictable")
+                + '</div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="info-box">💡 <strong>How to read these charts:</strong> The green area shows seasonal rainfall. The red temperature line reveals long-term warming trends. The dry spell histogram shows how frequently long rainless periods occur — a critical indicator of crop stress and drought risk in your county.</div>', unsafe_allow_html=True)
+            st.markdown('<div class="info-box">💡 <strong>How to read these charts:</strong> The green area shows seasonal rainfall. The red temperature line reveals long-term warming trends. The dry spell histogram shows how frequently long rainless periods occur — a critical indicator of crop stress and drought risk in your county.</div>', unsafe_allow_html=True)
 
-        # ── VIZ 8: Combined Area + Dual-Axis Line ──
-        section("📈", "Seasonal Rainfall & Temperature Trend (2015–2025)",
-                "Green area = rainfall · Red line = temperature · Hover for exact values")
-        label_x = county_data["year"].astype(str) + " " + county_data["season"].str.extract(r'\((\w+)\)', expand=False).fillna("")
-        fig8 = make_subplots(specs=[[{"secondary_y": True}]])
-        fig8.add_trace(go.Scatter(
-            x=label_x, y=county_data["seasonal_rainfall_mm"], name="🌧️ Rainfall (mm)",
-            fill="tozeroy",
-            fillcolor="rgba(16,185,129,0.18)" if is_dark else "rgba(22,163,74,0.15)",
-            line=dict(color="#10b981" if is_dark else "#16a34a", width=2.5)
-        ), secondary_y=False)
-        fig8.add_trace(go.Scatter(
-            x=label_x, y=county_data["temp_mean_c"], name="🌡️ Temperature (°C)",
-            line=dict(color="#f87171", width=2.8, dash="solid"),
-            mode="lines+markers", marker=dict(size=5)
-        ), secondary_y=True)
-        fig8.update_yaxes(title_text="Rainfall (mm)", secondary_y=False, gridcolor=card_border)
-        fig8.update_yaxes(title_text="Temperature (°C)", secondary_y=True, gridcolor="rgba(0,0,0,0)")
-        fig8.update_layout(hovermode="x unified",
-                           legend=dict(orientation="h", yanchor="bottom", y=1.02))
-        chart_caption("Look for years where the green area drops sharply — these are drought years that strongly affect crop yield. The rising red line indicates regional warming over time.")
-        st.plotly_chart(apply_chart_style(fig8, 430), use_container_width=True, config={"displayModeBar": False})
+            # ── VIZ 8: Combined Area + Dual-Axis Line ──
+            section("📈", "Seasonal Rainfall & Temperature Trend (2015–2025)",
+                    "Green area = rainfall · Red line = temperature · Hover for exact values")
+            label_x = county_data["year"].astype(str) + " " + county_data["season"].str.extract(r'\((\w+)\)', expand=False).fillna("")
+            fig8 = make_subplots(specs=[[{"secondary_y": True}]])
+            fig8.add_trace(go.Scatter(
+                x=label_x, y=county_data["seasonal_rainfall_mm"], name="🌧️ Rainfall (mm)",
+                fill="tozeroy",
+                fillcolor="rgba(16,185,129,0.18)" if is_dark else "rgba(22,163,74,0.15)",
+                line=dict(color="#10b981" if is_dark else "#16a34a", width=2.5)
+            ), secondary_y=False)
+            fig8.add_trace(go.Scatter(
+                x=label_x, y=county_data["temp_mean_c"], name="🌡️ Temperature (°C)",
+                line=dict(color="#f87171", width=2.8, dash="solid"),
+                mode="lines+markers", marker=dict(size=5)
+            ), secondary_y=True)
+            fig8.update_yaxes(title_text="Rainfall (mm)", secondary_y=False, gridcolor=card_border)
+            fig8.update_yaxes(title_text="Temperature (°C)", secondary_y=True, gridcolor="rgba(0,0,0,0)")
+            fig8.update_layout(hovermode="x unified",
+                               legend=dict(orientation="h", yanchor="bottom", y=1.02))
+            chart_caption("Look for years where the green area drops sharply — these are drought years that strongly affect crop yield. The rising red line indicates regional warming over time.")
+            st.plotly_chart(apply_chart_style(fig8, 430), use_container_width=True, config={"displayModeBar": False})
 
-        # ── VIZ 9 + 10: Box + Histogram ──
-        col_c1, col_c2 = st.columns(2)
-        with col_c1:
-            section("📦", "Rainfall Distribution by Season",
-                    "Spread, median and outliers of seasonal rainfall values")
-            fig9 = px.box(engine.climate_df, x="season", y="seasonal_rainfall_mm", color="season",
-                points="all", color_discrete_sequence=["#10b981", "#3b82f6"],
-                labels={"seasonal_rainfall_mm": "Rainfall (mm)", "season": "Season"})
-            fig9.update_traces(boxmean="sd")
-            fig9.update_layout(showlegend=False)
-            chart_caption("The box shows the middle 50% of seasons. Line inside = median. Individual dots = each season recorded. Whiskers show extreme values.")
-            st.plotly_chart(apply_chart_style(fig9, 370), use_container_width=True, config={"displayModeBar": False})
+            # ── VIZ 9 + 10: Box + Histogram ──
+            col_c1, col_c2 = st.columns(2)
+            with col_c1:
+                section("📦", "Rainfall Distribution by Season",
+                        "Spread, median and outliers of seasonal rainfall values")
+                fig9 = px.box(engine.climate_df, x="season", y="seasonal_rainfall_mm", color="season",
+                    points="all", color_discrete_sequence=["#10b981", "#3b82f6"],
+                    labels={"seasonal_rainfall_mm": "Rainfall (mm)", "season": "Season"})
+                fig9.update_traces(boxmean="sd")
+                fig9.update_layout(showlegend=False)
+                chart_caption("The box shows the middle 50% of seasons. Line inside = median. Individual dots = each season recorded. Whiskers show extreme values.")
+                st.plotly_chart(apply_chart_style(fig9, 370), use_container_width=True, config={"displayModeBar": False})
 
-        with col_c2:
-            section("📊", "Dry Spell Frequency",
-                    "How often different dry spell lengths occur across all recorded seasons")
-            fig10 = px.histogram(engine.climate_df, x="max_dry_spell_days", color="season",
-                nbins=18, opacity=0.80, barmode="overlay",
-                color_discrete_sequence=["#10b981", "#f59e0b"],
-                labels={"max_dry_spell_days": "Max Dry Spell Duration (Days)", "season": "Season"})
-            chart_caption("Taller bars = this dry spell length is more common. Dry spells exceeding 20 consecutive days create severe water stress for most Kenyan crops.")
-            st.plotly_chart(apply_chart_style(fig10, 370), use_container_width=True, config={"displayModeBar": False})
+            with col_c2:
+                section("📊", "Dry Spell Frequency",
+                        "How often different dry spell lengths occur across all recorded seasons")
+                fig10 = px.histogram(engine.climate_df, x="max_dry_spell_days", color="season",
+                    nbins=18, opacity=0.80, barmode="overlay",
+                    color_discrete_sequence=["#10b981", "#f59e0b"],
+                    labels={"max_dry_spell_days": "Max Dry Spell Duration (Days)", "season": "Season"})
+                chart_caption("Taller bars = this dry spell length is more common. Dry spells exceeding 20 consecutive days create severe water stress for most Kenyan crops.")
+                st.plotly_chart(apply_chart_style(fig10, 370), use_container_width=True, config={"displayModeBar": False})
 
-        # ── VIZ 11: Station Map ──
-        if os.path.exists("data/stations_with_counties.csv"):
-            stations_df = pd.read_csv("data/stations_with_counties.csv")
-            section("🗺️", "TAHMO Ground Weather Station Network",
-                    "116 active automatic weather stations across Kenya — hover for station details")
-            map_style = "carto-darkmatter" if is_dark else "carto-positron"
-            if hasattr(px, "scatter_map"):
-                fig11 = px.scatter_map(stations_df, lat="latitude", lon="longitude",
-                    hover_name="name", hover_data=["county", "elevation_msl"],
-                    color="elevation_msl", size_max=14, zoom=5.3,
-                    center={"lat": 0.5, "lon": 37.5}, map_style=map_style,
-                    color_continuous_scale="Greens")
-            elif hasattr(px, "scatter_mapbox"):
-                fig11 = px.scatter_mapbox(stations_df, lat="latitude", lon="longitude",
-                    hover_name="name", hover_data=["county", "elevation_msl"],
-                    color="elevation_msl", size_max=14, zoom=5.3,
-                    center={"lat": 0.5, "lon": 37.5}, mapbox_style=map_style,
-                    color_continuous_scale="Greens")
-            else:
-                fig11 = px.scatter_geo(stations_df, lat="latitude", lon="longitude",
-                    hover_name="name", color="elevation_msl",
-                    scope="africa", color_continuous_scale="Greens")
-            fig11.update_layout(height=470, margin=dict(l=0, r=0, t=30, b=0))
-            chart_caption("Each dot = one weather station. Darker green = higher elevation station. Hover to see station name and county. Climate data from all 116 stations is aggregated into county-level averages.")
-            st.plotly_chart(fig11, use_container_width=True, config={"displayModeBar": False})
+            # ── VIZ 11: Station Map ──
+            if os.path.exists("data/stations_with_counties.csv"):
+                stations_df = pd.read_csv("data/stations_with_counties.csv")
+                section("🗺️", "TAHMO Ground Weather Station Network",
+                        "116 active automatic weather stations across Kenya — hover for station details")
+                map_style = "carto-darkmatter" if is_dark else "carto-positron"
+                if hasattr(px, "scatter_map"):
+                    fig11 = px.scatter_map(stations_df, lat="latitude", lon="longitude",
+                        hover_name="name", hover_data=["county", "elevation_msl"],
+                        color="elevation_msl", size_max=14, zoom=5.3,
+                        center={"lat": 0.5, "lon": 37.5}, map_style=map_style,
+                        color_continuous_scale="Greens")
+                elif hasattr(px, "scatter_mapbox"):
+                    fig11 = px.scatter_mapbox(stations_df, lat="latitude", lon="longitude",
+                        hover_name="name", hover_data=["county", "elevation_msl"],
+                        color="elevation_msl", size_max=14, zoom=5.3,
+                        center={"lat": 0.5, "lon": 37.5}, mapbox_style=map_style,
+                        color_continuous_scale="Greens")
+                else:
+                    fig11 = px.scatter_geo(stations_df, lat="latitude", lon="longitude",
+                        hover_name="name", color="elevation_msl",
+                        scope="africa", color_continuous_scale="Greens")
+                fig11.update_layout(height=470, margin=dict(l=0, r=0, t=30, b=0))
+                chart_caption("Each dot = one weather station. Darker green = higher elevation station. Hover to see station name and county. Climate data from all 116 stations is aggregated into county-level averages.")
+                st.plotly_chart(fig11, use_container_width=True, config={"displayModeBar": False})
 
-    else:
-        st.info("⚠️ Climate dataset not loaded. Ensure `data/county_climate_historical.csv` is present.")
+        else:
+            st.info("⚠️ Climate dataset not loaded. Ensure `data/county_climate_historical.csv` is present.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 4 — CROP & MARKET CATALOG
 # ═══════════════════════════════════════════════════════════════════════════════
-with tab_catalog:
-    section("📊", "40-Crop Agronomic & Market Intelligence Catalog",
-            "Complete crop database across 5 classes with production economics and 5 regional wholesale market prices")
+if tab_catalog is not None:
+    with tab_catalog:
+        section("📊", "40-Crop Agronomic & Market Intelligence Catalog",
+                "Complete crop database across 5 classes with production economics and 5 regional wholesale market prices")
 
-    if engine.crops_df is not None:
-        st.markdown('<div class="info-box">💡 <strong>How to use this page:</strong> Filter by crop category, explore the treemap to understand yield vs price relationships, use the scatter chart to find the highest-efficiency crops (high yield at low cost), and compare prices across trading hubs to plan your sales strategy.</div>', unsafe_allow_html=True)
+        if engine.crops_df is not None:
+            st.markdown('<div class="info-box">💡 <strong>How to use this page:</strong> Filter by crop category, explore the treemap to understand yield vs price relationships, use the scatter chart to find the highest-efficiency crops (high yield at low cost), and compare prices across trading hubs to plan your sales strategy.</div>', unsafe_allow_html=True)
 
-        cat_sel = st.selectbox("🌿 Filter by Crop Category",
-                               ["All"] + list(engine.crops_df["category"].unique()))
-        df_display = engine.crops_df if cat_sel == "All" else engine.crops_df[engine.crops_df["category"] == cat_sel]
+            cat_sel = st.selectbox("🌿 Filter by Crop Category",
+                                   ["All"] + list(engine.crops_df["category"].unique()))
+            df_display = engine.crops_df if cat_sel == "All" else engine.crops_df[engine.crops_df["category"] == cat_sel]
 
-        col_s1, col_s2, col_s3 = st.columns(3)
-        col_s1.metric("🌾 Crops Shown", len(df_display), f"of 40 total")
-        col_s2.metric("📦 Avg Cost / Acre", f"KES {df_display['cost_per_acre_kes'].mean():,.0f}", "KNBS benchmark")
-        col_s3.metric("🌱 Avg Yield / Acre", f"{df_display['yield_per_acre_kg'].mean():,.0f} kg", "Season average")
+            col_s1, col_s2, col_s3 = st.columns(3)
+            col_s1.metric("🌾 Crops Shown", len(df_display), f"of 40 total")
+            col_s2.metric("📦 Avg Cost / Acre", f"KES {df_display['cost_per_acre_kes'].mean():,.0f}", "KNBS benchmark")
+            col_s3.metric("🌱 Avg Yield / Acre", f"{df_display['yield_per_acre_kg'].mean():,.0f} kg", "Season average")
 
-        # ── VIZ 12: Treemap ──
-        section("🌳", "Crop Catalog Overview",
-                "Size = yield potential per acre · Color = base market price (KES/kg)")
-        fig12 = px.treemap(engine.crops_df, path=["category", "crop"],
-            values="yield_per_acre_kg", color="base_price_kes_per_kg",
-            color_continuous_scale=["#bbf7d0", "#16a34a", "#052e16"] if not is_dark else ["#064e3b", "#10b981", "#d1fae5"],
-            labels={"yield_per_acre_kg": "Yield (kg/acre)", "base_price_kes_per_kg": "Price (KES/kg)"})
-        fig12.update_traces(textinfo="label+percent parent", textfont_size=12)
-        chart_caption("Larger boxes = higher yield potential. Darker green = higher market price. Click any category to zoom in, then click the header to zoom back out.")
-        st.plotly_chart(apply_chart_style(fig12, 430), use_container_width=True, config={"displayModeBar": False})
+            # ── VIZ 12: Treemap ──
+            section("🌳", "Crop Catalog Overview",
+                    "Size = yield potential per acre · Color = base market price (KES/kg)")
+            fig12 = px.treemap(engine.crops_df, path=["category", "crop"],
+                values="yield_per_acre_kg", color="base_price_kes_per_kg",
+                color_continuous_scale=["#bbf7d0", "#16a34a", "#052e16"] if not is_dark else ["#064e3b", "#10b981", "#d1fae5"],
+                labels={"yield_per_acre_kg": "Yield (kg/acre)", "base_price_kes_per_kg": "Price (KES/kg)"})
+            fig12.update_traces(textinfo="label+percent parent", textfont_size=12)
+            chart_caption("Larger boxes = higher yield potential. Darker green = higher market price. Click any category to zoom in, then click the header to zoom back out.")
+            st.plotly_chart(apply_chart_style(fig12, 430), use_container_width=True, config={"displayModeBar": False})
 
-        # ── VIZ 13: Yield vs Cost Efficiency ──
-        section("🔍", "Yield vs. Cost Efficiency",
-                "Find the best-value crops — high yield at low cost per acre")
-        fig13 = px.scatter(df_display, x="cost_per_acre_kes", y="yield_per_acre_kg",
-            color="category", hover_name="crop", size="base_price_kes_per_kg", text="crop",
-            labels={"cost_per_acre_kes": "Production Cost (KES/acre)", "yield_per_acre_kg": "Yield (kg/acre)",
-                    "base_price_kes_per_kg": "Price (KES/kg)", "category": "Category"})
-        fig13.update_traces(textposition="top center",
-                            marker=dict(opacity=0.82, line=dict(width=1, color=card_border)))
-        chart_caption("Top-left zone = HIGH yield at LOW cost — the sweet spot. Bubble size = market price per kg. Crops with big bubbles in the top-left are the most commercially attractive.")
-        st.plotly_chart(apply_chart_style(fig13, 430), use_container_width=True, config={"displayModeBar": False})
+            # ── VIZ 13: Yield vs Cost Efficiency ──
+            section("🔍", "Yield vs. Cost Efficiency",
+                    "Find the best-value crops — high yield at low cost per acre")
+            fig13 = px.scatter(df_display, x="cost_per_acre_kes", y="yield_per_acre_kg",
+                color="category", hover_name="crop", size="base_price_kes_per_kg", text="crop",
+                labels={"cost_per_acre_kes": "Production Cost (KES/acre)", "yield_per_acre_kg": "Yield (kg/acre)",
+                        "base_price_kes_per_kg": "Price (KES/kg)", "category": "Category"})
+            fig13.update_traces(textposition="top center",
+                                marker=dict(opacity=0.82, line=dict(width=1, color=card_border)))
+            chart_caption("Top-left zone = HIGH yield at LOW cost — the sweet spot. Bubble size = market price per kg. Crops with big bubbles in the top-left are the most commercially attractive.")
+            st.plotly_chart(apply_chart_style(fig13, 430), use_container_width=True, config={"displayModeBar": False})
 
-        # ── Data Table ──
-        section("📋", "Full Crop Reference Database", "Sortable table — click column headers to sort")
-        st.dataframe(
-            df_display[["crop", "category", "growth_days", "drought_tolerance",
-                        "cost_per_acre_kes", "yield_per_acre_kg", "base_price_kes_per_kg"]]
-            .rename(columns={"crop": "Crop", "category": "Category", "growth_days": "Growth Days",
-                             "drought_tolerance": "Drought Tolerance", "cost_per_acre_kes": "Cost/Acre (KES)",
-                             "yield_per_acre_kg": "Yield/Acre (kg)", "base_price_kes_per_kg": "Base Price (KES/kg)"})
-            .sort_values("Yield/Acre (kg)", ascending=False),
-            use_container_width=True, height=380
-        )
+            # ── Data Table ──
+            section("📋", "Full Crop Reference Database", "Sortable table — click column headers to sort")
+            st.dataframe(
+                df_display[["crop", "category", "growth_days", "drought_tolerance",
+                            "cost_per_acre_kes", "yield_per_acre_kg", "base_price_kes_per_kg"]]
+                .rename(columns={"crop": "Crop", "category": "Category", "growth_days": "Growth Days",
+                                 "drought_tolerance": "Drought Tolerance", "cost_per_acre_kes": "Cost/Acre (KES)",
+                                 "yield_per_acre_kg": "Yield/Acre (kg)", "base_price_kes_per_kg": "Base Price (KES/kg)"})
+                .sort_values("Yield/Acre (kg)", ascending=False),
+                use_container_width=True, height=380
+            )
 
-        # ── VIZ 14 + 15: Market Price Comparison & Volatility ──
-        if engine.market_df is not None:
-            section("💰", "Regional Wholesale Price Comparison",
-                    "Select crops to compare their prices across Kenya's 5 major trading hubs")
-            sel_crops_cat = st.multiselect("Select crops to compare",
-                df_display["crop"].unique().tolist(),
-                default=list(df_display["crop"].head(4)))
+            # ── VIZ 14 + 15: Market Price Comparison & Volatility ──
+            if engine.market_df is not None:
+                section("💰", "Regional Wholesale Price Comparison",
+                        "Select crops to compare their prices across Kenya's 5 major trading hubs")
+                sel_crops_cat = st.multiselect("Select crops to compare",
+                    df_display["crop"].unique().tolist(),
+                    default=list(df_display["crop"].head(4)))
 
-            if sel_crops_cat:
-                m_sub = engine.market_df[engine.market_df["crop"].isin(sel_crops_cat)]
-                fig14 = px.bar(m_sub, x="crop", y="market_price", color="market", barmode="group",
-                    labels={"market_price": "Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
-                    color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"]
-                    if is_dark else ["#14532d", "#1e40af", "#4c1d95", "#78350f", "#0e7490"])
-                fig14.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02))
-                chart_caption("Taller bar = higher price at that market hub. Always sell where your crop's bar is tallest to maximise revenue. Shorter bars still may make sense if transport costs are lower.")
-                st.plotly_chart(apply_chart_style(fig14, 400), use_container_width=True, config={"displayModeBar": False})
+                if sel_crops_cat:
+                    m_sub = engine.market_df[engine.market_df["crop"].isin(sel_crops_cat)]
+                    fig14 = px.bar(m_sub, x="crop", y="market_price", color="market", barmode="group",
+                        labels={"market_price": "Price (KES/kg)", "crop": "Crop", "market": "Trading Hub"},
+                        color_discrete_sequence=["#10b981", "#3b82f6", "#8b5cf6", "#f59e0b", "#06b6d4"]
+                        if is_dark else ["#14532d", "#1e40af", "#4c1d95", "#78350f", "#0e7490"])
+                    fig14.update_layout(legend=dict(orientation="h", yanchor="bottom", y=1.02))
+                    chart_caption("Taller bar = higher price at that market hub. Always sell where your crop's bar is tallest to maximise revenue. Shorter bars still may make sense if transport costs are lower.")
+                    st.plotly_chart(apply_chart_style(fig14, 400), use_container_width=True, config={"displayModeBar": False})
 
-            section("📦", "Price Volatility by Agricultural Category",
-                    "How stable are market prices across each crop class?")
-            fig15 = px.box(engine.market_df, x="category", y="volatility_cv",
-                color="category",
-                labels={"volatility_cv": "Price Volatility (CV)", "category": "Crop Category"})
-            fig15.update_layout(showlegend=False, xaxis_tickangle=-20)
-            chart_caption("Higher box position = more unpredictable prices. Cash crops (e.g., coffee, tea) often have higher volatility. Lower volatility = more predictable income — better for loan repayment planning.")
-            st.plotly_chart(apply_chart_style(fig15, 370), use_container_width=True, config={"displayModeBar": False})
+                section("📦", "Price Volatility by Agricultural Category",
+                        "How stable are market prices across each crop class?")
+                fig15 = px.box(engine.market_df, x="category", y="volatility_cv",
+                    color="category",
+                    labels={"volatility_cv": "Price Volatility (CV)", "category": "Crop Category"})
+                fig15.update_layout(showlegend=False, xaxis_tickangle=-20)
+                chart_caption("Higher box position = more unpredictable prices. Cash crops (e.g., coffee, tea) often have higher volatility. Lower volatility = more predictable income — better for loan repayment planning.")
+                st.plotly_chart(apply_chart_style(fig15, 370), use_container_width=True, config={"displayModeBar": False})
 
-    else:
-        st.info("⚠️ Crop database not loaded. Ensure `data/crops_database.csv` is available.")
+        else:
+            st.info("⚠️ Crop database not loaded. Ensure `data/crops_database.csv` is available.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TAB 5 — KILIMOBOT AI ADVISORY AGENT
 # ═══════════════════════════════════════════════════════════════════════════════
-with tab_ai:
-    section("🤖", "KilimoBot AI Advisory Agent",
-            f"Ask real-time questions about agriculture, climate risks in {selected_county}, credit underwriting, and market arbitrage")
+if tab_ai is not None:
+    with tab_ai:
+        section("🤖", "KilimoBot AI Advisory Agent",
+                f"Ask real-time questions about agriculture, climate risks in {selected_county}, credit underwriting, and market arbitrage")
 
-    # API key and engine status banner
-    api_key = get_api_key()
-    has_gemini = bool(api_key and GEMINI_AVAILABLE)
+        # API key and engine status banner
+        api_key = get_api_key()
+        has_gemini = bool(api_key and GEMINI_AVAILABLE)
 
-    col_ai_stat, col_ai_cfg = st.columns([1.8, 1.2])
-    with col_ai_stat:
-        if has_gemini:
-            st.markdown(f"""
-            <div style="background:{'rgba(16,185,129,0.12)' if is_dark else '#f0fdf4'};
-                        border:1px solid {'#059669' if is_dark else '#86efac'};border-radius:10px;padding:10px 14px;margin-bottom:12px;">
-                <span style="color:#10b981;font-weight:800;">● LIVE AI CONNECTED</span> &nbsp;·&nbsp;
-                <span style="font-size:0.85rem;color:{text_main};">Powered by <strong>Google Gemini 1.5 Flash</strong> with real-time agronomic reasoning</span>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div style="background:{'rgba(59,130,246,0.12)' if is_dark else '#eff6ff'};
-                        border:1px solid {'#2563eb' if is_dark else '#bfdbfe'};border-radius:10px;padding:10px 14px;margin-bottom:12px;">
-                <span style="color:#3b82f6;font-weight:800;">💡 PLATFORM KNOWLEDGE ENGINE ACTIVE</span> &nbsp;·&nbsp;
-                <span style="font-size:0.85rem;color:{text_main};">Instant offline answers from 116 TAHMO stations & 40-crop database</span>
-            </div>
-            """, unsafe_allow_html=True)
+        col_ai_stat, col_ai_cfg = st.columns([1.8, 1.2])
+        with col_ai_stat:
+            if has_gemini:
+                st.markdown(f"""
+                <div style="background:{'rgba(16,185,129,0.12)' if is_dark else '#f0fdf4'};
+                            border:1px solid {'#059669' if is_dark else '#86efac'};border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+                    <span style="color:#10b981;font-weight:800;">● LIVE AI CONNECTED</span> &nbsp;·&nbsp;
+                    <span style="font-size:0.85rem;color:{text_main};">Powered by <strong>Google Gemini 1.5 Flash</strong> with real-time agronomic reasoning</span>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                <div style="background:{'rgba(59,130,246,0.12)' if is_dark else '#eff6ff'};
+                            border:1px solid {'#2563eb' if is_dark else '#bfdbfe'};border-radius:10px;padding:10px 14px;margin-bottom:12px;">
+                    <span style="color:#3b82f6;font-weight:800;">💡 PLATFORM KNOWLEDGE ENGINE ACTIVE</span> &nbsp;·&nbsp;
+                    <span style="font-size:0.85rem;color:{text_main};">Instant offline answers from 116 TAHMO stations & 40-crop database</span>
+                </div>
+                """, unsafe_allow_html=True)
 
-    with col_ai_cfg:
-        with st.expander("⚙️ AI Configuration & API Key", expanded=False):
-            st.caption("Enter a Google Gemini API Key for multi-turn generative AI, or use the built-in Knowledge Engine without a key.")
-            user_key_input = st.text_input(
-                "Gemini API Key",
-                value=st.session_state.get("user_gemini_api_key", ""),
-                type="password",
-                help="Get a free key from Google AI Studio: https://aistudio.google.com/"
-            )
-            if user_key_input != st.session_state.get("user_gemini_api_key", ""):
-                st.session_state.user_gemini_api_key = user_key_input
+        with col_ai_cfg:
+            with st.expander("⚙️ AI Configuration & API Key", expanded=False):
+                st.caption("Enter a Google Gemini API Key for multi-turn generative AI, or use the built-in Knowledge Engine without a key.")
+                user_key_input = st.text_input(
+                    "Gemini API Key",
+                    value=st.session_state.get("user_gemini_api_key", ""),
+                    type="password",
+                    help="Get a free key from Google AI Studio: https://aistudio.google.com/"
+                )
+                if user_key_input != st.session_state.get("user_gemini_api_key", ""):
+                    st.session_state.user_gemini_api_key = user_key_input
+                    if "gemini_chat" in st.session_state:
+                        del st.session_state["gemini_chat"]
+                    st.rerun()
+
+        # Quick question suggestions
+        st.markdown("##### 💡 Suggested Questions")
+        q_col1, q_col2, q_col3 = st.columns(3)
+        quick_prompt = None
+        with q_col1:
+            if st.button(f"🌾 Best crops for {selected_county}?", use_container_width=True):
+                quick_prompt = f"What are the best crops to plant in {selected_county} County for the {selected_season} season?"
+            if st.button("🏦 How does the bank calculate my loan?", use_container_width=True):
+                quick_prompt = "How does the platform calculate eligible loan amount, DSCR, and interest rate?"
+        with q_col2:
+            if st.button(f"🌧️ Climate risk in {selected_county}?", use_container_width=True):
+                quick_prompt = f"What is the rainfall, temperature, and dry spell risk for {selected_county} in {selected_season}?"
+            if st.button("🧠 Rules (AEZ) vs Machine Learning?", use_container_width=True):
+                quick_prompt = "What is the difference between Agro-Ecological Rules (AEZ) and Machine Learning models?"
+        with q_col3:
+            if st.button("💰 Best market for high profit?", use_container_width=True):
+                quick_prompt = f"Which regional market hub gives the highest arbitrage price for crops from {selected_county}?"
+            if st.button("🗑️ Reset Chat History", use_container_width=True):
+                st.session_state.chat_messages = []
                 if "gemini_chat" in st.session_state:
                     del st.session_state["gemini_chat"]
                 st.rerun()
 
-    # Quick question suggestions
-    st.markdown("##### 💡 Suggested Questions")
-    q_col1, q_col2, q_col3 = st.columns(3)
-    quick_prompt = None
-    with q_col1:
-        if st.button(f"🌾 Best crops for {selected_county}?", use_container_width=True):
-            quick_prompt = f"What are the best crops to plant in {selected_county} County for the {selected_season} season?"
-        if st.button("🏦 How does the bank calculate my loan?", use_container_width=True):
-            quick_prompt = "How does the platform calculate eligible loan amount, DSCR, and interest rate?"
-    with q_col2:
-        if st.button(f"🌧️ Climate risk in {selected_county}?", use_container_width=True):
-            quick_prompt = f"What is the rainfall, temperature, and dry spell risk for {selected_county} in {selected_season}?"
-        if st.button("🧠 Rules (AEZ) vs Machine Learning?", use_container_width=True):
-            quick_prompt = "What is the difference between Agro-Ecological Rules (AEZ) and Machine Learning models?"
-    with q_col3:
-        if st.button("💰 Best market for high profit?", use_container_width=True):
-            quick_prompt = f"Which regional market hub gives the highest arbitrage price for crops from {selected_county}?"
-        if st.button("🗑️ Reset Chat History", use_container_width=True):
-            st.session_state.chat_messages = []
-            if "gemini_chat" in st.session_state:
-                del st.session_state["gemini_chat"]
-            st.rerun()
+        st.markdown("---")
 
-    st.markdown("---")
+        # Initialise chat message history in session state
+        if "chat_messages" not in st.session_state or not st.session_state.chat_messages:
+            st.session_state.chat_messages = [
+                {
+                    "role": "assistant",
+                    "content": (
+                        f"👋 Hello **{current_user.get('full_name', 'there')}**! I'm **KilimoBot**, your ClimaCrop Intelligence AI assistant.\n\n"
+                        f"I'm loaded with data for **{selected_county} County** ({selected_season}) tailored for your role as **{role_meta['name']}**.\n\n"
+                        f"Ask me anything about:\n"
+                        f"- 🌾 **Crop recommendations** & agronomic cycle\n"
+                        f"- 🌧️ **Rainfall, temperature & dry spell risks** from 116 TAHMO stations\n"
+                        f"- 💰 **Wholesale market price arbitrage** across Nairobi, Mombasa, Kisumu, Nakuru & Eldoret\n"
+                        f"- 🏦 **Agricultural credit sizing, DSCR, and interest rate calculation**\n\n"
+                        f"Type your question below or click any of the suggested question buttons above! 🌿"
+                    )
+                }
+            ]
 
-    # Initialise chat message history in session state
-    if "chat_messages" not in st.session_state or not st.session_state.chat_messages:
-        st.session_state.chat_messages = [
-            {
-                "role": "assistant",
-                "content": (
-                    f"👋 Hello **{current_user.get('full_name', 'there')}**! I'm **KilimoBot**, your ClimaCrop Intelligence AI assistant.\n\n"
-                    f"I'm loaded with data for **{selected_county} County** ({selected_season}) tailored for your role as **{role_meta['name']}**.\n\n"
-                    f"Ask me anything about:\n"
-                    f"- 🌾 **Crop recommendations** & agronomic cycle\n"
-                    f"- 🌧️ **Rainfall, temperature & dry spell risks** from 116 TAHMO stations\n"
-                    f"- 💰 **Wholesale market price arbitrage** across Nairobi, Mombasa, Kisumu, Nakuru & Eldoret\n"
-                    f"- 🏦 **Agricultural credit sizing, DSCR, and interest rate calculation**\n\n"
-                    f"Type your question below or click any of the suggested question buttons above! 🌿"
-                )
-            }
-        ]
+        # Display all messages in history
+        for msg in st.session_state.chat_messages:
+            with st.chat_message(msg["role"], avatar="🌿" if msg["role"] == "assistant" else None):
+                st.markdown(msg["content"])
 
-    # Display all messages in history
-    for msg in st.session_state.chat_messages:
-        with st.chat_message(msg["role"], avatar="🌿" if msg["role"] == "assistant" else None):
-            st.markdown(msg["content"])
+        # Handle user input from chat_input or quick buttons
+        user_input = st.chat_input(f"Ask KilimoBot about agriculture, {selected_county} climate, loans, or markets...")
+        prompt_to_run = quick_prompt or user_input
 
-    # Handle user input from chat_input or quick buttons
-    user_input = st.chat_input(f"Ask KilimoBot about agriculture, {selected_county} climate, loans, or markets...")
-    prompt_to_run = quick_prompt or user_input
+        if prompt_to_run:
+            # Add user message
+            st.session_state.chat_messages.append({"role": "user", "content": prompt_to_run})
+            with st.chat_message("user"):
+                st.markdown(prompt_to_run)
 
-    if prompt_to_run:
-        # Add user message
-        st.session_state.chat_messages.append({"role": "user", "content": prompt_to_run})
-        with st.chat_message("user"):
-            st.markdown(prompt_to_run)
-
-        # Generate assistant response
-        with st.chat_message("assistant", avatar="🌿"):
-            with st.spinner("KilimoBot is analyzing climate data & crop parameters..."):
-                response_text = ""
-                # If Gemini API key is available, use Gemini chat
-                if has_gemini:
-                    chat_sess = init_chat_session(selected_county, selected_season, engine_mode, api_key)
-                    if chat_sess:
-                        response_text = ask_kiilimobot(chat_sess, prompt_to_run)
+            # Generate assistant response
+            with st.chat_message("assistant", avatar="🌿"):
+                with st.spinner("KilimoBot is analyzing climate data & crop parameters..."):
+                    response_text = ""
+                    # If Gemini API key is available, use Gemini chat
+                    if has_gemini:
+                        chat_sess = init_chat_session(selected_county, selected_season, engine_mode, api_key)
+                        if chat_sess:
+                            response_text = ask_kiilimobot(chat_sess, prompt_to_run)
+                        else:
+                            response_text = generate_offline_response(prompt_to_run, selected_county, selected_season, engine, engine_mode)
                     else:
+                        # Instant built-in Knowledge Engine response
                         response_text = generate_offline_response(prompt_to_run, selected_county, selected_season, engine, engine_mode)
-                else:
-                    # Instant built-in Knowledge Engine response
-                    response_text = generate_offline_response(prompt_to_run, selected_county, selected_season, engine, engine_mode)
 
-                st.markdown(response_text)
-                st.session_state.chat_messages.append({"role": "assistant", "content": response_text})
+                    st.markdown(response_text)
+                    st.session_state.chat_messages.append({"role": "assistant", "content": response_text})
 
 
 # ─────────────────────────────────────────────────────────────────────────────
