@@ -643,6 +643,102 @@ html, body, [data-testid="stAppViewContainer"] {{
 .season-title {{ font-size:0.95rem;font-weight:800;color:{primary_color}; }}
 .season-desc {{ font-size:0.82rem;color:{text_muted};font-weight:500;margin-top:2px;line-height:1.4; }}
 
+
+/* ══════════════════════════════════════════════════════
+   MULTI-COLOR ACCENTS & COMMAND STRIP
+══════════════════════════════════════════════════════ */
+.login-wrap {
+    background: {card_bg};
+    border: 1px solid {card_border};
+    border-radius: 20px;
+    padding: 28px 30px;
+    box-shadow: 0 16px 48px rgba(0,0,0,{'0.35' if is_dark else '0.08'});
+    position: relative;
+    overflow: hidden;
+}
+.login-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #10b981 0%, #0284c7 33%, #8b5cf6 66%, #f59e0b 100%);
+}
+.demo-role-chip {
+    border-radius: 12px;
+    padding: 10px 12px;
+    text-align: center;
+    border: 1px solid {card_border};
+    background: {'rgba(255,255,255,0.04)' if is_dark else '#f9fafb'};
+    margin-bottom: 6px;
+    transition: transform 0.16s ease, border-color 0.16s ease;
+}
+.demo-role-chip:hover {
+    transform: translateY(-2px);
+    border-color: #10b981;
+}
+.demo-chip-icon { font-size: 1.4rem; margin-bottom: 2px; }
+.demo-chip-title { font-size: 0.8rem; font-weight: 800; color: {text_main}; line-height: 1.2; }
+.demo-chip-user { font-size: 0.7rem; color: {text_muted}; font-weight: 600; margin-top: 2px; }
+
+/* Workspace Top Command Strip */
+.workspace-command-strip {
+    background: {card_bg};
+    border: 1px solid {card_border};
+    border-radius: 14px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 12px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+}
+.command-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+.pill-location {
+    background: {'rgba(245,158,11,0.12)' if is_dark else '#fef3c7'};
+    color: {'#fbbf24' if is_dark else '#92400e'};
+    border: 1px solid {'rgba(245,158,11,0.3)' if is_dark else '#fde68a'};
+}
+.pill-season {
+    background: {'rgba(2,132,199,0.12)' if is_dark else '#e0f2fe'};
+    color: {'#38bdf8' if is_dark else '#0369a1'};
+    border: 1px solid {'rgba(2,132,199,0.3)' if is_dark else '#bae6fd'};
+}
+.pill-pipeline {
+    background: {'rgba(16,185,129,0.12)' if is_dark else '#dcfce7'};
+    color: {'#4ade80' if is_dark else '#15803d'};
+    border: 1px solid {'rgba(16,185,129,0.3)' if is_dark else '#bbf7d0'};
+    margin-left: auto;
+}
+.pill-engine {
+    background: {'rgba(139,92,246,0.12)' if is_dark else '#ede9fe'};
+    color: {'#c084fc' if is_dark else '#6d28d9'};
+    border: 1px solid {'rgba(139,92,246,0.3)' if is_dark else '#ddd6fe'};
+}
+
+/* Security footer pill */
+.sec-trust-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px dashed {card_border};
+    font-size: 0.74rem;
+    color: {text_muted};
+    font-weight: 600;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -815,72 +911,149 @@ if not st.session_state.authenticated:
         render_overview_page()
         st.stop()
 
-    if st.button("← Back to overview", key="btn_back_to_overview"):
-        st.session_state.entered_platform = False
-        st.rerun()
+    # Top Navigation Row
+    top_nav_c1, top_nav_c2 = st.columns([1, 2])
+    with top_nav_c1:
+        if st.button("← Back to Overview", key="btn_back_to_overview"):
+            st.session_state.entered_platform = False
+            st.rerun()
+    with top_nav_c2:
+        st.markdown(f"""
+        <div style="text-align:right;font-size:0.78rem;color:{text_muted};padding-top:8px;">
+            <span class="live-dot"></span>
+            <strong>TAHMO Kenya Pipeline:</strong> 116 Weather Stations Active · 26 Counties
+        </div>
+        """, unsafe_allow_html=True)
 
-    # ── Centered logo / title ──
+    # ── Centered logo & title ──
     st.markdown(f"""
-    <div style="display:flex;justify-content:center;margin-bottom:28px;margin-top:36px;">
-        <div style="text-align:center;">
-            <div style="font-size:3rem;margin-bottom:4px;">🌿</div>
-            <div style="font-size:1.5rem;font-weight:800;color:{primary_color};letter-spacing:-0.5px;">
-                ClimaCrop Intelligence
-            </div>
-            <div style="font-size:0.84rem;color:{text_muted};margin-top:3px;">
-                Kilimo-Smart Decision Platform · Kenya 🇰🇪
-            </div>
+    <div style="text-align:center;margin:18px 0 24px;">
+        <div style="font-size:2.8rem;line-height:1;margin-bottom:6px;">🌿</div>
+        <div style="font-size:1.65rem;font-weight:900;letter-spacing:-0.6px;color:{primary_color};">
+            ClimaCrop Intelligence Portal
+        </div>
+        <div style="font-size:0.88rem;color:{text_muted};margin-top:4px;font-weight:500;">
+            Kilimo-Smart Climate Decision &amp; Agri-Fintech De-Risking Platform · Kenya 🇰🇪
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    _lc, _mc, _rc = st.columns([1, 1.5, 1])
+    # ── 1-CLICK INSTANT DEMO ACCESS CARDS ──
+    st.markdown(f"""
+    <div style="text-align:center;margin-bottom:12px;">
+        <span style="font-size:0.82rem;font-weight:800;color:{text_main};text-transform:uppercase;letter-spacing:0.6px;">
+            🚀 1-Click Instant Persona Launch (No Password Required)
+        </span>
+        <div style="font-size:0.75rem;color:{text_muted};margin-top:2px;">
+            Select a stakeholder role to preview their tailored analytics console immediately:
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    demo_c1, demo_c2, demo_c3, demo_c4 = st.columns(4)
+    with demo_c1:
+        st.markdown(f"""
+        <div class="demo-role-chip" style="border-top:3px solid #10b981;">
+            <div class="demo-chip-icon">👨‍🌾</div>
+            <div class="demo-chip-title" style="color:#10b981;">Cooperative Member</div>
+            <div class="demo-chip-user">Wanjiku Mwangi · Nakuru</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🌱 Launch Co-op View", key="btn_quick_coop", use_container_width=True):
+            d_acc = get_demo_account("cooperative")
+            if d_acc:
+                st.session_state.authenticated = True
+                st.session_state.user          = d_acc
+                st.session_state.active_role   = d_acc["role"]
+                st.rerun()
+
+    with demo_c2:
+        st.markdown(f"""
+        <div class="demo-role-chip" style="border-top:3px solid #0284c7;">
+            <div class="demo-chip-icon">🏦</div>
+            <div class="demo-chip-title" style="color:#0284c7;">Bank &amp; SACCO Officer</div>
+            <div class="demo-chip-user">Kevin Kiprop · Agri-SACCO</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🏦 Launch Bank View", key="btn_quick_bank", use_container_width=True):
+            d_acc = get_demo_account("bank_officer")
+            if d_acc:
+                st.session_state.authenticated = True
+                st.session_state.user          = d_acc
+                st.session_state.active_role   = d_acc["role"]
+                st.rerun()
+
+    with demo_c3:
+        st.markdown(f"""
+        <div class="demo-role-chip" style="border-top:3px solid #8b5cf6;">
+            <div class="demo-chip-icon">🌍</div>
+            <div class="demo-chip-title" style="color:#8b5cf6;">Climate Researcher</div>
+            <div class="demo-chip-user">Dr. Amina Ochieng · Agro-Lab</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🌍 Launch Researcher View", key="btn_quick_res", use_container_width=True):
+            d_acc = get_demo_account("researcher")
+            if d_acc:
+                st.session_state.authenticated = True
+                st.session_state.user          = d_acc
+                st.session_state.active_role   = d_acc["role"]
+                st.rerun()
+
+    with demo_c4:
+        st.markdown(f"""
+        <div class="demo-role-chip" style="border-top:3px solid #f59e0b;">
+            <div class="demo-chip-icon">👑</div>
+            <div class="demo-chip-title" style="color:#f59e0b;">System Administrator</div>
+            <div class="demo-chip-user">Carson Sila · Core Ops</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("👑 Launch Admin View", key="btn_quick_admin", use_container_width=True):
+            d_acc = get_demo_account("admin")
+            if d_acc:
+                st.session_state.authenticated = True
+                st.session_state.user          = d_acc
+                st.session_state.active_role   = d_acc["role"]
+                st.rerun()
+
+    st.markdown("<div style='margin-top:20px;'></div>", unsafe_allow_html=True)
+
+    # ── MAIN AUTHENTICATION CONTAINER (TABS) ──
+    _lc, _mc, _rc = st.columns([1, 2.2, 1])
     with _mc:
-        st.markdown(f"""
-        <div style="background:{card_bg};border:1px solid {card_border};border-radius:18px;
-             padding:32px 32px 24px;box-shadow:0 12px 40px rgba(0,0,0,{'0.30' if is_dark else '0.10'});">
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
+        tab_signin, tab_signup = st.tabs(["🔑 Sign In with Credentials", "📝 Create First-Time Account"])
 
-        with st.form("form_signin_main", clear_on_submit=False):
-            in_username = st.text_input("Username", placeholder="Enter your username")
-            in_password = st.text_input("Password", type="password",
-                                        placeholder="Enter your password")
-            st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
-            btn_submit = st.form_submit_button("🔑  Sign In", use_container_width=True)
-
-            if btn_submit:
-                if not in_username or not in_password:
-                    st.error("Please enter both username and password.")
-                else:
-                    user_auth = authenticate_user(in_username, in_password)
-                    if user_auth:
-                        st.session_state.authenticated = True
-                        st.session_state.user          = user_auth
-                        st.session_state.active_role   = user_auth["role"]
-                        st.rerun()
-                    else:
-                        st.error("❌ Invalid username or password. Please try again.")
-
-        # ── Divider between Sign In and Create Account ──
-        st.markdown(f"""
-        <div style="display:flex;align-items:center;gap:10px;margin:16px 0 12px;">
-            <div style="flex:1;height:1px;background:{card_border};"></div>
-            <div style="font-size:0.78rem;color:{text_muted};white-space:nowrap;font-weight:600;">
-                New here?
-            </div>
-            <div style="flex:1;height:1px;background:{card_border};"></div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # ── Sign-Up / Create Account section ──
-        with st.expander("📝 Create a new account", expanded=False):
+        with tab_signin:
             st.markdown(f"""
-            <div style="font-size:0.84rem;color:{text_muted};margin-bottom:14px;line-height:1.55;">
-                Fill in your details below. You'll be signed in automatically after registration.
+            <div style="font-size:0.82rem;color:{text_muted};margin-bottom:14px;margin-top:6px;">
+                Enter your registered username and password to access your customized dashboard.
             </div>
             """, unsafe_allow_html=True)
+            with st.form("form_signin_main", clear_on_submit=False):
+                in_username = st.text_input("👤 Username", placeholder="e.g. coop_user or your registered handle")
+                in_password = st.text_input("🔒 Password", type="password", placeholder="Enter your password")
+                st.markdown("<div style='margin-top:6px;'></div>", unsafe_allow_html=True)
+                btn_submit = st.form_submit_button("🚀 Enter ClimaCrop Portal", use_container_width=True)
 
+                if btn_submit:
+                    if not in_username or not in_password:
+                        st.error("Please enter both username and password.")
+                    else:
+                        user_auth = authenticate_user(in_username, in_password)
+                        if user_auth:
+                            st.session_state.authenticated = True
+                            st.session_state.user          = user_auth
+                            st.session_state.active_role   = user_auth["role"]
+                            st.rerun()
+                        else:
+                            st.error("❌ Invalid username or password. Please try again.")
+
+        with tab_signup:
+            st.markdown(f"""
+            <div style="font-size:0.82rem;color:{text_muted};margin-bottom:14px;margin-top:6px;">
+                Register a new profile. You will be assigned persona-specific tools and signed in automatically.
+            </div>
+            """, unsafe_allow_html=True)
             with st.form("form_signup_new", clear_on_submit=True):
                 su_c1, su_c2 = st.columns(2)
                 with su_c1:
@@ -916,7 +1089,6 @@ if not st.session_state.authenticated:
                         st.error("Password must be at least 4 characters long.")
                     elif reg_pass != reg_pass2:
                         st.error("⚠️ Passwords do not match. Please re-enter them.")
-
                     else:
                         ok, msg = register_user(
                             username=reg_user,
@@ -937,25 +1109,19 @@ if not st.session_state.authenticated:
                         else:
                             st.error(f"❌ {msg}")
 
-        with st.expander("🔐 View demo credentials", expanded=False):
-            st.markdown(f"""
-            <div class="info-box" style="margin:0;">
-                <strong>Pre-registered demo accounts:</strong><br><br>
-                👨‍🌾 <code>coop_user</code> / <code>kilimo2025</code> — Cooperative Member<br>
-                🏦 <code>bank_officer</code> / <code>sacco2025</code> — Credit Officer<br>
-                🌍 <code>researcher</code> / <code>tahmo2025</code> — Climate Researcher<br>
-                👑 <code>admin</code> / <code>admin2025</code> — Administrator
-            </div>
-            """, unsafe_allow_html=True)
+        # Security Trust strip inside login card
+        st.markdown(f"""
+        <div class="sec-trust-bar">
+            <span>🔒 SHA-256 Encrypted</span>
+            <span>·</span>
+            <span>🛡️ Role-Based Segmentation</span>
+            <span>·</span>
+            <span>⚡ 116 Active Ground Feeds</span>
+        </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-
-
-
-
-
-
-
-    # Floating KilimoBot button (visible on login page too as a teaser)
+    # Floating KilimoBot button
     st.markdown("""
     <div class="float-bot" title="KilimoBot AI">🤖</div>
     <div class="float-bot-tooltip">Ask KilimoBot AI →</div>
@@ -969,7 +1135,6 @@ if not st.session_state.authenticated:
     </div>
     """, unsafe_allow_html=True)
 
-    # Stop rendering the rest of the application when not logged in
     st.stop()
 
 
@@ -982,41 +1147,39 @@ role_meta = ROLES.get(user_role, ROLES["cooperative"])
 
 with st.sidebar:
     st.markdown("---")
-    # User profile badge card
+    # Multi-color user profile badge card
+    _role_aura = {
+        "cooperative":  "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+        "bank_officer": "linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%)",
+        "researcher":   "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)",
+        "admin":        "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+    }.get(user_role, "linear-gradient(135deg, #10b981 0%, #059669 100%)")
+
     st.markdown(f"""
-    <div class="user-profile-box">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-            <div style="font-size: 1.6rem;">{role_meta['icon']}</div>
-            <div>
-                <div style="font-size: 0.92rem; font-weight: 800; color: {text_main}; line-height: 1.2;">
+    <div class="user-profile-box" style="border-left: 4px solid {role_meta['badge_color']};">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:{_role_aura};display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;color:#fff;">
+                {role_meta['icon']}
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.92rem;font-weight:800;color:{text_main};line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                     {current_user.get('full_name', 'Authorized User')}
                 </div>
-                <div style="font-size: 0.75rem; color: {text_muted}; font-weight: 600;">
+                <div style="font-size:0.75rem;color:{text_muted};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                     {current_user.get('organization', 'ClimaCrop Partner')}
                 </div>
             </div>
         </div>
-        <div style="margin-top: 6px;">
+        <div style="margin-top: 8px; display: flex; align-items: center; justify-content: space-between;">
             <span style="background: {role_meta['badge_color']}; color: #ffffff; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.4px;">
                 {role_meta['name'].upper()}
+            </span>
+            <span style="font-size:0.7rem;color:{text_muted};font-weight:600;">
+                📍 {current_user.get('county', 'Kenya')}
             </span>
         </div>
     </div>
     """, unsafe_allow_html=True)
-
-    # If user is admin, allow switching persona on the fly
-    if current_user.get("role") == "admin":
-        st.markdown("#### 🎭 Persona Preview Mode")
-        st.caption("Admin superpower: switch roles to experience any persona's view.")
-        selected_preview_role = st.selectbox(
-            "Active Role View",
-            list(ROLES.keys()),
-            format_func=lambda r: f"{ROLES[r]['icon']} {ROLES[r]['name']}",
-            index=list(ROLES.keys()).index(user_role)
-        )
-        if selected_preview_role != user_role:
-            st.session_state.active_role = selected_preview_role
-            st.rerun()
 
     # Sign Out Button
     if st.button("🚪 Sign Out", key="btn_logout", use_container_width=True):
@@ -1027,29 +1190,51 @@ with st.sidebar:
             del st.session_state["gemini_chat"]
         st.rerun()
 
+    # If user is admin, allow switching persona on the fly
+    if current_user.get("role") == "admin":
+        st.markdown("<div style='margin-top:8px;'></div>", unsafe_allow_html=True)
+        st.markdown("#### 🎭 Persona Preview")
+        selected_preview_role = st.selectbox(
+            "Switch Role View",
+            list(ROLES.keys()),
+            format_func=lambda r: f"{ROLES[r]['icon']} {ROLES[r]['name']}",
+            index=list(ROLES.keys()).index(user_role),
+            label_visibility="collapsed"
+        )
+        if selected_preview_role != user_role:
+            st.session_state.active_role = selected_preview_role
+            st.rerun()
+
     st.markdown("---")
 
-    # Region & Calendar
-    st.markdown("#### 📍 Location & Season")
+    # Region & Calendar Scope Controls
+    st.markdown(f"""
+    <div style="font-size:0.84rem;font-weight:800;color:{primary_color};margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <span>🎯</span> Geographic &amp; Seasonal Scope
+    </div>
+    """, unsafe_allow_html=True)
+
     counties_list = [
         "Nakuru", "Uasin Gishu", "Kiambu", "Nyeri", "Nyandarua", "Machakos", "Makueni", "Kitui",
         "Bungoma", "Kakamega", "Kisumu", "Siaya", "Migori", "Kisii", "Kericho", "Bomet",
         "Narok", "Embu", "Tharaka Nithi", "Kwale", "Kilifi", "Mombasa", "Taita Taveta",
         "West Pokot", "Turkana", "Laikipia"
     ]
-    # Default to user's registered county if valid
     default_county_idx = 0
     if current_user.get("county") in counties_list:
         default_county_idx = counties_list.index(current_user["county"])
 
-    selected_county = st.selectbox("📍 County", counties_list, index=default_county_idx)
-    selected_season = st.selectbox("📅 Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
+    selected_county = st.selectbox("📍 Focus County", counties_list, index=default_county_idx)
+    selected_season = st.selectbox("📅 Planting Season", ["Long Rains (MAM)", "Short Rains (OND)"], index=0)
 
     st.markdown("---")
 
-    # Engine mode
-    st.markdown("#### 🧠 Advisory Engine")
-    st.caption("Choose how crop suitability scores are calculated.")
+    # Advisory Engine selection (compact in sidebar, full explanation in workspace command strip)
+    st.markdown(f"""
+    <div style="font-size:0.84rem;font-weight:800;color:{primary_color};margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+        <span>🧠</span> Advisory Engine
+    </div>
+    """, unsafe_allow_html=True)
     engine_mode = st.radio(
         "Engine",
         ["📐 Agro-Ecological Rules (AEZ)", "🤖 Machine Learning (Random Forest)"],
@@ -1057,26 +1242,14 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     use_rule_based = engine_mode.startswith("📐")
-    st.info(
-        "📐 **Rules (AEZ):** Transparent, explainable scores based on Kenya's Agro-Ecological Zone rainfall & temperature bands."
-        if use_rule_based else
-        "🤖 **ML Model:** Probabilistic Random Forest recommendations — great for comparing against rule-based outputs."
-    )
 
-    st.markdown("---")
-
-    # Live Data Stack info card
-    st.markdown("""
-<div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 14px;">
-<div style="font-size:0.72rem;font-weight:800;letter-spacing:0.6px;color:#059669;margin-bottom:6px;">📡 DATA SOURCES</div>
-<div style="font-size:0.8rem;line-height:1.6;">
-🌡️ 116 TAHMO Ground Stations<br>
-🛰️ NASA POWER Satellite Reanalysis<br>
-📋 FAOSTAT & KNBS 40-Crop Matrix<br>
-🏪 5 Regional Wholesale Hubs
-</div>
-</div>
-""", unsafe_allow_html=True)
+    # Clean bottom telemetry status pill
+    st.markdown(f"""
+    <div style="margin-top:20px;padding:10px 12px;border-radius:10px;background:{'rgba(16,185,129,0.08)' if is_dark else '#f0fdf4'};border:1px solid {'rgba(16,185,129,0.2)' if is_dark else '#bbf7d0'};font-size:0.75rem;color:{text_muted};">
+        <span class="live-dot"></span><strong>Pipeline:</strong> 116 TAHMO Stations Live<br>
+        <span style="opacity:0.8;">NASA POWER Satellite &amp; FAOSTAT Sync</span>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1200,6 +1373,32 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WORKSPACE COMMAND & SCOPE STRIP
+# ─────────────────────────────────────────────────────────────────────────────
+_engine_badge_str = "📐 AEZ Agro-Ecological Rules (Explainable Bands)" if use_rule_based else "🤖 Random Forest ML (Probabilistic Multi-Factor)"
+
+st.markdown(f"""
+<div class="workspace-command-strip">
+    <div class="command-pill pill-location">
+        <span style="font-size:1.1rem;">📍</span>
+        <span>County: <strong>{selected_county}</strong></span>
+    </div>
+    <div class="command-pill pill-season">
+        <span style="font-size:1.1rem;">📅</span>
+        <span>Season: <strong>{selected_season}</strong></span>
+    </div>
+    <div class="command-pill pill-engine">
+        <span style="font-size:1.1rem;">🧠</span>
+        <span>Engine: <strong>{_engine_badge_str}</strong></span>
+    </div>
+    <div class="command-pill pill-pipeline">
+        <span class="live-dot"></span>
+        <span>116 Ground Stations Live</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TOP-TAB NAVIGATION — Role-specific platform views
