@@ -338,7 +338,311 @@ html, body, [data-testid="stAppViewContainer"] {{
     .footer {{ padding:6px 10px; }}
     .footer .footer-line {{ font-size:0.66rem;display:block;white-space:normal; }}
     .footer .footer-brand {{ font-size:0.74rem; }}
+    .float-bot {{ bottom:68px;right:14px;width:48px;height:48px;font-size:1.3rem; }}
+    .ticker-wrap {{ font-size:0.74rem; }}
+    .counter-strip {{ gap:12px; }}
+    .counter-card {{ padding:14px 16px; }}
+    .counter-val {{ font-size:1.8rem; }}
+    .landing-hero-slide {{ min-height:260px; }}
 }}
+
+/* ══════════════════════════════════════════════════════
+   ANIMATED SLIDESHOW HERO
+══════════════════════════════════════════════════════ */
+@keyframes slideFade {{
+    0%   {{ opacity:1; transform:scale(1.04); }}
+    22%  {{ opacity:1; transform:scale(1.04); }}
+    28%  {{ opacity:0; transform:scale(1.00); }}
+    95%  {{ opacity:0; transform:scale(1.00); }}
+    100% {{ opacity:1; transform:scale(1.04); }}
+}}
+.landing-hero-wrap {{
+    position:relative;border-radius:26px;overflow:hidden;
+    min-height:340px;margin-bottom:0;
+    box-shadow:0 24px 60px rgba(0,0,0,0.28);
+}}
+.landing-hero-slide {{
+    position:absolute;inset:0;background-size:cover;background-position:center;
+    opacity:0;animation:slideFade 24s infinite;
+    border-radius:26px;
+}}
+.slide-1 {{ animation-delay:0s;
+    background-image:url('https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1600&auto=format&fit=crop&q=85'); }}
+.slide-2 {{ animation-delay:6s;
+    background-image:url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&auto=format&fit=crop&q=85'); }}
+.slide-3 {{ animation-delay:12s;
+    background-image:url('https://images.unsplash.com/photo-1715198901384-0b7ff9f37a77?w=1600&auto=format&fit=crop&q=85'); }}
+.slide-4 {{ animation-delay:18s;
+    background-image:url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&auto=format&fit=crop&q=80'); }}
+.landing-hero-overlay {{
+    position:absolute;inset:0;border-radius:26px;
+    background:linear-gradient(135deg,rgba(4,20,12,0.88) 0%,rgba(12,55,32,0.82) 55%,rgba(5,95,65,0.76) 100%);
+    z-index:1;
+}}
+.landing-hero-content {{
+    position:relative;z-index:2;padding:70px 40px 56px;text-align:center;color:#fff;
+}}
+.landing-badge-new {{
+    display:inline-flex;align-items:center;gap:7px;
+    background:rgba(74,222,128,0.18);backdrop-filter:blur(12px);
+    color:#86efac;padding:7px 18px;border-radius:22px;
+    font-size:0.78rem;font-weight:700;letter-spacing:0.6px;
+    border:1px solid rgba(74,222,128,0.35);margin-bottom:18px;
+    box-shadow:0 0 20px rgba(74,222,128,0.15);
+}}
+.landing-title-big {{
+    font-size:2.8rem;font-weight:900;letter-spacing:-1px;line-height:1.1;
+    margin-bottom:14px;color:#fff;text-shadow:0 2px 20px rgba(0,0,0,0.4);
+}}
+.landing-sub-big {{
+    font-size:1.05rem;color:rgba(255,255,255,0.88);line-height:1.65;
+    max-width:720px;margin:0 auto 28px;font-weight:400;
+}}
+.landing-cta-btn {{
+    display:inline-flex;align-items:center;gap:9px;
+    background:linear-gradient(135deg,#10b981,#0d9488);
+    color:#fff;padding:14px 34px;border-radius:14px;font-size:1rem;
+    font-weight:800;letter-spacing:0.2px;text-decoration:none;
+    box-shadow:0 8px 28px rgba(16,185,129,0.45);
+    border:1px solid rgba(255,255,255,0.2);
+    transition:transform 0.2s,box-shadow 0.2s;
+}}
+.landing-cta-btn:hover {{ transform:translateY(-3px);box-shadow:0 14px 36px rgba(16,185,129,0.55); }}
+
+/* ══════════════════════════════════════════════════════
+   SCROLLING STATS TICKER
+══════════════════════════════════════════════════════ */
+@keyframes ticker-scroll {{
+    0%   {{ transform:translateX(0); }}
+    100% {{ transform:translateX(-50%); }}
+}}
+.ticker-wrap {{
+    overflow:hidden;background:{'rgba(16,40,26,0.96)' if is_dark else 'rgba(5,46,22,0.92)'};
+    border-radius:10px;padding:0;margin:10px 0 20px;
+    border:1px solid rgba(74,222,128,0.25);
+    box-shadow:0 4px 16px rgba(0,0,0,0.18);
+}}
+.ticker-inner {{
+    display:inline-flex;gap:0;white-space:nowrap;
+    animation:ticker-scroll 38s linear infinite;
+    padding:10px 0;
+}}
+.ticker-item {{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:0 28px;font-size:0.82rem;font-weight:600;color:#a7f3d0;
+    border-right:1px solid rgba(74,222,128,0.2);
+}}
+.ticker-item span {{ color:#4ade80;font-weight:800; }}
+
+/* ══════════════════════════════════════════════════════
+   ANIMATED COUNTER STRIP
+══════════════════════════════════════════════════════ */
+@keyframes countUp {{
+    from {{ opacity:0;transform:translateY(20px); }}
+    to   {{ opacity:1;transform:translateY(0); }}
+}}
+.counter-strip {{
+    display:flex;flex-wrap:wrap;gap:16px;margin:24px 0;justify-content:center;
+}}
+.counter-card {{
+    flex:1;min-width:160px;max-width:220px;
+    background:{'rgba(16,185,129,0.10)' if is_dark else 'rgba(255,255,255,0.92)'};
+    border:1px solid {'rgba(74,222,128,0.3)' if is_dark else '#bbf7d0'};
+    border-top:4px solid transparent;
+    border-image:linear-gradient(90deg,#10b981,#0d9488) 1 0 0 0;
+    border-radius:16px;padding:20px 22px;text-align:center;
+    backdrop-filter:blur(10px);
+    box-shadow:0 4px 20px rgba(0,0,0,{'0.25' if is_dark else '0.05'});
+    animation:countUp 0.7s ease forwards;
+}}
+.counter-card:nth-child(2) {{ animation-delay:0.15s; }}
+.counter-card:nth-child(3) {{ animation-delay:0.30s; }}
+.counter-card:nth-child(4) {{ animation-delay:0.45s; }}
+.counter-val {{
+    font-size:2.4rem;font-weight:900;letter-spacing:-1px;line-height:1;
+    background:linear-gradient(135deg,#10b981,#0d9488);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    background-clip:text;
+}}
+.counter-lbl {{ font-size:0.76rem;font-weight:700;color:{text_muted};letter-spacing:0.5px;margin-top:5px;text-transform:uppercase; }}
+.counter-sub {{ font-size:0.72rem;color:{text_muted};margin-top:3px;font-weight:500; }}
+
+/* ══════════════════════════════════════════════════════
+   PULSING LIVE DOT
+══════════════════════════════════════════════════════ */
+@keyframes pulse-ring {{
+    0%   {{ box-shadow:0 0 0 0 rgba(74,222,128,0.7); }}
+    70%  {{ box-shadow:0 0 0 8px rgba(74,222,128,0); }}
+    100% {{ box-shadow:0 0 0 0 rgba(74,222,128,0); }}
+}}
+.live-dot {{
+    display:inline-block;width:8px;height:8px;border-radius:50%;
+    background:#4ade80;animation:pulse-ring 1.8s infinite;
+    vertical-align:middle;margin-right:5px;
+}}
+.live-badge {{
+    display:inline-flex;align-items:center;gap:5px;
+    background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);
+    border-radius:20px;padding:4px 12px;
+    font-size:0.74rem;font-weight:700;color:#4ade80;letter-spacing:0.4px;
+}}
+
+/* ══════════════════════════════════════════════════════
+   GLASSMORPHISM FEATURE CARDS
+══════════════════════════════════════════════════════ */
+.glass-feature-card {{
+    border-radius:20px;padding:24px 22px 20px;height:100%;
+    background:rgba(255,255,255,{'0.08' if is_dark else '0.82'});
+    border:1px solid rgba(255,255,255,{'0.18' if is_dark else '0.60'});
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    box-shadow:0 8px 32px rgba(0,0,0,{'0.28' if is_dark else '0.07'}),
+               inset 0 1px 0 rgba(255,255,255,{'0.15' if is_dark else '0.6'});
+    transition:transform 0.22s ease,box-shadow 0.22s ease;
+    position:relative;overflow:hidden;
+}}
+.glass-feature-card::before {{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    border-radius:20px 20px 0 0;
+}}
+.glass-feature-card:hover {{
+    transform:translateY(-6px);
+    box-shadow:0 18px 42px rgba(0,0,0,{'0.36' if is_dark else '0.12'}),
+               inset 0 1px 0 rgba(255,255,255,0.25);
+}}
+.glass-icon-wrap {{
+    width:52px;height:52px;border-radius:14px;display:flex;
+    align-items:center;justify-content:center;font-size:1.7rem;
+    margin-bottom:13px;box-shadow:0 4px 12px rgba(0,0,0,0.18);
+}}
+.glass-feature-title {{ font-size:1.05rem;font-weight:800;color:{text_main};margin-bottom:7px; }}
+.glass-feature-desc {{ font-size:0.84rem;color:{text_muted};line-height:1.58; }}
+.glass-feature-tag {{
+    display:inline-block;margin-top:12px;padding:3px 10px;border-radius:20px;
+    font-size:0.72rem;font-weight:700;letter-spacing:0.4px;
+}}
+
+/* ══════════════════════════════════════════════════════
+   TRUST BADGE ROW
+══════════════════════════════════════════════════════ */
+.trust-row {{
+    display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+    align-items:center;margin:20px 0;
+}}
+.trust-badge {{
+    display:inline-flex;align-items:center;gap:7px;
+    background:{'rgba(255,255,255,0.06)' if is_dark else 'rgba(255,255,255,0.88)'};
+    border:1px solid {'rgba(255,255,255,0.15)' if is_dark else '#d1fae5'};
+    border-radius:12px;padding:8px 16px;
+    font-size:0.79rem;font-weight:700;
+    color:{'#a7f3d0' if is_dark else '#166534'};
+    backdrop-filter:blur(8px);
+    box-shadow:0 2px 10px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+    transition:transform 0.18s;
+}}
+.trust-badge:hover {{ transform:translateY(-2px); }}
+.trust-badge-icon {{ font-size:1.1rem; }}
+
+/* ══════════════════════════════════════════════════════
+   WELCOME BANNER (post-login)
+══════════════════════════════════════════════════════ */
+@keyframes slideInDown {{
+    from {{ opacity:0;transform:translateY(-24px); }}
+    to   {{ opacity:1;transform:translateY(0); }}
+}}
+.welcome-banner {{
+    border-radius:16px;padding:18px 24px;margin-bottom:18px;
+    background:linear-gradient(135deg,
+        {'rgba(4,120,87,0.25)' if is_dark else '#f0fdf4'} 0%,
+        {'rgba(5,150,105,0.18)' if is_dark else '#dcfce7'} 100%);
+    border:1px solid {'rgba(74,222,128,0.3)' if is_dark else '#bbf7d0'};
+    border-left:5px solid #10b981;
+    display:flex;align-items:center;gap:16px;
+    animation:slideInDown 0.6s ease;
+    box-shadow:0 4px 18px rgba(16,185,129,{'0.2' if is_dark else '0.08'});
+}}
+.welcome-avatar {{
+    width:52px;height:52px;border-radius:50%;
+    background:linear-gradient(135deg,#10b981,#0d9488);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;flex-shrink:0;
+    box-shadow:0 4px 14px rgba(16,185,129,0.35);
+}}
+.welcome-text-main {{ font-size:1.05rem;font-weight:800;color:{text_main}; }}
+.welcome-text-sub {{ font-size:0.84rem;color:{text_muted};font-weight:500;margin-top:3px; }}
+.welcome-season-pill {{
+    margin-left:auto;flex-shrink:0;
+    background:linear-gradient(135deg,#10b981,#0d9488);
+    color:#fff;padding:6px 16px;border-radius:20px;
+    font-size:0.78rem;font-weight:800;
+    box-shadow:0 4px 12px rgba(16,185,129,0.3);
+    white-space:nowrap;
+}}
+
+/* ══════════════════════════════════════════════════════
+   FLOATING KILIMOBOT BUTTON
+══════════════════════════════════════════════════════ */
+@keyframes float-bob {{
+    0%,100% {{ transform:translateY(0) scale(1); }}
+    50%      {{ transform:translateY(-7px) scale(1.04); }}
+}}
+@keyframes glow-ring {{
+    0%,100% {{ box-shadow:0 8px 28px rgba(16,185,129,0.45); }}
+    50%      {{ box-shadow:0 8px 36px rgba(13,148,136,0.65),0 0 0 8px rgba(16,185,129,0.1); }}
+}}
+.float-bot {{
+    position:fixed;bottom:76px;right:22px;z-index:9999;
+    width:58px;height:58px;border-radius:50%;
+    background:linear-gradient(135deg,#10b981,#0d9488);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.55rem;cursor:pointer;
+    animation:float-bob 3s ease-in-out infinite,glow-ring 3s ease-in-out infinite;
+    border:2px solid rgba(255,255,255,0.3);
+}}
+.float-bot-tooltip {{
+    position:fixed;bottom:138px;right:18px;z-index:9998;
+    background:{'rgba(17,26,20,0.95)' if is_dark else 'rgba(5,46,22,0.93)'};
+    color:#a7f3d0;padding:7px 14px;border-radius:10px;
+    font-size:0.77rem;font-weight:700;letter-spacing:0.3px;
+    white-space:nowrap;backdrop-filter:blur(8px);
+    border:1px solid rgba(74,222,128,0.25);
+    box-shadow:0 4px 16px rgba(0,0,0,0.3);
+    pointer-events:none;
+}}
+.float-bot-tooltip::after {{
+    content:'';position:absolute;top:100%;right:20px;
+    border:6px solid transparent;
+    border-top-color:rgba(5,46,22,0.93);
+}}
+
+/* ══════════════════════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════════════════════ */
+@keyframes slideInUp {{
+    from {{ opacity:0;transform:translateY(32px); }}
+    to   {{ opacity:1;transform:translateY(0); }}
+}}
+.reveal {{ animation:slideInUp 0.65s ease forwards; }}
+.reveal-1 {{ animation-delay:0.1s; }}
+.reveal-2 {{ animation-delay:0.22s; }}
+.reveal-3 {{ animation-delay:0.34s; }}
+.reveal-4 {{ animation-delay:0.46s; }}
+
+/* ══════════════════════════════════════════════════════
+   SEASON WEATHER MOOD BANNER
+══════════════════════════════════════════════════════ */
+.season-banner {{
+    border-radius:14px;padding:14px 20px;margin-bottom:16px;
+    display:flex;align-items:center;gap:14px;
+    background:linear-gradient(135deg,
+        {'rgba(6,78,59,0.35)' if is_dark else 'rgba(220,252,231,0.9)'} 0%,
+        {'rgba(3,105,161,0.20)' if is_dark else 'rgba(219,234,254,0.8)'} 100%);
+    border:1px solid {'rgba(74,222,128,0.25)' if is_dark else '#bbf7d0'};
+    box-shadow:0 2px 12px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+}}
+.season-icon {{ font-size:2rem;flex-shrink:0; }}
+.season-title {{ font-size:0.95rem;font-weight:800;color:{primary_color}; }}
+.season-desc {{ font-size:0.82rem;color:{text_muted};font-weight:500;margin-top:2px;line-height:1.4; }}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -346,76 +650,151 @@ html, body, [data-testid="stAppViewContainer"] {{
 # OVERVIEW / LANDING PAGE — first thing a visitor sees, before sign in / sign up
 # ─────────────────────────────────────────────────────────────────────────────
 def render_overview_page():
+    # ── 1. Animated slideshow hero ──
     st.markdown(f"""
-    <div class="landing-hero">
-        <div class="landing-badge">🌍 Kenya · 26 Counties · 10 Years of Climate Data</div>
-        <div class="landing-hero-title">🌾 ClimaCrop Intelligence</div>
-        <div class="landing-hero-sub">
-            Bridging 10-year localized climate patterns, optimal 40-crop selection, and institutional
-            credit underwriting for Kenyan agriculture — one platform for cooperatives, banks &amp; SACCOs,
-            and climate researchers.
+    <div class="landing-hero-wrap">
+        <div class="landing-hero-slide slide-1"></div>
+        <div class="landing-hero-slide slide-2"></div>
+        <div class="landing-hero-slide slide-3"></div>
+        <div class="landing-hero-slide slide-4"></div>
+        <div class="landing-hero-overlay"></div>
+        <div class="landing-hero-content">
+            <div class="landing-badge-new">
+                <span class="live-dot"></span>
+                🌍 Kenya · 26 Counties · 10 Years of Real Climate Data
+            </div>
+            <div class="landing-title-big">🌾 ClimaCrop Intelligence</div>
+            <div class="landing-sub-big">
+                Bridging 10-year localized climate patterns, 40-crop agronomic intelligence,
+                and institutional credit underwriting — one platform for cooperatives, banks,
+                SACCOs and climate researchers across Kenya.
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
+    # ── 2. Scrolling ticker bar ──
+    ticker_items = [
+        ("🌧️", "Avg Long-Rains Rainfall:", "842 mm", "Nakuru County"),
+        ("🌡️", "Kenya Mean Temperature:", "22.4 °C", "+0.08 °C per year trend"),
+        ("🌾", "Highest-Suitability Crop:", "Irish Potatoes", "Long-rains season"),
+        ("💰", "Best Market Hub:", "Nairobi Wholesale", "Highest composite price"),
+        ("📡", "Active TAHMO Stations:", "116", "Across 26 counties"),
+        ("🏦", "Avg Agricultural Loan Rate:", "14.2%", "Climate-adjusted rate"),
+        ("🌿", "Crops in Database:", "40 crops", "5 categories tracked"),
+        ("☀️", "Longest Recorded Dry Spell:", "38 days", "Northern counties"),
+    ]
+    items_html = "".join(
+        f'<div class="ticker-item">'
+        f'<span>{icon}</span>'
+        f'<span style="color:rgba(167,243,208,0.7);font-weight:500;">{label}</span>'
+        f'<span>{val}</span>'
+        f'<span style="font-size:0.72rem;opacity:0.6;margin-left:2px;">({note})</span>'
+        f'</div>'
+        for icon, label, val, note in ticker_items
+    )
+    # Duplicate for seamless loop
     st.markdown(f"""
-    <div style="text-align:center;max-width:760px;margin:0 auto 30px;">
-        <div style="font-size:1.05rem;font-weight:800;color:{primary_color};margin-bottom:8px;">What ClimaCrop Intelligence Actually Does</div>
-        <div style="font-size:0.92rem;color:{text_muted};line-height:1.7;">
-            Traditional weather apps only answer <em>"will it rain tomorrow?"</em> ClimaCrop goes further —
-            for a cooperative, it recommends what to plant this season and where to sell it for the best price.
-            For a bank or SACCO, it prices agricultural loans against real climate and market risk.
-            Everything is powered by 116 TAHMO ground weather stations, NASA POWER satellite reanalysis,
-            and FAOSTAT/KNBS crop economics.
+    <div class="ticker-wrap">
+        <div class="ticker-inner">
+            {items_html}
+            {items_html}
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # ── Colorful feature grid (green stays primary; each card gets its own accent) ──
+    # ── 3. Animated counter strip ──
+    st.markdown(f"""
+    <div class="counter-strip">
+        <div class="counter-card reveal reveal-1">
+            <div class="counter-val">116</div>
+            <div class="counter-lbl">Weather Stations</div>
+            <div class="counter-sub">TAHMO Ground Network</div>
+        </div>
+        <div class="counter-card reveal reveal-2">
+            <div class="counter-val">40</div>
+            <div class="counter-lbl">Crops Profiled</div>
+            <div class="counter-sub">Across 5 agronomic classes</div>
+        </div>
+        <div class="counter-card reveal reveal-3">
+            <div class="counter-val">26</div>
+            <div class="counter-lbl">Counties Covered</div>
+            <div class="counter-sub">Full county-level data</div>
+        </div>
+        <div class="counter-card reveal reveal-4">
+            <div class="counter-val">10yr</div>
+            <div class="counter-lbl">Climate History</div>
+            <div class="counter-sub">2015–2025 satellite + ground</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── 4. What the system does ──
+    st.markdown(f"""
+    <div style="text-align:center;max-width:780px;margin:0 auto 28px;">
+        <div style="font-size:1.08rem;font-weight:800;color:{primary_color};margin-bottom:10px;">
+            Beyond "Will It Rain?" — Decision Intelligence for Kenyan Agriculture
+        </div>
+        <div style="font-size:0.91rem;color:{text_muted};line-height:1.72;">
+            For a cooperative, ClimaCrop recommends <strong>what to plant</strong> this season and <strong>where to sell</strong> for
+            the highest price. For a bank or SACCO, it prices loans against <strong>real climate and market risk</strong>.
+            Everything is powered by 116 TAHMO ground stations, NASA POWER satellite reanalysis, and FAOSTAT economics.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── 5. Glassmorphism feature cards ──
     features = [
-        ("🌱", "#dcfce7", "#166534", "Cooperative Advisory",
-         "Rank the best of 40 Kenyan crops for your county and season by climate fit, expected yield, and net farm profit."),
-        ("🏦", "#dbeafe", "#1e40af", "Bank & Credit Risk",
-         "Automated 70% CapEx loan sizing, climate-adjusted interest rates, and portfolio-level default risk stress testing."),
-        ("🌍", "#ede9fe", "#5b21b6", "Climate Intelligence",
-         "10 years of rainfall, temperature and dry-spell trends across 116 ground stations, visualized county by county."),
-        ("📊", "#fef3c7", "#92400e", "Crop & Market Catalog",
-         "Full agronomic and financial profiles for 40 crops, plus live price comparison across 5 regional wholesale hubs."),
+        ("🌱", "linear-gradient(135deg,#10b981,#059669)", "#dcfce7", "#166534",
+         "#f0fdf4", "Cooperative Advisory",
+         "Rank 40 Kenyan crops for your county and season by climate fit, yield potential and net farm profit. Know exactly what to grow.",
+         "👨‍🌾 Farmers & Cooperatives", "#dcfce7", "#166534"),
+        ("🏦", "linear-gradient(135deg,#3b82f6,#1d4ed8)", "#dbeafe", "#1e40af",
+         "#eff6ff", "Bank & Credit Risk",
+         "Climate-adjusted loan sizing, interest rate pricing, and portfolio-level default stress testing for agricultural finance.",
+         "🏦 Banks & SACCOs", "#dbeafe", "#1e40af"),
+        ("🌍", "linear-gradient(135deg,#8b5cf6,#6d28d9)", "#ede9fe", "#5b21b6",
+         "#f5f3ff", "Climate Intelligence",
+         "10-year rainfall, temperature and dry-spell trends visualized county by county from 116 ground weather stations.",
+         "🌍 Researchers", "#ede9fe", "#5b21b6"),
+        ("📊", "linear-gradient(135deg,#f59e0b,#d97706)", "#fef3c7", "#92400e",
+         "#fffbeb", "Crop & Market Catalog",
+         "Full agronomic and financial profiles for 40 crops plus live wholesale price comparison across 5 regional trading hubs.",
+         "📈 All Users", "#fef3c7", "#92400e"),
     ]
     fcols = st.columns(4)
-    for col, (icon, bg, fg, title, desc) in zip(fcols, features):
+    for col, (icon, icon_bg, icon_bg_light, icon_fg, card_bg_light, title, desc, tag, tag_bg, tag_fg) in zip(fcols, features):
         with col:
+            _card_bg = f"rgba(255,255,255,0.07)" if is_dark else card_bg_light
             st.markdown(f"""
-            <div class="feature-card">
-                <div class="feature-icon" style="background:{bg};color:{fg};">{icon}</div>
-                <div class="feature-title">{title}</div>
-                <div class="feature-desc">{desc}</div>
+            <div class="glass-feature-card reveal" style="{'border-top:3px solid transparent;background-image:'+icon_bg+',linear-gradient('+_card_bg+','+_card_bg+');background-origin:border-box;background-clip:border-box,padding-box;' if False else ''}">
+                <div class="glass-icon-wrap" style="background:{icon_bg};">
+                    <span style="filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));">{icon}</span>
+                </div>
+                <div class="glass-feature-title">{title}</div>
+                <div class="glass-feature-desc">{desc}</div>
+                <div class="glass-feature-tag" style="background:{icon_bg_light};color:{icon_fg};">{tag}</div>
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:28px;'></div>", unsafe_allow_html=True)
 
-    # ── Photo gallery ──
-    gcol1, gcol2 = st.columns(2)
-    with gcol1:
-        st.markdown("""
-        <div class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1715198901384-0b7ff9f37a77?w=900&auto=format&fit=crop&q=80"
-                 style="width:100%;height:260px;object-fit:cover;display:block;">
-            <div class="gallery-caption">🌾 Precision crop planning, county by county</div>
-        </div>
-        """, unsafe_allow_html=True)
-    with gcol2:
-        st.markdown("""
-        <div class="gallery-card">
-            <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=900&auto=format&fit=crop&q=80"
-                 style="width:100%;height:260px;object-fit:cover;display:block;">
-            <div class="gallery-caption">🌿 From field data to financing decisions</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # ── 6. Trust badges ──
+    st.markdown(f"""
+    <div style="text-align:center;font-size:0.8rem;color:{text_muted};font-weight:700;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase;">
+        Powered by verified data from
+    </div>
+    <div class="trust-row">
+        <div class="trust-badge"><span class="trust-badge-icon">📡</span> TAHMO · 116 Ground Stations</div>
+        <div class="trust-badge"><span class="trust-badge-icon">🛰️</span> NASA POWER · Satellite Reanalysis</div>
+        <div class="trust-badge"><span class="trust-badge-icon">🌾</span> FAOSTAT · Crop Economics</div>
+        <div class="trust-badge"><span class="trust-badge-icon">📊</span> Kenya National Bureau of Statistics</div>
+        <div class="trust-badge"><span class="live-dot"></span> Gemini AI · KilimoBot</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # ── Call to action ──
-    st.markdown("<div style='margin-top:34px;'></div>", unsafe_allow_html=True)
+    # ── 7. CTA ──
+    st.markdown("<div style='margin-top:32px;'></div>", unsafe_allow_html=True)
     _lc, _mc, _rc = st.columns([1, 1.1, 1])
     with _mc:
         if st.button("🚀 Get Started — Sign In / Sign Up", use_container_width=True, key="btn_enter_platform"):
@@ -423,7 +802,7 @@ def render_overview_page():
             st.rerun()
     st.markdown(f"""
     <div style="text-align:center;font-size:0.78rem;color:{text_muted};margin-top:10px;">
-        Free demo accounts available for cooperatives, banks &amp; SACCOs, and researchers.
+        Free demo accounts available · No credit card required
     </div>
     """, unsafe_allow_html=True)
 
@@ -575,6 +954,12 @@ if not st.session_state.authenticated:
 
 
 
+
+    # Floating KilimoBot button (visible on login page too as a teaser)
+    st.markdown("""
+    <div class="float-bot" title="KilimoBot AI">🤖</div>
+    <div class="float-bot-tooltip">Ask KilimoBot AI →</div>
+    """, unsafe_allow_html=True)
 
     # Footer on login screen
     st.markdown(f"""
@@ -747,6 +1132,37 @@ def kpi(icon, label, value, sub):
 # ─────────────────────────────────────────────────────────────────────────────
 engine_badge = "📐 Agro-Ecological Rules (AEZ)" if use_rule_based else "🤖 Random Forest ML"
 
+# Personalized welcome banner
+import datetime as _dt
+_hour = _dt.datetime.now().hour
+_greeting = "Good morning" if _hour < 12 else ("Good afternoon" if _hour < 17 else "Good evening")
+_first_name = current_user.get("full_name", "User").split()[0]
+_season_emoji = {"Long Rains": "🌧️", "Short Rains": "🌦️", "Dry Season": "☀️", "Cool Season": "🌬️"}.get(
+    next((k for k in ["Long Rains","Short Rains","Dry Season","Cool Season"] if k.lower() in selected_season.lower()), "Long Rains"), "🌿")
+_role_welcome = {
+    "cooperative":  f"Your crop recommendations for {selected_county} are ready for review.",
+    "bank_officer": f"Climate risk data for {selected_county} loan portfolio is updated.",
+    "researcher":   f"10-year climate dataset for {selected_county} County is loaded.",
+    "admin":        "Full platform access · All 5 modules active.",
+}.get(user_role, "Welcome to ClimaCrop Intelligence.")
+
+st.markdown(f"""
+<div class="welcome-banner">
+    <div class="welcome-avatar">{role_meta['icon']}</div>
+    <div style="flex:1;">
+        <div class="welcome-text-main">{_greeting}, {_first_name}! 👋</div>
+        <div class="welcome-text-sub">{_role_welcome}</div>
+    </div>
+    <div class="welcome-season-pill">{_season_emoji} {selected_season}</div>
+</div>
+""", unsafe_allow_html=True)
+
+# Floating KilimoBot button
+st.markdown("""
+<div class="float-bot" title="Ask KilimoBot AI">🤖</div>
+<div class="float-bot-tooltip">Ask KilimoBot AI</div>
+""", unsafe_allow_html=True)
+
 # Role-specific subtitle
 if user_role == "cooperative":
     role_subtitle = f"Welcome **{current_user.get('full_name')}**! You are viewing the **Cooperative Advisory Console** for **{current_user.get('organization', 'your cooperative')}**. Optimize member crop selection, compare farm yield payoffs, and find the highest-paying wholesale market hubs."
@@ -760,7 +1176,7 @@ else:
 st.markdown(f"""
 <div class="hero">
     <div class="hero-pill">
-        <span style="color:#4ade80;font-size:0.55rem;">●</span>
+        <span class="live-dot" style="width:7px;height:7px;margin-right:4px;"></span>
         {role_meta['icon']} {role_meta['name'].upper()} · {selected_county.upper()} · {selected_season.upper()}
     </div>
     <div class="hero-title">ClimaCrop Intelligence</div>
@@ -838,6 +1254,29 @@ if tab_coop is not None:
 
         section("🌱", f"Cooperative Advisory — {selected_county} County",
                 f"Evaluating 40 Kenyan crops using {engine_badge} for the {selected_season} season")
+
+        # ── Season weather mood banner ──
+        _smood = {
+            "Long Rains": ("🌧️", "#3b82f6", "Long Rains Season — Bimodal Wet Phase",
+                "Above-average moisture supports maize, beans and high-water crops. Ideal for planting depth-rooted crops."),
+            "Short Rains": ("🌦️", "#0d9488", "Short Rains Season — Secondary Wet Phase",
+                "Moderate, reliable rainfall. Excellent for fast-maturing legumes, vegetables and horticultural crops."),
+            "Dry Season": ("☀️", "#f59e0b", "Dry Season — Irrigation & Drought-Tolerant Crops",
+                "Limited rainfall. Focus on drought-tolerant crops (sorghum, millet, cassava) or irrigated horticulture."),
+            "Cool Season": ("🌬️", "#8b5cf6", "Cool Dry Season — Highland Crops Optimal",
+                "Cool temperatures favour tea, pyrethrum and brassicas. Moisture retention is high in highland counties."),
+        }
+        _sk = next((k for k in _smood if k.lower() in selected_season.lower()), "Long Rains")
+        _sicon, _scolor, _stitle, _sdesc = _smood[_sk]
+        st.markdown(f"""
+        <div class="season-banner">
+            <div class="season-icon">{_sicon}</div>
+            <div>
+                <div class="season-title" style="color:{_scolor};">{_stitle}</div>
+                <div class="season-desc">{_sdesc}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         col_c1, col_c2, col_c3 = st.columns([1.2, 1.2, 0.8])
         with col_c1:
