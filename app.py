@@ -870,39 +870,49 @@ if tab_coop is not None:
         if len(recs_df) >= 2:
             section("📡", "Multi-Criteria Crop Comparison Radar",
                     "5 key dimensions visualised at once — bigger coverage = better overall crop choice")
-            dims = ["suitability_score", "benefit_cost_ratio", "drought_tolerance_score",
-                    "expected_yield_kg_per_acre", "optimized_net_price_kes_per_kg"]
-            dim_labels = ["Suitability\n(%)", "BCR\n(Return)", "Drought\nTolerance",
-                          "Yield / Acre\n(kg)", "Price / kg\n(KES)"]
+            _all_dims = [
+                ("suitability_score", "Suitability\n(%)"),
+                ("benefit_cost_ratio", "BCR\n(Return)"),
+                ("drought_tolerance", "Drought\nTolerance"),
+                ("expected_yield_kg_per_acre", "Yield / Acre\n(kg)"),
+                ("optimized_net_price_kes_per_kg", "Price / kg\n(KES)"),
+            ]
+            # Only use dimensions actually present in this engine's output — protects against
+            # column-name drift between the rule-based and ML engines silently crashing the chart.
+            dims = [d for d, _ in _all_dims if d in recs_df.columns]
+            dim_labels = [lbl for d, lbl in _all_dims if d in recs_df.columns]
             radar_colors = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#f43f5e"]
-            # Normalize each dimension against the min/max of the crops actually shown, so the
-            # radar reflects *relative* ranking here rather than clipping against a fixed scale
-            # that can make every crop look artificially small (or identically maxed-out).
-            dim_min = {d: recs_df[d].min() for d in dims}
-            dim_max = {d: recs_df[d].max() for d in dims}
-            radar_fig = go.Figure()
-            for i, (_, row) in enumerate(recs_df.iterrows()):
-                norm = []
-                for d in dims:
-                    span = dim_max[d] - dim_min[d]
-                    norm.append(50.0 if span == 0 else (row.get(d, 0) - dim_min[d]) / span * 100)
-                norm.append(norm[0])
-                lbl = dim_labels + [dim_labels[0]]
-                raw_vals = [row.get(d, 0) for d in dims] + [row.get(dims[0], 0)]
-                radar_fig.add_trace(go.Scatterpolar(
-                    r=norm, theta=lbl, name=row["crop"], fill="toself",
-                    line=dict(color=radar_colors[i % len(radar_colors)], width=2.2),
-                    opacity=0.72, customdata=raw_vals,
-                    hovertemplate="%{theta}: %{customdata:.1f}<extra>%{fullData.name}</extra>"
-                ))
-            radar_fig.update_layout(
-                polar=dict(bgcolor="rgba(0,0,0,0)",
-                    radialaxis=dict(visible=True, range=[0, 100], gridcolor=card_border, tickfont=dict(size=8)),
-                    angularaxis=dict(gridcolor=card_border)),
-                legend=dict(orientation="h", yanchor="bottom", y=-0.25)
-            )
-            chart_caption("Each axis is scaled relative to the crops shown here (100% = best among this set, 0% = weakest). Larger filled area = stronger all-round crop. Hover a point for its actual value.")
-            st.plotly_chart(apply_chart_style(radar_fig, 430), use_container_width=True, config={"displayModeBar": False})
+            if len(dims) < 3:
+                st.info("⚠️ Not enough comparable metrics available to draw the radar chart for this engine mode.")
+            else:
+                # Normalize each dimension against the min/max of the crops actually shown, so the
+                # radar reflects *relative* ranking here rather than clipping against a fixed scale
+                # that can make every crop look artificially small (or identically maxed-out).
+                dim_min = {d: recs_df[d].min() for d in dims}
+                dim_max = {d: recs_df[d].max() for d in dims}
+                radar_fig = go.Figure()
+                for i, (_, row) in enumerate(recs_df.iterrows()):
+                    norm = []
+                    for d in dims:
+                        span = dim_max[d] - dim_min[d]
+                        norm.append(50.0 if span == 0 else (row.get(d, 0) - dim_min[d]) / span * 100)
+                    norm.append(norm[0])
+                    lbl = dim_labels + [dim_labels[0]]
+                    raw_vals = [row.get(d, 0) for d in dims] + [row.get(dims[0], 0)]
+                    radar_fig.add_trace(go.Scatterpolar(
+                        r=norm, theta=lbl, name=row["crop"], fill="toself",
+                        line=dict(color=radar_colors[i % len(radar_colors)], width=2.2),
+                        opacity=0.72, customdata=raw_vals,
+                        hovertemplate="%{theta}: %{customdata:.1f}<extra>%{fullData.name}</extra>"
+                    ))
+                radar_fig.update_layout(
+                    polar=dict(bgcolor="rgba(0,0,0,0)",
+                        radialaxis=dict(visible=True, range=[0, 100], gridcolor=card_border, tickfont=dict(size=8)),
+                        angularaxis=dict(gridcolor=card_border)),
+                    legend=dict(orientation="h", yanchor="bottom", y=-0.25)
+                )
+                chart_caption("Each axis is scaled relative to the crops shown here (100% = best among this set, 0% = weakest). Larger filled area = stronger all-round crop. Hover a point for its actual value.")
+                st.plotly_chart(apply_chart_style(radar_fig, 430), use_container_width=True, config={"displayModeBar": False})
 
         # ── VIZ 5: Market Arbitrage ──
         section("💰", "Cross-Market Arbitrage Analysis",
