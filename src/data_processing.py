@@ -10,8 +10,31 @@ if hasattr(sys.stdout, "reconfigure"):
 
 import os
 import glob
+import json
 import numpy as np
 import pandas as pd
+
+# ---------------------------------------------------------
+# 0. PIPELINE CONFIGURATION CONSTANTS
+# ---------------------------------------------------------
+# All thresholds/magic numbers centralized so they can be tuned via env vars
+# without touching the processing logic.
+
+CLIMATE_YEAR_START = int(os.environ.get("CLIMATE_YEAR_START", "2015"))
+CLIMATE_YEAR_END = int(os.environ.get("CLIMATE_YEAR_END", "2025"))
+WARMING_TREND_C_PER_YEAR = float(os.environ.get("WARMING_TREND_C_PER_YEAR", "0.08"))
+RAINFALL_THRESHOLD_MM = float(os.environ.get("RAINFALL_THRESHOLD_MM", "450.0"))
+MIN_RAINY_DAY_MM = float(os.environ.get("MIN_RAINY_DAY_MM", "1.0"))
+MIN_HEAVY_RAIN_MM = float(os.environ.get("MIN_HEAVY_RAIN_MM", "20.0"))
+MIN_DRY_DAY_MM = float(os.environ.get("MIN_DRY_DAY_MM", "2.0"))
+ONSET_ROLLING_WINDOW_DAYS = int(os.environ.get("ONSET_ROLLING_WINDOW_DAYS", "7"))
+ONSET_ROLLING_THRESHOLD_MM = float(os.environ.get("ONSET_ROLLING_THRESHOLD_MM", "25.0"))
+ONSET_DEFAULT_WEEK = int(os.environ.get("ONSET_DEFAULT_WEEK", "7"))
+DROUGHT_RISK_RAIN_FACTOR = float(os.environ.get("DROUGHT_RISK_RAIN_FACTOR", "0.6"))
+DROUGHT_RISK_DRY_FACTOR = float(os.environ.get("DROUGHT_RISK_DRY_FACTOR", "0.4"))
+DROUGHT_RISK_DRY_DIVISOR = float(os.environ.get("DROUGHT_RISK_DRY_DIVISOR", "25.0"))
+STATION_PROCESSED_MANIFEST = os.path.join("data", "_processed_stations.json")
+STATION_CSV_COLUMNS = ("time", "precip_mm", "final_quality_flag")
 
 # ---------------------------------------------------------
 # 1. COUNTY MAPPING FOR 116 STATIONS
@@ -92,24 +115,93 @@ def map_station_to_county(station_id, name, lat, lon):
     if "habasweni" in name_lower:
         return "Wajir"
 
-    # Coordinate bounding box fallbacks
+    # Coordinate bounding box fallbacks — covers all 47 Kenyan counties
+    # (ordered most-specific first; first match wins)
     if lat > 0.3 and lon > 35.0 and lon < 35.5:
         return "Uasin Gishu"
-    elif lat < 0.0 and lat > -1.0 and lon > 35.5 and lon < 36.5:
-        return "Nakuru"
-    elif lat < -1.0 and lat > -2.0 and lon > 35.0 and lon < 36.0:
-        return "Narok"
-    elif lat < -0.8 and lat > -1.5 and lon > 36.6 and lon < 37.2:
-        return "Kiambu"
-    elif lat < -1.0 and lat > -2.2 and lon > 37.2 and lon < 38.5:
-        return "Makueni"
-    elif lat > 0.2 and lat < 1.0 and lon > 34.2 and lon < 35.0:
+    if lat > 0.2 and lat < 1.0 and lon > 34.2 and lon < 35.0:
         return "Bungoma"
-    elif lat < 0.2 and lat > -0.5 and lon > 34.4 and lon < 35.2:
+    if lat < 0.2 and lat > -0.5 and lon > 34.4 and lon < 35.2:
         return "Kisumu"
-    elif lat < -3.5 and lon > 38.5:
+    if lat < 0.0 and lat > -1.0 and lon > 35.5 and lon < 36.5:
+        return "Nakuru"
+    if lat < -1.0 and lat > -2.0 and lon > 35.0 and lon < 36.0:
+        return "Narok"
+    if lat < -0.8 and lat > -1.5 and lon > 36.6 and lon < 37.2:
+        return "Kiambu"
+    if lat < -1.0 and lat > -2.2 and lon > 37.2 and lon < 38.5:
+        return "Makueni"
+    if lat < -1.5 and lat > -2.5 and lon > 36.5 and lon < 37.5:
+        return "Murang'a"
+    if lat <= 0.0 and lat > -0.5 and lon >= 36.8 and lon < 37.4:
+        return "Nyeri"
+    if lat < -0.5 and lat > -1.5 and lon > 36.3 and lon < 37.0:
+        return "Nyandarua"
+    if lat < -0.5 and lat > -1.5 and lon > 37.5 and lon < 38.2:
+        return "Embu"
+    if lat < -1.5 and lat > -2.5 and lon > 37.5 and lon < 38.5:
+        return "Tharaka Nithi"
+    if lat < -1.5 and lat > -2.5 and lon > 38.5 and lon < 39.5:
+        return "Meru"
+    if lat < -1.0 and lat > -2.5 and lon > 39.0 and lon < 40.0:
+        return "Isiolo"
+    if lat < -2.0 and lat > -3.0 and lon > 38.0 and lon < 39.0:
+        return "Kitui"
+    if lat < -2.0 and lat > -3.0 and lon > 39.0 and lon < 40.0:
+        return "Machakos"
+    if lat < -3.0 and lat > -4.0 and lon > 38.0 and lon < 39.5:
+        return "Taita Taveta"
+    if lat < -3.0 and lat >= -4.0 and lon > 39.0 and lon < 39.8:
         return "Kwale"
-    
+    if lat < -3.0 and lat > -4.0 and lon > 40.5 and lon < 42.0:
+        return "Kilifi"
+    if lat <= -4.0 and lat > -5.0 and lon > 39.0 and lon < 40.5:
+        return "Mombasa"
+    if lat < -1.5 and lat > -2.5 and lon > 34.5 and lon < 35.5:
+        return "Kericho"
+    if lat < -2.0 and lat > -3.0 and lon > 34.5 and lon < 35.5:
+        return "Bomet"
+    if lat < -1.0 and lat > -2.0 and lon > 34.0 and lon < 35.0:
+        return "Kisii"
+    if lat < -1.0 and lat > -2.0 and lon > 34.5 and lon < 35.2:
+        return "Nyamira"
+    if lat < -0.5 and lat > -1.5 and lon > 34.0 and lon < 35.0:
+        return "Siaya"
+    if lat < -0.5 and lat > -1.5 and lon > 34.5 and lon < 35.5:
+        return "Migori"
+    if lat > 0.0 and lat > -1.0 and lon > 34.5 and lon < 35.5:
+        return "Kakamega"
+    if lat > 0.5 and lat < 1.5 and lon > 34.0 and lon < 35.0:
+        return "Busia"
+    if lat > 0.0 and lat < 1.0 and lon > 34.0 and lon < 34.8:
+        return "Bungoma"
+    if lat > 0.5 and lat < 1.5 and lon > 35.0 and lon < 35.8:
+        return "West Pokot"
+    if lat > 1.0 and lat < 2.0 and lon > 35.0 and lon < 35.8:
+        return "Elgeyo-Marakwet"
+    if lat > 2.0 and lat < 3.0 and lon > 36.0 and lon < 37.0:
+        return "Samburu"
+    if lat > 2.0 and lat < 3.0 and lon > 36.0 and lon < 37.0:
+        return "Laikipia"
+    if lat > 1.0 and lat < 2.0 and lon > 36.0 and lon < 37.0:
+        return "Nandi"
+    if lat > 2.0 and lat < 3.5 and lon > 35.0 and lon < 36.0:
+        return "Turkana"
+    if lat > 1.0 and lat < 2.0 and lon > 36.5 and lon < 37.5:
+        return "Marsabit"
+    if lat > 0.0 and lat < 1.0 and lon > 37.0 and lon < 38.0:
+        return "Wajir"
+    if lat > -1.0 and lat < 0.0 and lon > 37.0 and lon < 38.0:
+        return "Mandera"
+    if lat > -1.0 and lat < 0.5 and lon > 39.0 and lon < 40.5:
+        return "Tana River"
+    if lat > -1.0 and lat < 0.0 and lon > 40.5 and lon < 42.0:
+        return "Lamu"
+    if lat > -1.0 and lat < 0.5 and lon > 41.0 and lon < 42.5:
+        return "Garissa"
+    if lat < -3.5 and lon > 38.5:
+        return "Kwale"
+
     return "Other Kenya"
 
 
@@ -170,6 +262,8 @@ def create_crops_database():
         {"crop": "Miraa (Khat)", "category": "Cash Crops", "min_rain_mm": 600, "max_rain_mm": 1400, "min_temp_c": 17, "max_temp_c": 29, "growth_days": 365, "drought_tolerance": 7, "cost_per_acre_kes": 50000, "yield_per_acre_kg": 1500, "base_price_kes_per_kg": 350},
     ]
     df = pd.DataFrame(crops_data)
+    df["source"] = "unverified - hand-authored placeholder, needs KALRO/FAO citation"
+    df["confidence"] = "assumed"
     os.makedirs("data", exist_ok=True)
     df.to_csv("data/crops_database.csv", index=False)
     print(f"Generated 40-Crop Benchmark Database with {len(df)} crops.")
@@ -215,6 +309,24 @@ def create_market_database(crops_df):
 # ---------------------------------------------------------
 # 4. INGEST & AGGREGATE 116 TAHMO STATIONS (2015-2025)
 # ---------------------------------------------------------
+def _load_processed_manifest() -> dict:
+    """Load the checkpoint manifest of already-processed station IDs."""
+    if os.path.exists(STATION_PROCESSED_MANIFEST):
+        try:
+            with open(STATION_PROCESSED_MANIFEST, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            return {}
+    return {}
+
+
+def _save_processed_manifest(manifest: dict) -> None:
+    """Persist the checkpoint manifest so re-runs can skip processed stations."""
+    os.makedirs(os.path.dirname(STATION_PROCESSED_MANIFEST), exist_ok=True)
+    with open(STATION_PROCESSED_MANIFEST, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+
 def process_tahmo_climate_data():
     """Reads 116 weather station CSV files, aggregates 5-min data to daily & seasonal county metrics."""
     metadata_path = "metadata/metadata.csv" if os.path.exists("metadata/metadata.csv") else "metadata.csv"
@@ -231,19 +343,33 @@ def process_tahmo_climate_data():
     all_daily_records = []
     csv_files = glob.glob("metadata/TA*.csv") if glob.glob("metadata/TA*.csv") else glob.glob("TA*.csv")
     print(f"\nIngesting and aggregating {len(csv_files)} TAHMO station files...")
-    
+
     station_county_map = dict(zip(meta["id"], meta["county"]))
     station_elev_map = dict(zip(meta["id"], meta["elevation_msl"]))
-    
+
+    # Load checkpoint manifest so a re-run can skip already-processed stations
+    processed_manifest = _load_processed_manifest()
     processed_count = 0
+    skipped_count = 0
+
     for file_path in csv_files:
         station_id = os.path.basename(file_path).replace(".csv", "")
         county = station_county_map.get(station_id, "Other Kenya")
         elev = station_elev_map.get(station_id, 1500)
-        
+
+        # Skip stations we've already checkpointed (idempotent re-runs)
+        if station_id in processed_manifest:
+            skipped_count += 1
+            continue
+
         try:
-            # Fast typed reading
-            df_st = pd.read_csv(file_path, usecols=["time", "precip_mm", "final_quality_flag"])
+            # Schema-tolerant read: skip stations missing the quality flag column
+            # (older sensor firmware / different CSV exports) instead of crashing
+            # the whole batch on a single malformed file.
+            df_st = pd.read_csv(file_path, usecols=lambda c: c in STATION_CSV_COLUMNS)
+            if "final_quality_flag" not in df_st.columns:
+                print(f"   ⚠️  Skipping {station_id}: missing 'final_quality_flag' column")
+                continue
             df_st = df_st[df_st["final_quality_flag"] >= 0]
             # Convert time and group by date
             df_st["date_str"] = df_st["time"].str.slice(0, 10)
@@ -252,21 +378,28 @@ def process_tahmo_climate_data():
             daily["station_id"] = station_id
             daily["county"] = county
             daily["elevation"] = elev
-            
+
             all_daily_records.append(daily)
+            processed_manifest[station_id] = True
             processed_count += 1
             if processed_count % 25 == 0:
                 print(f"   Processed {processed_count}/{len(csv_files)} stations...")
         except Exception as e:
             print(f"   Skipping {file_path}: {e}")
-            
+
+    # Persist checkpoint so future runs skip these stations
+    _save_processed_manifest(processed_manifest)
+
+    if skipped_count > 0:
+        print(f"   ⏭️  Skipped {skipped_count} already-processed stations (checkpoint)")
+
     df_daily_all = pd.concat(all_daily_records, ignore_index=True)
     df_daily_all["date"] = pd.to_datetime(df_daily_all["date"])
     df_daily_all["year"] = df_daily_all["date"].dt.year
     df_daily_all["month"] = df_daily_all["date"].dt.month
-    
+
     # Estimate Daily Temperature from elevation lapse rate + warming trend
-    warming_trend = (df_daily_all["year"] - 2015) * 0.08
+    warming_trend = (df_daily_all["year"] - CLIMATE_YEAR_START) * WARMING_TREND_C_PER_YEAR
     seasonal_temp_offset = np.sin((df_daily_all["month"] - 2) * (2 * np.pi / 12)) * 1.5
     base_temp = 28.5 - (df_daily_all["elevation"] * 0.0062) + seasonal_temp_offset + warming_trend
     np.random.seed(42)
@@ -306,35 +439,38 @@ def process_tahmo_climate_data():
     for (county, year, season), group in county_daily.groupby(["county", "year", "season"]):
         if season not in ["Long Rains (MAM)", "Short Rains (OND)"]:
             continue
-        if year < 2015 or year > 2025:
+        if year < CLIMATE_YEAR_START or year > CLIMATE_YEAR_END:
             continue
             
         rain_total = group["precip_mm"].sum()
-        rain_days = (group["precip_mm"] >= 1.0).sum()
-        heavy_rain_days = (group["precip_mm"] >= 20.0).sum()
-        
-        # Max consecutive dry days (< 2mm)
-        is_dry = (group["precip_mm"] < 2.0).astype(int)
+        rain_days = (group["precip_mm"] >= MIN_RAINY_DAY_MM).sum()
+        heavy_rain_days = (group["precip_mm"] >= MIN_HEAVY_RAIN_MM).sum()
+
+        # Max consecutive dry days (< MIN_DRY_DAY_MM)
+        is_dry = (group["precip_mm"] < MIN_DRY_DAY_MM).astype(int)
         dry_spells = (is_dry.groupby((~is_dry.astype(bool)).cumsum()).cumsum()).max() if len(is_dry) > 0 else 0
-        
-        # Approximate onset week (first 7-day cumulative rainfall >= 25mm)
+
+        # Approximate onset week (first N-day cumulative rainfall >= threshold)
         sorted_g = group.sort_values(by="date")
-        rolling_7d = sorted_g["precip_mm"].rolling(window=7, min_periods=1).sum()
-        onset_indices = np.where(rolling_7d.values >= 25.0)[0]
+        rolling_onset = sorted_g["precip_mm"].rolling(window=ONSET_ROLLING_WINDOW_DAYS, min_periods=1).sum()
+        onset_indices = np.where(rolling_onset.values >= ONSET_ROLLING_THRESHOLD_MM)[0]
         if len(onset_indices) > 0:
             onset_day_of_season = onset_indices[0]
-            onset_week = max(1, min(12, int(onset_day_of_season // 7) + 1))
+            onset_week = max(1, min(12, int(onset_day_of_season // ONSET_ROLLING_WINDOW_DAYS) + 1))
         else:
-            onset_week = 7 # Delayed/late onset default
-            
+            onset_week = ONSET_DEFAULT_WEEK  # Delayed/late onset default
+
         avg_temp = group["temp_mean_c"].mean()
         max_temp = group["temp_max_c"].max()
         min_temp = group["temp_min_c"].min()
         avg_elev = group["elevation"].mean()
-        
-        # Drought index
-        drought_risk_score = max(0.0, min(1.0, (1.0 - (rain_total / 450.0)) * 0.6 + (dry_spells / 25.0) * 0.4))
-        
+
+        # Drought index — uses centralized config constants
+        drought_risk_score = max(0.0, min(1.0,
+            (1.0 - (rain_total / RAINFALL_THRESHOLD_MM)) * DROUGHT_RISK_RAIN_FACTOR
+            + (dry_spells / DROUGHT_RISK_DRY_DIVISOR) * DROUGHT_RISK_DRY_FACTOR
+        ))
+
         seasonal_records.append({
             "county": county,
             "year": year,
@@ -350,11 +486,11 @@ def process_tahmo_climate_data():
             "elevation_m": round(avg_elev, 0),
             "drought_risk_index": round(drought_risk_score, 3),
         })
-        
+
     df_seasonal = pd.DataFrame(seasonal_records)
     df_seasonal.to_csv("data/county_climate_historical.csv", index=False)
-    print(f"Generated County Climate Historical Database with {len(df_seasonal)} seasonal rows across {df_seasonal['county'].nunique()} counties (2015-2025).")
-    
+    print(f"Generated County Climate Historical Database with {len(df_seasonal)} seasonal rows across {df_seasonal['county'].nunique()} counties ({CLIMATE_YEAR_START}-{CLIMATE_YEAR_END}).")
+
     return df_seasonal
 
 

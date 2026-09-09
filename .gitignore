@@ -36,12 +36,13 @@ metadata/
 *.csv
 !data/*.csv
 
+# Runtime user database (contains password hashes) — never commit; regenerated from DEFAULT_USERS on first run
+data/users.json
+data/_processed_stations.json
+data/market_prices_source.json
+
 # IDE and OS
 .DS_Store
 .idea/
 .vscode/
 *.log
-
-
-# Runtime user database (contains password hashes) — never commit; regenerated from DEFAULT_USERS on first run
-data/users.json

@@ -1,0 +1,29 @@
+# Source code is copied explicitly in Dockerfile; ignore everything else by default
+*
+
+# Allowlist runtime artifacts
+!app.py
+!requirements.txt
+!Dockerfile
+!.streamlit/
+!src/
+!tests/
+
+# Exclude heavy / dev-only directories
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.eggs/
+.venv/
+venv/
+.git/
+.gitignore
+.dockerignore
+README.md
+AGENTS.md
+.kilo/
+
+# Exclude raw TAHMO station CSVs (the app only needs aggregated outputs)
+metadata/TA*.csv
+metadata/metadata.csv
