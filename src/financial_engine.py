@@ -65,8 +65,18 @@ class FinancialDecisionEngine:
             self.crops_df = pd.read_csv(crops_data_path)
             if self.suitability_mode == "rule_based":
                 self.rule_engine = RuleBasedSuitabilityEngine(self.crops_df)
+        else:
+            # Fallback: generate the crop catalog on the fly so the app
+            # can still boot even when the data/ directory was not pre-seeded.
+            from src.data_processing import create_crops_database, create_market_database
+            self.crops_df = create_crops_database()
+            if self.suitability_mode == "rule_based":
+                self.rule_engine = RuleBasedSuitabilityEngine(self.crops_df)
         if os.path.exists(market_data_path):
             self.market_df = pd.read_csv(market_data_path)
+        else:
+            if self.crops_df is not None:
+                self.market_df = create_market_database(self.crops_df)
 
     def _crops_data_provenance(self) -> SourcedValue:
         """crops_database.csv currently carries hand-authored placeholder
@@ -234,8 +244,13 @@ class FinancialDecisionEngine:
         - Provides Mitigations and Insurance requirements
         """
         profile = self.get_county_climate_profile(county, season)
-        
-        
+
+        if self.crops_df is None or self.crops_df.empty:
+            raise RuntimeError(
+                "Crops database is not available. Ensure data/crops_database.csv exists "
+                "or that the app has write access to generate it on startup."
+            )
+
         crop_meta = self.crops_df[self.crops_df["crop"] == crop_name]
         if crop_meta.empty:
             crop_meta = self.crops_df.iloc[0]
