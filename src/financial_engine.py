@@ -66,8 +66,6 @@ class FinancialDecisionEngine:
             if self.suitability_mode == "rule_based":
                 self.rule_engine = RuleBasedSuitabilityEngine(self.crops_df)
         else:
-            # Fallback: generate the crop catalog on the fly so the app
-            # can still boot even when the data/ directory was not pre-seeded.
             from src.data_processing import create_crops_database, create_market_database
             self.crops_df = create_crops_database()
             if self.suitability_mode == "rule_based":
@@ -77,6 +75,24 @@ class FinancialDecisionEngine:
         else:
             if self.crops_df is not None:
                 self.market_df = create_market_database(self.crops_df)
+
+        # Bootstrap engines from freshly-generated data when the serialized
+        # model files are absent (e.g. a fresh container without models/).
+        from src.ml_models import ClimatePatternEngine, MarketArbitrageEngine
+        if self.climate_df is not None and self.climate_engine is None:
+            try:
+                climate_eng = ClimatePatternEngine()
+                climate_eng.fit(self.climate_df)
+                self.climate_engine = climate_eng
+            except Exception:
+                pass
+        if self.market_df is not None and self.market_engine is None:
+            try:
+                mkt_eng = MarketArbitrageEngine()
+                mkt_eng.fit(self.market_df)
+                self.market_engine = mkt_eng
+            except Exception:
+                pass
 
     def _crops_data_provenance(self) -> SourcedValue:
         """crops_database.csv currently carries hand-authored placeholder
