@@ -1036,10 +1036,10 @@ hr {{
 .auth-right-panel {{
     background:{card_bg}; border:1px solid {card_border}; border-left:none;
     border-radius:6px 20px 20px 6px; min-height:0;
-    padding:24px 30px 18px; box-shadow:0 20px 50px rgba(0,0,0,{'0.30' if is_dark else '0.07'});
-    display:flex; flex-direction:column; animation:slideInUp 0.55s ease;
+    padding:24px 30px 20px; box-shadow:0 20px 50px rgba(0,0,0,{'0.30' if is_dark else '0.07'});
+    display:flex; flex-direction:column; justify-content:center; animation:slideInUp 0.55s ease;
 }}
-.auth-right-header {{ text-align:center; margin-bottom:12px; }}
+.auth-right-header {{ text-align:center; margin-bottom:14px; }}
 .auth-avatar-ring {{
     width:44px; height:44px; border-radius:50%; margin:0 auto 8px;
     background:linear-gradient(135deg,#10b981,#0d9488); display:flex; align-items:center; justify-content:center;
@@ -1047,15 +1047,6 @@ hr {{
 }}
 .auth-right-title {{ font-size:1.12rem; font-weight:800; color:{text_main}; letter-spacing:-0.3px; }}
 .auth-right-sub {{ font-size:0.78rem; color:{text_muted}; font-weight:500; margin-top:2px; }}
-.auth-demo-row {{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:8px; }}
-.auth-demo-chip {{
-    display:inline-flex; align-items:center; gap:5px;
-    background:{section_bg}; border:1px solid {card_border}; border-radius:20px;
-    padding:4px 11px; font-size:0.68rem; font-weight:600; color:{text_muted};
-    transition:transform 0.15s ease, border-color 0.15s ease;
-}}
-.auth-demo-chip:hover {{ transform:translateY(-2px); border-color:{primary_color}; color:{primary_color}; }}
-.auth-demo-chip code {{ background:transparent; padding:0; color:inherit; font-weight:800; }}
 
 @media(max-width:900px) {{
     .auth-left-panel {{ border-radius:20px 20px 0 0; min-height:auto; padding:28px 24px 24px; }}
@@ -1370,19 +1361,6 @@ if not st.session_state.authenticated:
                             st.rerun()
                         else:
                             st.error("❌ Invalid username or password. Please try again.")
-
-            # Demo credentials as tidy pill chips
-            st.markdown(f"""
-            <div style="text-align:center;font-size:0.68rem;color:{text_muted};font-weight:700;margin:14px 0 6px;letter-spacing:0.4px;text-transform:uppercase;">
-                Demo Logins
-            </div>
-            <div class="auth-demo-row">
-                <span class="auth-demo-chip">👨‍🌾 <code>coop_user</code> / <code>kilimo2025</code></span>
-                <span class="auth-demo-chip">🏦 <code>bank_officer</code> / <code>sacco2025</code></span>
-                <span class="auth-demo-chip">🌍 <code>researcher</code> / <code>tahmo2025</code></span>
-                <span class="auth-demo-chip">⚙️ <code>admin</code> / <code>admin2025</code></span>
-            </div>
-            """, unsafe_allow_html=True)
 
         with tab_signup:
             with st.form("form_signup_new", clear_on_submit=False):
