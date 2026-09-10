@@ -44,27 +44,58 @@ if "entered_platform" not in st.session_state:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DISPLAY THEME SELECTION & THEME VARIABLES
+# The sidebar is reserved for the authenticated workspace only — on the
+# overview and login screens it's hidden and the theme switch lives in a
+# small control at the top of the page instead (see THEME_OPTIONS below).
 # ─────────────────────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.image(
-        "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80",
-        use_container_width=True
+THEME_OPTIONS = ["🌿 Emerald Light", "🌙 Dark Forest", "⚙️ Minimal Slate"]
+if "theme_choice" not in st.session_state:
+    st.session_state.theme_choice = THEME_OPTIONS[0]
+
+def render_theme_toggle():
+    """Compact horizontal theme switch used on the overview & login pages
+    (the sidebar theme switch is reserved for the authenticated workspace)."""
+    st.radio(
+        "Theme", THEME_OPTIONS,
+        index=THEME_OPTIONS.index(st.session_state.theme_choice),
+        label_visibility="collapsed", horizontal=True, key="theme_choice"
     )
+
+if st.session_state.authenticated:
+    with st.sidebar:
+        st.image(
+            "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=600&auto=format&fit=crop&q=80",
+            use_container_width=True
+        )
+        st.markdown(
+            "<div style='text-align:center;font-weight:700;font-size:1.05rem;letter-spacing:-0.3px;margin-top:8px;margin-bottom:2px;'>🌿 ClimaCrop Intelligence</div>"
+            "<div style='text-align:center;font-size:0.76rem;color:#6b7280;margin-bottom:14px;'>Kilimo-Smart Decision Platform</div>",
+            unsafe_allow_html=True
+        )
+        st.markdown("---")
+
+        # Display Theme
+        st.markdown("#### 🎨 Display Theme")
+        theme_mode = st.radio(
+            "Theme",
+            THEME_OPTIONS,
+            index=THEME_OPTIONS.index(st.session_state.theme_choice),
+            label_visibility="collapsed",
+            key="theme_choice"
+        )
+else:
+    # Pre-login: no sidebar. Just hide it — the actual theme control is
+    # rendered inline on the overview/login pages themselves, further down,
+    # so it sits naturally in each page's own compact top row.
     st.markdown(
-        "<div style='text-align:center;font-weight:700;font-size:1.05rem;letter-spacing:-0.3px;margin-top:8px;margin-bottom:2px;'>🌿 ClimaCrop Intelligence</div>"
-        "<div style='text-align:center;font-size:0.76rem;color:#6b7280;margin-bottom:14px;'>Kilimo-Smart Decision Platform</div>",
+        "<style>[data-testid='stSidebar']{display:none !important;}"
+        "[data-testid='collapsedControl']{display:none !important;}"
+        "section.main .block-container{padding-top:0.8rem !important;padding-bottom:1rem !important;max-width:1200px;}</style>",
         unsafe_allow_html=True
     )
-    st.markdown("---")
+    theme_mode = st.session_state.theme_choice
 
-    # Display Theme
-    st.markdown("#### 🎨 Display Theme")
-    theme_mode = st.radio(
-        "Theme",
-        ["🌿 Emerald Light", "🌙 Dark Forest", "⚙️ Minimal Slate"],
-        index=0,
-        label_visibility="collapsed"
-    )
+theme_mode = st.session_state.theme_choice
 
 if theme_mode == "🌙 Dark Forest":
     is_dark = True
@@ -949,9 +980,9 @@ hr {{
    SPLIT-SCREEN LOGIN PANEL
 ══════════════════════════════════════════════════════ */
 .auth-left-panel {{
-    position:relative; overflow:hidden; min-height:600px;
-    border-radius:22px 6px 6px 22px; padding:42px 34px 30px;
-    color:#fff; display:flex; flex-direction:column;
+    position:relative; overflow:hidden; min-height:0;
+    border-radius:20px 6px 6px 20px; padding:26px 28px 22px;
+    color:#fff; display:flex; flex-direction:column; justify-content:center;
     background:
         linear-gradient(150deg,rgba(4,20,12,0.93) 0%,rgba(11,58,34,0.90) 50%,rgba(6,110,74,0.86) 100%),
         url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&auto=format&fit=crop&q=80') center/cover no-repeat;
@@ -963,60 +994,60 @@ hr {{
     background:radial-gradient(circle at 85% 15%, rgba(74,222,128,0.22), transparent 55%);
 }}
 .auth-left-inner {{ position:relative; z-index:1; display:flex; flex-direction:column; height:100%; }}
-.auth-brand-row {{ display:flex; align-items:center; gap:10px; margin-bottom:30px; }}
+.auth-brand-row {{ display:flex; align-items:center; gap:9px; margin-bottom:16px; }}
 .auth-brand-mark {{
-    width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center;
-    font-size:1.4rem; background:rgba(255,255,255,0.14); backdrop-filter:blur(8px);
+    width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    font-size:1.2rem; background:rgba(255,255,255,0.14); backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,0.2);
 }}
-.auth-brand-name {{ font-weight:800; font-size:1.02rem; letter-spacing:-0.2px; }}
-.auth-brand-sub {{ font-size:0.68rem; color:rgba(255,255,255,0.65); font-weight:600; letter-spacing:0.3px; }}
+.auth-brand-name {{ font-weight:800; font-size:0.96rem; letter-spacing:-0.2px; }}
+.auth-brand-sub {{ font-size:0.64rem; color:rgba(255,255,255,0.65); font-weight:600; letter-spacing:0.3px; }}
 .auth-headline {{
-    font-size:1.9rem; font-weight:900; letter-spacing:-0.7px; line-height:1.2;
-    margin-bottom:12px; text-shadow:0 2px 18px rgba(0,0,0,0.35);
+    font-size:1.55rem; font-weight:900; letter-spacing:-0.6px; line-height:1.2;
+    margin-bottom:9px; text-shadow:0 2px 18px rgba(0,0,0,0.35);
 }}
 .auth-headline span {{
     background:linear-gradient(90deg,#4ade80,#86efac);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }}
-.auth-sub {{ font-size:0.87rem; color:rgba(255,255,255,0.82); line-height:1.65; max-width:380px; margin-bottom:26px; }}
-.auth-feature-list {{ display:flex; flex-direction:column; gap:13px; margin-bottom:auto; }}
-.auth-feature-item {{ display:flex; align-items:flex-start; gap:11px; animation:slideInUp 0.5s ease forwards; opacity:0; }}
+.auth-sub {{ font-size:0.82rem; color:rgba(255,255,255,0.82); line-height:1.55; max-width:380px; margin-bottom:16px; }}
+.auth-feature-list {{ display:flex; flex-direction:column; gap:9px; margin-bottom:16px; }}
+.auth-feature-item {{ display:flex; align-items:flex-start; gap:10px; animation:slideInUp 0.5s ease forwards; opacity:0; }}
 .auth-feature-list .auth-feature-item:nth-child(1) {{ animation-delay:0.08s; }}
 .auth-feature-list .auth-feature-item:nth-child(2) {{ animation-delay:0.18s; }}
 .auth-feature-list .auth-feature-item:nth-child(3) {{ animation-delay:0.28s; }}
 .auth-feature-check {{
-    width:22px; height:22px; border-radius:50%; flex-shrink:0; margin-top:1px;
+    width:19px; height:19px; border-radius:50%; flex-shrink:0; margin-top:1px;
     background:rgba(74,222,128,0.22); border:1px solid rgba(74,222,128,0.4);
-    display:flex; align-items:center; justify-content:center; font-size:0.72rem; color:#86efac;
+    display:flex; align-items:center; justify-content:center; font-size:0.66rem; color:#86efac;
 }}
-.auth-feature-txt {{ font-size:0.83rem; color:rgba(255,255,255,0.88); line-height:1.5; }}
+.auth-feature-txt {{ font-size:0.79rem; color:rgba(255,255,255,0.88); line-height:1.4; }}
 .auth-feature-txt strong {{ color:#fff; font-weight:700; }}
-.auth-stat-row {{ display:flex; gap:10px; margin-top:28px; flex-wrap:wrap; }}
+.auth-stat-row {{ display:flex; gap:8px; margin-top:4px; flex-wrap:wrap; }}
 .auth-stat-chip {{
     background:rgba(255,255,255,0.09); backdrop-filter:blur(8px);
-    border:1px solid rgba(255,255,255,0.16); border-radius:12px; padding:9px 14px; flex:1; min-width:88px;
+    border:1px solid rgba(255,255,255,0.16); border-radius:11px; padding:7px 12px; flex:1; min-width:80px;
     transition:transform 0.2s ease, background 0.2s ease;
 }}
 .auth-stat-chip:hover {{ transform:translateY(-3px); background:rgba(255,255,255,0.15); }}
-.auth-stat-num {{ font-size:1.15rem; font-weight:800; color:#4ade80; line-height:1.1; }}
-.auth-stat-lbl {{ font-size:0.64rem; color:rgba(255,255,255,0.68); font-weight:600; letter-spacing:0.3px; margin-top:2px; }}
+.auth-stat-num {{ font-size:1.02rem; font-weight:800; color:#4ade80; line-height:1.1; }}
+.auth-stat-lbl {{ font-size:0.6rem; color:rgba(255,255,255,0.68); font-weight:600; letter-spacing:0.3px; margin-top:2px; }}
 
 .auth-right-panel {{
     background:{card_bg}; border:1px solid {card_border}; border-left:none;
-    border-radius:6px 22px 22px 6px; min-height:600px;
-    padding:38px 36px 26px; box-shadow:0 20px 50px rgba(0,0,0,{'0.30' if is_dark else '0.07'});
+    border-radius:6px 20px 20px 6px; min-height:0;
+    padding:24px 30px 18px; box-shadow:0 20px 50px rgba(0,0,0,{'0.30' if is_dark else '0.07'});
     display:flex; flex-direction:column; animation:slideInUp 0.55s ease;
 }}
-.auth-right-header {{ text-align:center; margin-bottom:22px; }}
+.auth-right-header {{ text-align:center; margin-bottom:12px; }}
 .auth-avatar-ring {{
-    width:56px; height:56px; border-radius:50%; margin:0 auto 14px;
+    width:44px; height:44px; border-radius:50%; margin:0 auto 8px;
     background:linear-gradient(135deg,#10b981,#0d9488); display:flex; align-items:center; justify-content:center;
-    font-size:1.7rem; box-shadow:0 8px 22px rgba(16,185,129,0.35);
+    font-size:1.35rem; box-shadow:0 8px 22px rgba(16,185,129,0.35);
 }}
-.auth-right-title {{ font-size:1.28rem; font-weight:800; color:{text_main}; letter-spacing:-0.3px; }}
-.auth-right-sub {{ font-size:0.82rem; color:{text_muted}; font-weight:500; margin-top:4px; }}
-.auth-demo-row {{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:12px; }}
+.auth-right-title {{ font-size:1.12rem; font-weight:800; color:{text_main}; letter-spacing:-0.3px; }}
+.auth-right-sub {{ font-size:0.78rem; color:{text_muted}; font-weight:500; margin-top:2px; }}
+.auth-demo-row {{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:8px; }}
 .auth-demo-chip {{
     display:inline-flex; align-items:center; gap:5px;
     background:{section_bg}; border:1px solid {card_border}; border-radius:20px;
@@ -1079,6 +1110,11 @@ hr {{
 # OVERVIEW / LANDING PAGE — first thing a visitor sees, before sign in / sign up
 # ─────────────────────────────────────────────────────────────────────────────
 def render_overview_page():
+    # ── Slim utility row: theme switch only (no sidebar on this page) ──
+    _ov1, _ov2 = st.columns([4, 1])
+    with _ov2:
+        render_theme_toggle()
+
     # ── 1. Animated slideshow hero ──
     st.markdown(f"""
     <div class="landing-hero-wrap">
@@ -1244,19 +1280,21 @@ if not st.session_state.authenticated:
         render_overview_page()
         st.stop()
 
-    # Compact Navigation & Header
-    top_c1, top_c2 = st.columns([1, 2.5])
+    # Compact Navigation & Header — back link, live status, theme switch, all on one slim row
+    top_c1, top_c2, top_c3 = st.columns([1, 2, 1])
     with top_c1:
-        if st.button("← Back to Overview", key="btn_back_to_overview"):
+        if st.button("← Back", key="btn_back_to_overview"):
             st.session_state.entered_platform = False
             st.rerun()
     with top_c2:
         st.markdown(f"""
-        <div style="text-align:right;font-size:0.75rem;color:{text_muted};padding-top:6px;">
+        <div style="text-align:center;font-size:0.74rem;color:{text_muted};padding-top:9px;">
             <span class="live-dot"></span>
-            <strong>TAHMO Live:</strong> 116 Ground Stations · NASA POWER Sync
+            <strong>TAHMO Live:</strong> 116 Stations · NASA POWER Sync
         </div>
         """, unsafe_allow_html=True)
+    with top_c3:
+        render_theme_toggle()
 
     # ── SPLIT-SCREEN LOGIN: brand/showcase panel (left) + auth card (right) ──
     auth_l, auth_r = st.columns([1, 1.15], gap="small")
@@ -1413,20 +1451,6 @@ if not st.session_state.authenticated:
         </div>
         """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # Floating KilimoBot button
-    st.markdown("""
-    <div class="float-bot" title="KilimoBot AI">🤖</div>
-    <div class="float-bot-tooltip">Ask KilimoBot AI →</div>
-    """, unsafe_allow_html=True)
-
-    # Footer on login screen
-    st.markdown(f"""
-    <div class="footer">
-        <span class="footer-brand">🌿 ClimaCrop Intelligence</span>
-        <span class="footer-line">&nbsp;·&nbsp; Kilimo-Smart Decision Platform · Kenya 🇰🇪 &nbsp;·&nbsp; TAHMO · NASA POWER · FAOSTAT · KNBS</span>
-    </div>
-    """, unsafe_allow_html=True)
 
     st.stop()
 
