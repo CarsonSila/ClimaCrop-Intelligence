@@ -273,6 +273,20 @@ html, body, [data-testid="stAppViewContainer"] {{
     border-left:2px solid {primary_color};line-height:1.45;
 }}
 
+/* ── Chart cards — every Plotly chart sits inside its own elevated card,
+   instead of floating bare on the page background ── */
+[data-testid="stPlotlyChart"] {{
+    background:{card_bg};border:1px solid {card_border};border-radius:16px;
+    padding:14px 16px 4px;margin-bottom:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,{'0.22' if is_dark else '0.05'});
+    transition:box-shadow 0.18s ease;
+}}
+[data-testid="stPlotlyChart"]:hover {{
+    box-shadow:0 8px 26px rgba(0,0,0,{'0.32' if is_dark else '0.09'});
+}}
+/* Plotly's own modebar / hoverlayer should never get clipped by the card radius */
+[data-testid="stPlotlyChart"] .plot-container {{ border-radius:12px;overflow:visible; }}
+
 /* ── Footer — fixed to viewport bottom so it stays in one place regardless of page length ── */
 .footer {{
     position:fixed;left:0;right:0;bottom:0;z-index:998;
@@ -1183,6 +1197,15 @@ def chart_caption(text):
     st.markdown(f'<div class="chart-caption">ℹ️ {text}</div>', unsafe_allow_html=True)
 
 
+# Shared categorical palette so any chart that doesn't set its own explicit
+# colors still lands on-brand — greens/blue/amber/rose in a consistent order.
+CHART_COLORWAY = (
+    ["#34d399", "#60a5fa", "#fbbf24", "#f472b6", "#a78bfa", "#22d3ee", "#f87171", "#4ade80"]
+    if is_dark else
+    ["#16a34a", "#2563eb", "#d97706", "#db2777", "#7c3aed", "#0891b2", "#dc2626", "#059669"]
+)
+
+
 def apply_chart_style(fig, height=400):
     fig.update_layout(
         height=height,
@@ -1192,7 +1215,20 @@ def apply_chart_style(fig, height=400):
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, sans-serif", size=12, color=text_main),
         title_font=dict(size=13, color=text_main),
+        colorway=CHART_COLORWAY,
         legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor=card_border, borderwidth=1, font=dict(size=11)),
+        hoverlabel=dict(
+            bgcolor=card_bg, bordercolor=primary_color,
+            font=dict(family="Inter, sans-serif", size=12, color=text_main),
+            align="left",
+        ),
+        xaxis=dict(showgrid=True, gridcolor=card_border, gridwidth=0.6, zeroline=False,
+                   linecolor=card_border, showline=True, ticks="outside", tickcolor=card_border,
+                   title_font=dict(size=12, color=text_muted)),
+        yaxis=dict(showgrid=True, gridcolor=card_border, gridwidth=0.6, zeroline=False,
+                   linecolor=card_border, showline=True, ticks="outside", tickcolor=card_border,
+                   title_font=dict(size=12, color=text_muted)),
+        uniformtext=dict(minsize=9, mode="hide"),
     )
     return fig
 
@@ -1726,7 +1762,10 @@ if tab_bank is not None:
                 }
             ))
             fig_gauge.update_layout(height=270, margin=dict(l=20, r=20, t=30, b=10),
-                                    template=plotly_theme, paper_bgcolor="rgba(0,0,0,0)")
+                                    template=plotly_theme, paper_bgcolor="rgba(0,0,0,0)",
+                                    font=dict(family="Inter, sans-serif", color=text_main),
+                                    hoverlabel=dict(bgcolor=card_bg, bordercolor=primary_color,
+                                                     font=dict(family="Inter, sans-serif", color=text_main)))
             _zone_txt = "LOW RISK" if risk_val < 0.35 else ("MODERATE RISK" if risk_val < 0.6 else "HIGH RISK")
             _zone_clr = "#10b981" if risk_val < 0.35 else ("#f59e0b" if risk_val < 0.6 else "#ef4444")
             fig_gauge.add_annotation(text=_zone_txt, x=0.5, y=0.24, showarrow=False,
@@ -1743,13 +1782,21 @@ if tab_bank is not None:
             })
             fig_donut = px.pie(risk_breakdown, values="Score", names="Factor", hole=0.58,
                 color_discrete_sequence=["#ef4444", "#10b981", "#3b82f6"])
-            fig_donut.update_traces(textinfo="percent+label", textfont_size=11, pull=[0.04, 0, 0])
+            fig_donut.update_traces(textinfo="percent+label", textfont_size=11, pull=[0.04, 0, 0],
+                                     marker=dict(line=dict(color=card_bg, width=2)))
             fig_donut.update_layout(
                 height=290, margin=dict(l=10, r=10, t=30, b=40),
                 template=plotly_theme, paper_bgcolor="rgba(0,0,0,0)",
+                font=dict(family="Inter, sans-serif", color=text_main),
+                hoverlabel=dict(bgcolor=card_bg, bordercolor=primary_color,
+                                 font=dict(family="Inter, sans-serif", color=text_main)),
                 legend=dict(orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
                             font=dict(size=10))
             )
+            # Center annotation names the dominant risk driver at a glance
+            _top_factor = risk_breakdown.loc[risk_breakdown["Score"].idxmax(), "Factor"].split(" ", 1)[-1].split(" (")[0]
+            fig_donut.add_annotation(text=f"Top driver:<br><b>{_top_factor}</b>", x=0.5, y=0.5,
+                                      showarrow=False, font=dict(size=11, color=text_muted, family="Inter"))
             st.plotly_chart(fig_donut, use_container_width=True, config={"displayModeBar": False})
             chart_caption("The largest slice is the primary risk driver. Mitigation efforts should focus there first to reduce the composite risk score.")
 
