@@ -998,7 +998,7 @@ hr {{
 .auth-brand-mark {{
     width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center;
     font-size:1.2rem; background:rgba(255,255,255,0.14); backdrop-filter:blur(8px);
-    border:1px solid rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.2); animation:float-bob 3.4s ease-in-out infinite;
 }}
 .auth-brand-name {{ font-weight:800; font-size:0.96rem; letter-spacing:-0.2px; }}
 .auth-brand-sub {{ font-size:0.64rem; color:rgba(255,255,255,0.65); font-weight:600; letter-spacing:0.3px; }}
@@ -1006,9 +1006,15 @@ hr {{
     font-size:1.55rem; font-weight:900; letter-spacing:-0.6px; line-height:1.2;
     margin-bottom:9px; text-shadow:0 2px 18px rgba(0,0,0,0.35);
 }}
+@keyframes headlineShimmer {{
+    0%,100% {{ background-position:0% 50%; }}
+    50%      {{ background-position:100% 50%; }}
+}}
 .auth-headline span {{
-    background:linear-gradient(90deg,#4ade80,#86efac);
+    background:linear-gradient(90deg,#4ade80,#86efac,#4ade80);
+    background-size:200% auto;
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    animation:headlineShimmer 4s ease-in-out infinite;
 }}
 .auth-sub {{ font-size:0.82rem; color:rgba(255,255,255,0.82); line-height:1.55; max-width:380px; margin-bottom:16px; }}
 .auth-feature-list {{ display:flex; flex-direction:column; gap:9px; margin-bottom:16px; }}
@@ -1040,13 +1046,62 @@ hr {{
     display:flex; flex-direction:column; justify-content:center; animation:slideInUp 0.55s ease;
 }}
 .auth-right-header {{ text-align:center; margin-bottom:14px; }}
+@keyframes ringPulse {{
+    0%,100% {{ box-shadow:0 8px 22px rgba(16,185,129,0.35); }}
+    50%      {{ box-shadow:0 8px 30px rgba(16,185,129,0.55),0 0 0 6px rgba(16,185,129,0.1); }}
+}}
 .auth-avatar-ring {{
     width:44px; height:44px; border-radius:50%; margin:0 auto 8px;
     background:linear-gradient(135deg,#10b981,#0d9488); display:flex; align-items:center; justify-content:center;
-    font-size:1.35rem; box-shadow:0 8px 22px rgba(16,185,129,0.35);
+    font-size:1.35rem; animation:ringPulse 3s ease-in-out infinite;
 }}
 .auth-right-title {{ font-size:1.12rem; font-weight:800; color:{text_main}; letter-spacing:-0.3px; }}
 .auth-right-sub {{ font-size:0.78rem; color:{text_muted}; font-weight:500; margin-top:2px; }}
+
+/* ── Auth card: give it the same lift-on-hover language as every other
+   card in the app, plus a slow gradient sweep along the top edge ── */
+.auth-right-panel {{ position:relative; overflow:hidden; transition:box-shadow 0.3s ease; }}
+.auth-right-panel:hover {{ box-shadow:0 26px 60px rgba(16,185,129,{'0.20' if is_dark else '0.13'}); }}
+.auth-right-panel::before {{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,#10b981,#0284c7,#8b5cf6,#f59e0b,#10b981);
+    background-size:300% 100%; animation:heroGradientShift 8s linear infinite;
+}}
+
+/* ── Sign-in / sign-up form fields — give them the same rounded,
+   focus-glow treatment as the rest of the app instead of the raw
+   Streamlit default look ── */
+.auth-right-panel [data-testid="stTextInput"] input,
+.auth-right-panel [data-baseweb="select"] > div {{
+    border-radius:11px !important;
+    border:1.5px solid {card_border} !important;
+    background:{section_bg} !important;
+    transition:border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease !important;
+}}
+.auth-right-panel [data-testid="stTextInput"] input:focus {{
+    border-color:{primary_color} !important;
+    box-shadow:0 0 0 4px {'rgba(16,185,129,0.22)' if is_dark else 'rgba(16,185,129,0.14)'} !important;
+    transform:translateY(-1px);
+}}
+.auth-right-panel [data-baseweb="select"] > div:hover {{
+    border-color:{primary_color} !important;
+}}
+/* Primary call-to-action buttons (Sign In / Register) get the gradient
+   treatment so they read as the one clear next action on the page */
+.auth-right-panel [data-testid="stFormSubmitButton"] button {{
+    background:linear-gradient(135deg,#10b981 0%,#0d9488 100%) !important;
+    border:none !important; font-weight:800 !important;
+    box-shadow:0 6px 20px rgba(16,185,129,0.35) !important;
+    letter-spacing:0.2px; transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease !important;
+}}
+.auth-right-panel [data-testid="stFormSubmitButton"] button:hover {{
+    filter:brightness(1.1);
+    box-shadow:0 10px 28px rgba(16,185,129,0.5) !important;
+    transform:translateY(-2px) scale(1.01);
+}}
+.auth-right-panel [data-testid="stFormSubmitButton"] button:active {{ transform:translateY(0) scale(0.99); }}
+/* Error / success alerts inside the form should ease in, not pop */
+.auth-right-panel [data-testid="stAlert"] {{ animation:slideInUp 0.3s ease forwards; }}
 
 @media(max-width:900px) {{
     /* On narrow screens, drop the decorative brand panel entirely so the
