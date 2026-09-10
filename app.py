@@ -945,6 +945,93 @@ hr {{
 /* Toggle switch */
 [data-testid="stToggle"] [role="checkbox"][aria-checked="true"] {{ background-color:{primary_color} !important; }}
 
+/* ══════════════════════════════════════════════════════
+   SPLIT-SCREEN LOGIN PANEL
+══════════════════════════════════════════════════════ */
+.auth-left-panel {{
+    position:relative; overflow:hidden; min-height:600px;
+    border-radius:22px 6px 6px 22px; padding:42px 34px 30px;
+    color:#fff; display:flex; flex-direction:column;
+    background:
+        linear-gradient(150deg,rgba(4,20,12,0.93) 0%,rgba(11,58,34,0.90) 50%,rgba(6,110,74,0.86) 100%),
+        url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&auto=format&fit=crop&q=80') center/cover no-repeat;
+    box-shadow:0 20px 50px rgba(0,0,0,{'0.45' if is_dark else '0.16'});
+    animation:slideInDown 0.55s ease;
+}}
+.auth-left-panel::after {{
+    content:''; position:absolute; inset:0; z-index:0;
+    background:radial-gradient(circle at 85% 15%, rgba(74,222,128,0.22), transparent 55%);
+}}
+.auth-left-inner {{ position:relative; z-index:1; display:flex; flex-direction:column; height:100%; }}
+.auth-brand-row {{ display:flex; align-items:center; gap:10px; margin-bottom:30px; }}
+.auth-brand-mark {{
+    width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; background:rgba(255,255,255,0.14); backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.2);
+}}
+.auth-brand-name {{ font-weight:800; font-size:1.02rem; letter-spacing:-0.2px; }}
+.auth-brand-sub {{ font-size:0.68rem; color:rgba(255,255,255,0.65); font-weight:600; letter-spacing:0.3px; }}
+.auth-headline {{
+    font-size:1.9rem; font-weight:900; letter-spacing:-0.7px; line-height:1.2;
+    margin-bottom:12px; text-shadow:0 2px 18px rgba(0,0,0,0.35);
+}}
+.auth-headline span {{
+    background:linear-gradient(90deg,#4ade80,#86efac);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}}
+.auth-sub {{ font-size:0.87rem; color:rgba(255,255,255,0.82); line-height:1.65; max-width:380px; margin-bottom:26px; }}
+.auth-feature-list {{ display:flex; flex-direction:column; gap:13px; margin-bottom:auto; }}
+.auth-feature-item {{ display:flex; align-items:flex-start; gap:11px; animation:slideInUp 0.5s ease forwards; opacity:0; }}
+.auth-feature-list .auth-feature-item:nth-child(1) {{ animation-delay:0.08s; }}
+.auth-feature-list .auth-feature-item:nth-child(2) {{ animation-delay:0.18s; }}
+.auth-feature-list .auth-feature-item:nth-child(3) {{ animation-delay:0.28s; }}
+.auth-feature-check {{
+    width:22px; height:22px; border-radius:50%; flex-shrink:0; margin-top:1px;
+    background:rgba(74,222,128,0.22); border:1px solid rgba(74,222,128,0.4);
+    display:flex; align-items:center; justify-content:center; font-size:0.72rem; color:#86efac;
+}}
+.auth-feature-txt {{ font-size:0.83rem; color:rgba(255,255,255,0.88); line-height:1.5; }}
+.auth-feature-txt strong {{ color:#fff; font-weight:700; }}
+.auth-stat-row {{ display:flex; gap:10px; margin-top:28px; flex-wrap:wrap; }}
+.auth-stat-chip {{
+    background:rgba(255,255,255,0.09); backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,0.16); border-radius:12px; padding:9px 14px; flex:1; min-width:88px;
+    transition:transform 0.2s ease, background 0.2s ease;
+}}
+.auth-stat-chip:hover {{ transform:translateY(-3px); background:rgba(255,255,255,0.15); }}
+.auth-stat-num {{ font-size:1.15rem; font-weight:800; color:#4ade80; line-height:1.1; }}
+.auth-stat-lbl {{ font-size:0.64rem; color:rgba(255,255,255,0.68); font-weight:600; letter-spacing:0.3px; margin-top:2px; }}
+
+.auth-right-panel {{
+    background:{card_bg}; border:1px solid {card_border}; border-left:none;
+    border-radius:6px 22px 22px 6px; min-height:600px;
+    padding:38px 36px 26px; box-shadow:0 20px 50px rgba(0,0,0,{'0.30' if is_dark else '0.07'});
+    display:flex; flex-direction:column; animation:slideInUp 0.55s ease;
+}}
+.auth-right-header {{ text-align:center; margin-bottom:22px; }}
+.auth-avatar-ring {{
+    width:56px; height:56px; border-radius:50%; margin:0 auto 14px;
+    background:linear-gradient(135deg,#10b981,#0d9488); display:flex; align-items:center; justify-content:center;
+    font-size:1.7rem; box-shadow:0 8px 22px rgba(16,185,129,0.35);
+}}
+.auth-right-title {{ font-size:1.28rem; font-weight:800; color:{text_main}; letter-spacing:-0.3px; }}
+.auth-right-sub {{ font-size:0.82rem; color:{text_muted}; font-weight:500; margin-top:4px; }}
+.auth-demo-row {{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:12px; }}
+.auth-demo-chip {{
+    display:inline-flex; align-items:center; gap:5px;
+    background:{section_bg}; border:1px solid {card_border}; border-radius:20px;
+    padding:4px 11px; font-size:0.68rem; font-weight:600; color:{text_muted};
+    transition:transform 0.15s ease, border-color 0.15s ease;
+}}
+.auth-demo-chip:hover {{ transform:translateY(-2px); border-color:{primary_color}; color:{primary_color}; }}
+.auth-demo-chip code {{ background:transparent; padding:0; color:inherit; font-weight:800; }}
+
+@media(max-width:900px) {{
+    .auth-left-panel {{ border-radius:20px 20px 0 0; min-height:auto; padding:28px 24px 24px; }}
+    .auth-right-panel {{ border-radius:0 0 20px 20px; border-left:1px solid {card_border}; border-top:none; min-height:auto; }}
+    .auth-headline {{ font-size:1.5rem; }}
+}}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1131,25 +1218,59 @@ if not st.session_state.authenticated:
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Centered Brand Header (compact, horizontal) ──
-    st.markdown(f"""
-    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:8px 0 16px;">
-        <span style="font-size:2.2rem;line-height:1;">🌿</span>
-        <div>
-            <div style="font-size:1.55rem;font-weight:900;letter-spacing:-0.5px;color:{primary_color};line-height:1.15;">
-                ClimaCrop Intelligence Portal
-            </div>
-            <div style="font-size:0.8rem;color:{text_muted};font-weight:500;">
-                Kilimo-Smart Climate Decision &amp; Agri-Fintech De-Risking Platform · Kenya 🇰🇪
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    # ── SPLIT-SCREEN LOGIN: brand/showcase panel (left) + auth card (right) ──
+    auth_l, auth_r = st.columns([1, 1.15], gap="small")
 
-    # ── FIXED SINGLE-VIEWPORT LOGIN CONTAINER ──
-    _lc, _mc, _rc = st.columns([1, 1.8, 1])
-    with _mc:
-        st.markdown('<div class="login-wrap">', unsafe_allow_html=True)
+    with auth_l:
+        st.markdown(f"""
+        <div class="auth-left-panel">
+          <div class="auth-left-inner">
+            <div class="auth-brand-row">
+                <div class="auth-brand-mark">🌿</div>
+                <div>
+                    <div class="auth-brand-name">ClimaCrop Intelligence</div>
+                    <div class="auth-brand-sub">KILIMO-SMART PLATFORM · KENYA 🇰🇪</div>
+                </div>
+            </div>
+            <div class="auth-headline">Climate-smart decisions,<br><span>backed by real data.</span></div>
+            <div class="auth-sub">
+                Sign in to plan crops, price agricultural loans and read 10 years of climate
+                trends — built on 116 TAHMO ground stations, NASA POWER and FAOSTAT.
+            </div>
+            <div class="auth-feature-list">
+                <div class="auth-feature-item">
+                    <div class="auth-feature-check">✓</div>
+                    <div class="auth-feature-txt"><strong>Cooperative Advisory</strong> — rank 40 crops by climate fit, yield &amp; profit</div>
+                </div>
+                <div class="auth-feature-item">
+                    <div class="auth-feature-check">✓</div>
+                    <div class="auth-feature-txt"><strong>Bank &amp; Credit Risk</strong> — climate-adjusted loan sizing &amp; pricing</div>
+                </div>
+                <div class="auth-feature-item">
+                    <div class="auth-feature-check">✓</div>
+                    <div class="auth-feature-txt"><strong>Climate Intelligence</strong> — 10-year rainfall &amp; dry-spell trends by county</div>
+                </div>
+            </div>
+            <div class="auth-stat-row">
+                <div class="auth-stat-chip"><div class="auth-stat-num">116</div><div class="auth-stat-lbl">STATIONS</div></div>
+                <div class="auth-stat-chip"><div class="auth-stat-num">40</div><div class="auth-stat-lbl">CROPS</div></div>
+                <div class="auth-stat-chip"><div class="auth-stat-num">26</div><div class="auth-stat-lbl">COUNTIES</div></div>
+                <div class="auth-stat-chip"><div class="auth-stat-num">10yr</div><div class="auth-stat-lbl">HISTORY</div></div>
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with auth_r:
+        st.markdown('<div class="auth-right-panel">', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="auth-right-header">
+            <div class="auth-avatar-ring">🌿</div>
+            <div class="auth-right-title">Welcome to the Portal</div>
+            <div class="auth-right-sub">Sign in to your account or create a new one</div>
+        </div>
+        """, unsafe_allow_html=True)
+
         tab_signin, tab_signup = st.tabs(["🔑 Sign In", "📝 Create Account"])
 
         with tab_signin:
@@ -1172,12 +1293,16 @@ if not st.session_state.authenticated:
                         else:
                             st.error("❌ Invalid username or password. Please try again.")
 
-            # Compact inline demo credentials
+            # Demo credentials as tidy pill chips
             st.markdown(f"""
-            <div style="text-align:center;font-size:0.73rem;color:{text_muted};margin-top:10px;line-height:1.5;">
-                <strong>Demo Logins:</strong><br>
-                <code>coop_user</code> (<code>kilimo2025</code>) · <code>bank_officer</code> (<code>sacco2025</code>)<br>
-                <code>researcher</code> (<code>tahmo2025</code>) · <code>admin</code> (<code>admin2025</code>)
+            <div style="text-align:center;font-size:0.68rem;color:{text_muted};font-weight:700;margin:14px 0 6px;letter-spacing:0.4px;text-transform:uppercase;">
+                Demo Logins
+            </div>
+            <div class="auth-demo-row">
+                <span class="auth-demo-chip">👨‍🌾 <code>coop_user</code> / <code>kilimo2025</code></span>
+                <span class="auth-demo-chip">🏦 <code>bank_officer</code> / <code>sacco2025</code></span>
+                <span class="auth-demo-chip">🌍 <code>researcher</code> / <code>tahmo2025</code></span>
+                <span class="auth-demo-chip">⚙️ <code>admin</code> / <code>admin2025</code></span>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1246,8 +1371,8 @@ if not st.session_state.authenticated:
             <span>·</span>
             <span>⚡ 116 Active Ground Feeds</span>
         </div>
-        </div>
         """, unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Floating KilimoBot button
     st.markdown("""
