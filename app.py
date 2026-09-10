@@ -974,7 +974,7 @@ if not st.session_state.authenticated:
             """, unsafe_allow_html=True)
 
         with tab_signup:
-            with st.form("form_signup_new", clear_on_submit=True):
+            with st.form("form_signup_new", clear_on_submit=False):
                 su_c1, su_c2 = st.columns(2)
                 with su_c1:
                     reg_name  = st.text_input("Full Name", placeholder="e.g. Samuel Kipchumba")
@@ -1485,7 +1485,19 @@ if tab_coop is not None:
 </div>""", unsafe_allow_html=True)
 
     # ── Crop Recommendation Cards ──
-    if not recs_df.empty:
+    if recs_df.empty:
+        st.markdown(f"""
+        <div class="info-box" style="text-align:center;padding:32px 24px;border-style:dashed;">
+            <div style="font-size:2rem;margin-bottom:8px;">🌾</div>
+            <div style="font-size:1rem;font-weight:800;color:{text_main};margin-bottom:4px;">
+                No crops match "{cat_filter}" for {selected_county} in the {selected_season}.
+            </div>
+            <div style="font-size:0.86rem;color:{text_muted};">
+                Try switching <strong>Crop Category</strong> back to "All", or check a different county or season in the sidebar.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
         section("🏆", "Top Recommended Crops",
                 "Ranked by combined climate suitability, yield potential, and market profitability")
 
@@ -2076,6 +2088,8 @@ if tab_catalog is not None:
                     )
                     chart_caption("Taller bar = higher price at that market hub. Always sell where your crop's bar is tallest to maximise revenue. Shorter bars still may make sense if transport costs are lower.")
                     st.plotly_chart(apply_chart_style(fig14, 420), use_container_width=True, config={"displayModeBar": False})
+                else:
+                    st.info("👆 Select at least one crop above to see the market price comparison.")
 
                 section("📦", "Price Volatility by Agricultural Category",
                         "How stable are market prices across each crop class? Lower = more predictable income")
