@@ -142,15 +142,35 @@ html, body, [data-testid="stAppViewContainer"] {{
     background-color: {card_bg} !important;
     border-right: 1px solid {card_border} !important;
 }}
+[data-testid="stSidebar"] img {{ border-radius:14px;transition:transform 0.3s ease,box-shadow 0.3s ease; }}
+[data-testid="stSidebar"] img:hover {{ transform:scale(1.02);box-shadow:0 6px 18px rgba(0,0,0,0.2); }}
+[data-testid="stSidebar"] [data-baseweb="select"] > div,
+[data-testid="stSidebar"] [data-baseweb="base-input"] {{
+    transition:border-color 0.2s ease,box-shadow 0.2s ease;border-radius:10px !important;
+}}
+[data-testid="stSidebar"] [data-baseweb="select"] > div:hover {{
+    border-color:{primary_color} !important;box-shadow:0 0 0 3px {'rgba(16,185,129,0.15)' if not is_dark else 'rgba(16,185,129,0.25)'};
+}}
+[data-testid="stSidebar"] label {{ transition:color 0.15s ease; }}
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {{ color:{primary_color} !important; }}
 
 /* ── Hero ── */
+@keyframes heroGradientShift {{
+    0%   {{ background-position:0% 50%; }}
+    50%  {{ background-position:100% 50%; }}
+    100% {{ background-position:0% 50%; }}
+}}
 .hero {{
     background: {hero_bg},
         url('https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1600&auto=format&fit=crop&q=85') center/cover no-repeat;
+    background-size:200% 200%, cover;
+    animation:slideInDown 0.6s ease, heroGradientShift 14s ease-in-out infinite;
     color:#fff; padding:32px 34px 26px; border-radius:20px; margin-bottom:20px;
     box-shadow:0 16px 40px rgba(0,0,0,{'0.45' if is_dark else '0.14'});
     border:1px solid rgba(255,255,255,0.12);
+    transition:box-shadow 0.25s ease;
 }}
+.hero:hover {{ box-shadow:0 20px 52px rgba(16,185,129,{'0.35' if is_dark else '0.22'}); }}
 .hero-pill {{
     display:inline-flex;align-items:center;gap:6px;
     background:rgba(74,222,128,0.2);backdrop-filter:blur(10px);
@@ -164,7 +184,9 @@ html, body, [data-testid="stAppViewContainer"] {{
 .hero-stat {{
     background:rgba(255,255,255,0.1);backdrop-filter:blur(8px);
     padding:8px 16px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);
+    transition:transform 0.2s ease,background 0.2s ease;
 }}
+.hero-stat:hover {{ transform:translateY(-3px) scale(1.04);background:rgba(255,255,255,0.18); }}
 .hero-stat-val {{ font-size:1.25rem;font-weight:800;color:#4ade80; }}
 .hero-stat-lbl {{ font-size:0.68rem;color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:0.5px; }}
 
@@ -172,8 +194,10 @@ html, body, [data-testid="stAppViewContainer"] {{
 .sec-header {{
     display:flex;align-items:flex-start;gap:12px;
     margin:24px 0 12px;padding-bottom:12px;border-bottom:2px solid {card_border};
+    animation:slideInUp 0.5s ease forwards;
 }}
-.sec-icon {{ font-size:1.4rem;flex-shrink:0;padding-top:1px; }}
+.sec-icon {{ font-size:1.4rem;flex-shrink:0;padding-top:1px;display:inline-block;transition:transform 0.25s ease; }}
+.sec-header:hover .sec-icon {{ transform:scale(1.25) rotate(-6deg); }}
 .sec-title {{ font-size:1.1rem;font-weight:800;color:{text_main}; }}
 .sec-desc {{ font-size:0.82rem;color:{text_muted};font-weight:500;margin-top:2px;line-height:1.45; }}
 
@@ -184,10 +208,21 @@ html, body, [data-testid="stAppViewContainer"] {{
     border:1px solid {card_border};border-top:4px solid {primary_color};
     flex:1;min-width:150px;
     box-shadow:0 2px 10px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
-    transition:transform 0.18s ease,box-shadow 0.18s ease;
+    transition:transform 0.2s ease,box-shadow 0.2s ease;
+    animation:slideInUp 0.5s ease forwards;opacity:0;
 }}
-.kpi-card:hover {{ transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,{'0.3' if is_dark else '0.09'}); }}
-.kpi-icon {{ font-size:1.5rem;margin-bottom:6px; }}
+.kpi-grid .kpi-card:nth-child(1) {{ animation-delay:0.05s; }}
+.kpi-grid .kpi-card:nth-child(2) {{ animation-delay:0.14s; }}
+.kpi-grid .kpi-card:nth-child(3) {{ animation-delay:0.23s; }}
+.kpi-grid .kpi-card:nth-child(4) {{ animation-delay:0.32s; }}
+.kpi-grid .kpi-card:nth-child(5) {{ animation-delay:0.41s; }}
+.kpi-card:hover {{
+    transform:translateY(-5px) scale(1.015);
+    box-shadow:0 12px 28px rgba(16,185,129,{'0.28' if is_dark else '0.16'});
+    border-top-width:6px;
+}}
+.kpi-icon {{ font-size:1.5rem;margin-bottom:6px;display:inline-block;transition:transform 0.25s ease; }}
+.kpi-card:hover .kpi-icon {{ transform:scale(1.18); }}
 .kpi-label {{ font-size:0.68rem;text-transform:uppercase;letter-spacing:0.8px;color:{text_muted};font-weight:700;margin-bottom:5px; }}
 .kpi-val {{ font-size:1.6rem;font-weight:800;color:{kpi_val_color};line-height:1.1; }}
 .kpi-sub {{ font-size:0.75rem;color:{text_muted};font-weight:500;margin-top:4px; }}
@@ -197,38 +232,58 @@ html, body, [data-testid="stAppViewContainer"] {{
     background:{card_bg};border:1px solid {card_border};border-radius:16px;
     padding:20px 22px 14px;margin-bottom:16px;border-left:5px solid {primary_color};
     box-shadow:0 4px 16px rgba(0,0,0,{'0.2' if is_dark else '0.05'});
-    transition:box-shadow 0.18s ease;
+    transition:box-shadow 0.22s ease,transform 0.22s ease,border-left-width 0.22s ease;
+    animation:slideInUp 0.5s ease forwards;opacity:0;
 }}
-.crop-card:hover {{ box-shadow:0 8px 28px rgba(0,0,0,{'0.3' if is_dark else '0.1'}); }}
+.crop-card:nth-of-type(1) {{ animation-delay:0.05s; }}
+.crop-card:nth-of-type(2) {{ animation-delay:0.15s; }}
+.crop-card:nth-of-type(3) {{ animation-delay:0.25s; }}
+.crop-card:nth-of-type(4) {{ animation-delay:0.35s; }}
+.crop-card:nth-of-type(5) {{ animation-delay:0.45s; }}
+.crop-card:hover {{
+    box-shadow:0 12px 32px rgba(16,185,129,{'0.25' if is_dark else '0.14'});
+    transform:translateX(4px);
+    border-left-width:8px;
+}}
 .crop-rank {{
     display:inline-flex;align-items:center;justify-content:center;
     width:28px;height:28px;border-radius:50%;
     background:{primary_color};color:#fff;font-size:0.82rem;font-weight:800;margin-right:8px;flex-shrink:0;
+    transition:transform 0.25s ease;
 }}
+.crop-card:hover .crop-rank {{ transform:scale(1.15) rotate(-8deg); }}
 .crop-name {{ font-size:1.18rem;font-weight:800;color:{primary_color}; }}
 .crop-meta {{ font-size:0.82rem;color:{text_muted};font-weight:500; }}
 .advisory-box {{
     background:{advisory_bg};border-left:3px solid {primary_color};
     border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0;
     font-size:0.88rem;line-height:1.55;color:{text_main};
+    animation:slideInUp 0.4s ease forwards;
 }}
 
 /* ── Badges ── */
-.badge {{ display:inline-block;padding:4px 12px;border-radius:20px;font-weight:700;font-size:0.78rem; }}
+.badge {{ display:inline-block;padding:4px 12px;border-radius:20px;font-weight:700;font-size:0.78rem;transition:transform 0.18s ease; }}
+.badge:hover {{ transform:scale(1.08); }}
 .badge-low {{ background:{badge_low_bg};color:{badge_low_txt}; }}
 .badge-mod {{ background:{badge_mod_bg};color:{badge_mod_txt}; }}
-.badge-high {{ background:{badge_high_bg};color:{badge_high_txt}; }}
+@keyframes badgePulse {{
+    0%,100% {{ box-shadow:0 0 0 0 rgba(239,68,68,0.45); }}
+    50%      {{ box-shadow:0 0 0 6px rgba(239,68,68,0); }}
+}}
+.badge-high {{ background:{badge_high_bg};color:{badge_high_txt};animation:badgePulse 2s infinite; }}
 
 /* ── Info boxes ── */
 .briefing-box {{
     background:{briefing_bg};border-left:4px solid {accent_blue};
     border-radius:0 10px 10px 0;padding:14px 18px;
     font-size:0.9rem;line-height:1.6;color:{text_main};margin:14px 0;
+    animation:slideInUp 0.45s ease forwards;
 }}
 .info-box {{
     background:{section_bg};border:1px solid {card_border};
     border-radius:12px;padding:14px 18px;margin:12px 0;
     font-size:0.86rem;color:{text_muted};line-height:1.55;
+    animation:slideInUp 0.45s ease forwards;
 }}
 
 /* ── Persona Cards (Login Portal) ── */
@@ -249,14 +304,22 @@ html, body, [data-testid="stAppViewContainer"] {{
 }}
 
 /* ── Metrics ── */
-[data-testid="stMetricValue"] {{ font-size:1.2rem !important;font-weight:800 !important;color:{kpi_val_color} !important; }}
+[data-testid="stMetricValue"] {{ font-size:1.2rem !important;font-weight:800 !important;color:{kpi_val_color} !important;transition:transform 0.2s ease; }}
+[data-testid="stMetric"]:hover [data-testid="stMetricValue"] {{ transform:scale(1.06); }}
 [data-testid="stMetricLabel"] {{ font-size:0.74rem !important;font-weight:700 !important;color:{text_muted} !important; }}
 
 /* ── Tabs ── */
 .stTabs [data-baseweb="tab-list"] {{
     gap:5px;background:{'rgba(255,255,255,0.04)' if is_dark else '#f3f4f6'};border-radius:12px;padding:4px;
 }}
-.stTabs [data-baseweb="tab"] {{ border-radius:8px;font-weight:600;font-size:0.86rem;padding:8px 18px;color:{text_muted}; }}
+.stTabs [data-baseweb="tab"] {{
+    border-radius:8px;font-weight:600;font-size:0.86rem;padding:8px 18px;color:{text_muted};
+    transition:background 0.2s ease,color 0.2s ease,transform 0.15s ease;
+}}
+.stTabs [data-baseweb="tab"]:hover {{
+    background:{'rgba(255,255,255,0.06)' if is_dark else 'rgba(255,255,255,0.7)'};
+    color:{primary_color};transform:translateY(-1px);
+}}
 .stTabs [aria-selected="true"] {{ background:{card_bg} !important;color:{primary_color} !important;box-shadow:0 2px 8px rgba(0,0,0,0.1); }}
 
 /* ── Buttons ── */
@@ -264,7 +327,14 @@ html, body, [data-testid="stAppViewContainer"] {{
     background-color:{primary_color} !important;color:#fff !important;
     border-radius:10px !important;border:none !important;
     font-weight:700 !important;padding:9px 20px !important;font-size:0.88rem !important;
+    transition:transform 0.16s ease,box-shadow 0.16s ease,filter 0.16s ease !important;
+    box-shadow:0 2px 8px rgba(0,0,0,{'0.25' if is_dark else '0.08'});
 }}
+.stButton>button:hover {{
+    transform:translateY(-2px);filter:brightness(1.08);
+    box-shadow:0 8px 20px rgba(16,185,129,0.35) !important;
+}}
+.stButton>button:active {{ transform:translateY(0);filter:brightness(0.96); }}
 
 /* ── Chart caption ── */
 .chart-caption {{
@@ -279,10 +349,12 @@ html, body, [data-testid="stAppViewContainer"] {{
     background:{card_bg};border:1px solid {card_border};border-radius:16px;
     padding:14px 16px 4px;margin-bottom:10px;
     box-shadow:0 4px 16px rgba(0,0,0,{'0.22' if is_dark else '0.05'});
-    transition:box-shadow 0.18s ease;
+    transition:box-shadow 0.25s ease,transform 0.25s ease;
+    animation:slideInUp 0.55s ease forwards;
 }}
 [data-testid="stPlotlyChart"]:hover {{
-    box-shadow:0 8px 26px rgba(0,0,0,{'0.32' if is_dark else '0.09'});
+    box-shadow:0 10px 30px rgba(16,185,129,{'0.22' if is_dark else '0.14'});
+    transform:translateY(-2px);
 }}
 /* Plotly's own modebar / hoverlayer should never get clipped by the card radius */
 [data-testid="stPlotlyChart"] .plot-container {{ border-radius:12px;overflow:visible; }}
@@ -690,6 +762,7 @@ html, body, [data-testid="stAppViewContainer"] {{
     align-items: center;
     gap: 14px;
     box-shadow: 0 2px 12px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+    animation:slideInUp 0.5s ease forwards;
 }}
 .command-pill {{
     display: inline-flex;
@@ -699,6 +772,11 @@ html, body, [data-testid="stAppViewContainer"] {{
     border-radius: 10px;
     font-size: 0.8rem;
     font-weight: 700;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}}
+.command-pill:hover {{
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 12px rgba(0,0,0,{'0.25' if is_dark else '0.08'});
 }}
 .pill-location {{
     background: {'rgba(245,158,11,0.12)' if is_dark else '#fef3c7'};
