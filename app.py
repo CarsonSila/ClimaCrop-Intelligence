@@ -1032,6 +1032,46 @@ hr {{
     .auth-headline {{ font-size:1.5rem; }}
 }}
 
+/* ══════════════════════════════════════════════════════
+   FLEXIBLE, FLUID TYOGRAPHY — headings scale smoothly with
+   viewport width instead of jumping at a single breakpoint.
+   (clamp(min, preferred, max) needs no JS and degrades safely.)
+══════════════════════════════════════════════════════ */
+.hero-title           {{ font-size:clamp(1.35rem, 1.05rem + 1.4vw, 2.1rem)   !important; }}
+.landing-title-big    {{ font-size:clamp(1.7rem, 1.1rem + 3vw, 2.9rem)       !important; }}
+.landing-hero-title   {{ font-size:clamp(1.6rem, 1.1rem + 2.4vw, 2.5rem)     !important; }}
+.auth-headline        {{ font-size:clamp(1.35rem, 1.05rem + 1.4vw, 1.95rem) !important; }}
+.counter-val           {{ font-size:clamp(1.7rem, 1.3rem + 1.6vw, 2.5rem)    !important; }}
+.sec-title             {{ font-size:clamp(0.98rem, 0.9rem + 0.35vw, 1.14rem) !important; }}
+
+/* ══════════════════════════════════════════════════════
+   MOTION PREFERENCE — a calmer, simpler experience for
+   anyone whose system asks for reduced motion.
+══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {{
+    *, *::before, *::after {{
+        animation-duration:0.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:0.01ms !important;
+        scroll-behavior:auto !important;
+    }}
+}}
+
+/* ══════════════════════════════════════════════════════
+   SIDEBAR GROUPING — quiet, consistent cards instead of
+   bare "---" dividers, so the control panel reads as one
+   organized system rather than a stack of loose widgets.
+══════════════════════════════════════════════════════ */
+.sidebar-group {{
+    background:{section_bg}; border:1px solid {card_border}; border-radius:14px;
+    padding:12px 14px 14px; margin-bottom:14px;
+}}
+.sidebar-group-label {{
+    font-size:0.78rem; font-weight:800; color:{primary_color};
+    margin-bottom:8px; display:flex; align-items:center; gap:6px;
+}}
+[data-testid="stSidebar"] hr {{ margin:0.7rem 0 !important; opacity:0.6; }}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1461,10 +1501,8 @@ with st.sidebar:
     st.markdown("---")
 
     # Region & Calendar Scope Controls
-    st.markdown(f"""
-    <div style="font-size:0.84rem;font-weight:800;color:{primary_color};margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span>🎯</span> Geographic &amp; Seasonal Scope
-    </div>
+    st.markdown("""
+    <div class="sidebar-group-label"><span>🎯</span> Geographic &amp; Seasonal Scope</div>
     """, unsafe_allow_html=True)
 
     counties_list = [
@@ -1483,10 +1521,8 @@ with st.sidebar:
     st.markdown("---")
 
     # Advisory Engine selection (compact in sidebar, full explanation in workspace command strip)
-    st.markdown(f"""
-    <div style="font-size:0.84rem;font-weight:800;color:{primary_color};margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-        <span>🧠</span> Advisory Engine
-    </div>
+    st.markdown("""
+    <div class="sidebar-group-label"><span>🧠</span> Advisory Engine</div>
     """, unsafe_allow_html=True)
     engine_mode = st.radio(
         "Engine",
