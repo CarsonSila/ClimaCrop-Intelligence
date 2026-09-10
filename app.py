@@ -1049,9 +1049,11 @@ hr {{
 .auth-right-sub {{ font-size:0.78rem; color:{text_muted}; font-weight:500; margin-top:2px; }}
 
 @media(max-width:900px) {{
-    .auth-left-panel {{ border-radius:20px 20px 0 0; min-height:auto; padding:28px 24px 24px; }}
-    .auth-right-panel {{ border-radius:0 0 20px 20px; border-left:1px solid {card_border}; border-top:none; min-height:auto; }}
-    .auth-headline {{ font-size:1.5rem; }}
+    /* On narrow screens, drop the decorative brand panel entirely so the
+       actual sign-in form is what people see first — no scrolling past
+       marketing copy to reach the fields. */
+    .auth-left-panel {{ display:none; }}
+    .auth-right-panel {{ border-radius:20px; border-left:1px solid {card_border}; border-top:1px solid {card_border}; min-height:auto; }}
 }}
 
 /* ══════════════════════════════════════════════════════
