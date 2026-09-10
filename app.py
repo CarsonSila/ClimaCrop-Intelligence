@@ -815,6 +815,136 @@ html, body, [data-testid="stAppViewContainer"] {{
     font-weight: 600;
 }}
 
+/* ══════════════════════════════════════════════════════
+   NATIVE WIDGET THEMING — bring inputs, selects, sliders,
+   tables, expanders & alerts up to the same polish level
+   as the custom components above.
+══════════════════════════════════════════════════════ */
+
+/* Smooth page entrance so nothing pops in jarringly */
+[data-testid="stAppViewContainer"] .main .block-container {{
+    animation: pageFadeIn 0.45s ease;
+}}
+@keyframes pageFadeIn {{
+    from {{ opacity:0; transform:translateY(6px); }}
+    to   {{ opacity:1; transform:translateY(0); }}
+}}
+
+/* Custom scrollbar — subtle, on-brand, no jarring default gray */
+::-webkit-scrollbar {{ width:10px; height:10px; }}
+::-webkit-scrollbar-track {{ background:transparent; }}
+::-webkit-scrollbar-thumb {{
+    background: {'rgba(74,222,128,0.35)' if is_dark else 'rgba(22,101,52,0.28)'};
+    border-radius:20px; border:2px solid transparent; background-clip:content-box;
+}}
+::-webkit-scrollbar-thumb:hover {{
+    background: {primary_color}; background-clip:content-box;
+}}
+* {{ scrollbar-width:thin; scrollbar-color:{primary_color} transparent; }}
+
+/* Accessible, on-brand focus ring instead of the default blue browser outline */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible,
+[tabindex]:focus-visible, [data-baseweb="select"]:focus-within {{
+    outline: 2px solid {primary_color} !important;
+    outline-offset: 2px !important;
+    border-radius: 8px;
+}}
+
+/* Text inputs, number inputs, textareas */
+[data-testid="stTextInput"] input,
+[data-testid="stNumberInput"] input,
+[data-testid="stTextArea"] textarea,
+[data-testid="stDateInput"] input {{
+    background:{card_bg} !important; color:{text_main} !important;
+    border:1.5px solid {card_border} !important; border-radius:10px !important;
+    transition:border-color 0.18s ease, box-shadow 0.18s ease !important;
+}}
+[data-testid="stTextInput"] input:hover,
+[data-testid="stNumberInput"] input:hover,
+[data-testid="stTextArea"] textarea:hover {{ border-color:{primary_color} !important; }}
+[data-testid="stTextInput"] input:focus,
+[data-testid="stNumberInput"] input:focus,
+[data-testid="stTextArea"] textarea:focus {{
+    border-color:{primary_color} !important;
+    box-shadow:0 0 0 3px {'rgba(16,185,129,0.22)' if is_dark else 'rgba(16,185,129,0.15)'} !important;
+}}
+
+/* Select / multiselect (BaseWeb) */
+[data-baseweb="select"] > div {{
+    background:{card_bg} !important; border:1.5px solid {card_border} !important;
+    border-radius:10px !important; transition:border-color 0.18s ease, box-shadow 0.18s ease !important;
+}}
+[data-baseweb="select"] > div:hover {{ border-color:{primary_color} !important; }}
+[data-baseweb="tag"] {{ background:{primary_color} !important; border-radius:6px !important; }}
+
+/* Sliders */
+[data-testid="stSlider"] [role="slider"] {{
+    background:{primary_color} !important;
+    box-shadow:0 2px 8px rgba(16,185,129,0.4) !important;
+}}
+[data-testid="stSlider"] > div > div > div > div {{ background:{primary_color} !important; }}
+
+/* Checkboxes & radio buttons */
+[data-testid="stCheckbox"] label:hover span:first-child,
+[data-testid="stRadio"] label:hover span:first-child {{ border-color:{primary_color} !important; }}
+[data-testid="stCheckbox"] input:checked + span,
+div[role="radiogroup"] label[data-checked="true"] span:first-child {{ background-color:{primary_color} !important; }}
+
+/* Expanders — give them the same card treatment as everything else */
+[data-testid="stExpander"] {{
+    background:{card_bg} !important; border:1px solid {card_border} !important;
+    border-radius:14px !important; overflow:hidden;
+    box-shadow:0 3px 12px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+    transition:box-shadow 0.2s ease;
+}}
+[data-testid="stExpander"]:hover {{ box-shadow:0 8px 22px rgba(16,185,129,{'0.18' if is_dark else '0.1'}); }}
+[data-testid="stExpander"] summary {{ font-weight:700 !important; }}
+
+/* DataFrames / tables */
+[data-testid="stDataFrame"], [data-testid="stTable"] {{
+    border:1px solid {card_border} !important; border-radius:14px !important;
+    overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+}}
+
+/* Alerts — success / info / warning / error */
+[data-testid="stAlert"] {{
+    border-radius:12px !important; border:1px solid transparent !important;
+    box-shadow:0 3px 12px rgba(0,0,0,{'0.2' if is_dark else '0.04'});
+    animation:slideInUp 0.4s ease forwards;
+}}
+
+/* File uploader */
+[data-testid="stFileUploaderDropzone"] {{
+    background:{section_bg} !important; border:2px dashed {card_border} !important;
+    border-radius:14px !important; transition:border-color 0.2s ease, background 0.2s ease !important;
+}}
+[data-testid="stFileUploaderDropzone"]:hover {{
+    border-color:{primary_color} !important;
+    background:{'rgba(16,185,129,0.06)' if is_dark else 'rgba(16,185,129,0.04)'} !important;
+}}
+
+/* Progress bar */
+[data-testid="stProgress"] > div > div > div {{
+    background:linear-gradient(90deg,#10b981,#0d9488) !important;
+}}
+
+/* Links inside body text */
+[data-testid="stAppViewContainer"] a {{ color:{primary_color} !important; font-weight:600; text-decoration:none; }}
+[data-testid="stAppViewContainer"] a:hover {{ text-decoration:underline; }}
+
+/* Code blocks — keep them legible in dark mode */
+code {{ border-radius:6px !important; }}
+
+/* Divider — replace the flat default hr with a soft gradient fade */
+hr {{
+    border:none !important; height:1px !important;
+    background:linear-gradient(90deg, transparent, {card_border}, transparent) !important;
+    margin:1.2rem 0 !important;
+}}
+
+/* Toggle switch */
+[data-testid="stToggle"] [role="checkbox"][aria-checked="true"] {{ background-color:{primary_color} !important; }}
+
 </style>
 """, unsafe_allow_html=True)
 
