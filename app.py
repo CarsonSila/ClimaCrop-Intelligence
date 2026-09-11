@@ -1103,6 +1103,40 @@ hr {{
 /* Error / success alerts inside the form should ease in, not pop */
 .auth-right-panel [data-testid="stAlert"] {{ animation:slideInUp 0.3s ease forwards; }}
 
+/* ── Quick Demo Access — one-click login as any of the 4 seeded personas.
+   No typing required; hover a chip to see its credentials before clicking. ── */
+.demo-divider {{
+    display:flex; align-items:center; gap:10px; margin:16px 0 10px;
+    color:{text_muted}; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.6px; text-transform:uppercase;
+}}
+.demo-divider::before, .demo-divider::after {{ content:''; flex:1; height:1px; background:{card_border}; }}
+.demo-access-grid {{ margin-bottom:4px; }}
+.demo-access-grid [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(1) .stButton>button {{
+    background:linear-gradient(135deg,#10b981,#059669) !important;
+}}
+.demo-access-grid [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(2) .stButton>button {{
+    background:linear-gradient(135deg,#0284c7,#1d4ed8) !important;
+}}
+.demo-access-grid [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(3) .stButton>button {{
+    background:linear-gradient(135deg,#8b5cf6,#6d28d9) !important;
+}}
+.demo-access-grid [data-testid="stHorizontalBlock"] > [data-testid="column"]:nth-of-type(4) .stButton>button {{
+    background:linear-gradient(135deg,#f59e0b,#d97706) !important;
+}}
+.demo-access-grid .stButton>button {{
+    font-size:0.72rem !important; padding:9px 4px !important; border-radius:11px !important;
+    font-weight:700 !important; border:none !important; color:#fff !important;
+    box-shadow:0 4px 12px rgba(0,0,0,0.18) !important; line-height:1.3 !important;
+    transition:transform 0.18s ease,box-shadow 0.18s ease,filter 0.18s ease !important;
+    white-space:normal !important; height:auto !important;
+}}
+.demo-access-grid .stButton>button:hover {{
+    transform:translateY(-3px) scale(1.04) !important; filter:brightness(1.12) !important;
+    box-shadow:0 10px 22px rgba(0,0,0,0.3) !important;
+}}
+.demo-access-grid .stButton>button:active {{ transform:translateY(-1px) scale(1.0) !important; }}
+
 @media(max-width:900px) {{
     /* On narrow screens, drop the decorative brand panel entirely so the
        actual sign-in form is what people see first — no scrolling past
@@ -1474,6 +1508,28 @@ if not st.session_state.authenticated:
                                 st.rerun()
                         else:
                             st.error(f"❌ {msg}")
+
+        # ── Quick Demo Access — skip the form entirely, log in as a seeded persona in one click ──
+        st.markdown('<div class="demo-divider"><span>⚡ Or jump in instantly</span></div>', unsafe_allow_html=True)
+        st.markdown('<div class="demo-access-grid">', unsafe_allow_html=True)
+        _demo_personas = [
+            ("cooperative",  "coop_user",     "kilimo2025", "👨‍🌾 Farmer"),
+            ("bank_officer", "bank_officer",  "sacco2025",  "🏦 Bank Officer"),
+            ("researcher",   "researcher",    "tahmo2025",  "🌍 Researcher"),
+            ("admin",        "admin",         "admin2025",  "👑 Admin"),
+        ]
+        demo_cols = st.columns(4)
+        for col, (role_key, uname, pwd, label) in zip(demo_cols, _demo_personas):
+            with col:
+                if st.button(label, key=f"demo_btn_{role_key}", use_container_width=True,
+                             help=f"Instantly signs in as demo user \"{uname}\" — no password needed"):
+                    demo_auth = authenticate_user(uname, pwd)
+                    if demo_auth:
+                        st.session_state.authenticated = True
+                        st.session_state.user          = demo_auth
+                        st.session_state.active_role   = demo_auth["role"]
+                        st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
         # Security Trust strip inside login card
         st.markdown(f"""
