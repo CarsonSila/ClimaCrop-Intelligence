@@ -1,4 +1,4 @@
-# 🌾 ClimaCrop Intelligence: Climate-Smart Decision Support & Agri-Fintech De-Risking Platform
+# 🌾 ClimaCrop Intelligence: Climate-Smart Decision Support & Agri-Fintech De-Risking Platform MVP1
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B.svg)](https://streamlit.io/)
@@ -324,3 +324,137 @@ The container reads `$PORT` (defaults to 8501), which matches Render's conventio
 
 - **Carson Sila** & Project Team
 - *Capstone Project: Climate-Smart Agricultural Decision Support & Agri-Fintech De-Risking Platform*
+
+
+
+# 🌾 ClimaCrop Intelligence (Kilimo-Smart) MVP 2
+
+**Climate-informed crop recommendations and agricultural credit-risk support for Kenyan cooperatives and lenders — built so every number is labeled by how much it should actually be trusted.**
+
+## What it does
+
+Given a county and season, Kilimo-Smart recommends which crops a cooperative should plant, estimates yield/profit, and can generate a loan-risk assessment for a bank or SACCO — all explained in plain language, not just numbers.
+
+Two machine-learning components support this: an unsupervised **climate-regime engine** (K-Means) that flags normal, waterlogging-risk and drought-stress seasons, and a **Random Forest crop-suitability model** that runs alongside the transparent rule-based engine. Both are described, with their limits, in [Machine learning components](#machine-learning-components).
+
+## Why it's different
+
+An earlier version of this system produced clean, confident-looking outputs that were mostly fabricated or hand-typed placeholders, with no way to tell. This version doesn't hide that — it shows a **confidence score on every result**, breaks down exactly which inputs are real vs. estimated vs. still placeholder, and refuses to let a rule-based score masquerade as machine learning or an unvalidated formula masquerade as a bank-grade credit model.
+
+## Current state (honest snapshot)
+
+| Layer | Status |
+|---|---|
+| Rainfall | Real, aggregated from TAHMO station data |
+| Temperature | **Real** — `data/county_climate_historical_real.csv` has been generated via `scripts/rebuild_climate_data.py` (NASA POWER, 116 real station coordinates); synthetic file remains the fallback if that's ever missing |
+| Climate regimes (K-Means) | Working. Clusters county-seasons into normal / waterlogging-risk / drought-stress regimes from the climate data above, so it is only as real as the climate file in use |
+| Crop suitability scoring | Transparent rule-based engine, fully explainable, is the default. A Random Forest runs alongside it but is **trained on synthetic samples** (see below), so its output is tagged as modeled and carries lower confidence |
+| Market prices | **Real, pending your first run** — `src/data_sources/kamis_ingest.py` + `scripts/refresh_market_prices.py` read actual scraped prices from the companion `kamis-ingestion` project (KAMIS via Supabase); run it to generate `data/market_prices_real.csv`, synthetic file is the fallback until then |
+| Crop economics (cost/yield/price) | Still placeholder, pending KALRO/AMIS citation — the one gap left with no automated fix |
+| Credit-risk formula | Still uncalibrated — needs a real lender's default history |
+
+**Overall confidence: ~40% with nothing run, ~51% with real climate only, ~71%+ with both real climate and real market data present** — the app states this out loud per-result rather than showing one static number.
+
+## Machine learning components
+
+### The two engines
+
+| Engine | Algorithm | Job | Settings |
+|---|---|---|---|
+| Climate regimes | K-Means, `k = 3`, inputs standardised first | Group county-seasons into **Normal / Favourable**, **Waterlogging Risk** and **Drought Stress Risk** | `StandardScaler` + `KMeans` |
+| Crop suitability | Random Forest classifier | Score how well each of the 40 crops fits a county's climate; the output probabilities are used as relative scores, not calibrated probabilities | 75 trees, `max_depth=10`, `min_samples_leaf=2` |
+
+**Why a Random Forest:** crops have bounded tolerance windows (too little rain means drought stress, too much means waterlogging and disease), and tree ensembles model those threshold-shaped limits naturally. The inputs also sit on very different scales (elevation in metres, rainfall in millimetres, dry spells in days), and trees don't need them rescaled.
+
+```mermaid
+graph TD
+    A["Climate data<br/>(TAHMO rainfall + NASA POWER temperature)"] --> B["Features: rainfall, elevation, temperature extremes,<br/>dry spells, drought index, onset week"]
+    B --> C["K-Means climate regimes"]
+    B --> D["Random Forest crop suitability<br/>(trained on synthetic samples, tagged MODELED)"]
+    B --> R["Rule-based agro-ecological engine<br/>(default, transparent)"]
+    C --> E["Normal / Waterlogging / Drought regime"]
+    D --> G["Blend: 40% ML + 60% rules"]
+    R --> G
+    G --> H["Ranked crops + loan-risk view, each result with a confidence score"]
+```
+
+The rules carry the larger share (60%) of the blend on purpose: the ML model has not yet seen real yield outcomes.
+
+### Class balance
+
+There is no real crop-outcome dataset yet, so class balance is handled **by construction**:
+
+- **Balanced synthetic training set:** 150 samples per crop for 40 crops (6,000 rows), drawn from each crop's documented rainfall and temperature envelope (KALRO and FAO EcoCrop parameters) with Gaussian spread, clipped to 90% of the minimum and 110% of the maximum.
+- **Realistic altitude bands:** samples are conditioned on typical elevations (for example tea and pyrethrum around 2,200 m, Arabica coffee around 1,850 m, maize and beans around 1,600 m, cotton, mango and rice around 600 m) so physically impossible combinations are excluded.
+- **Stratified split:** an 80/20 train/test split with `stratify=y`, so every crop keeps the same share in both sets (120 train, 30 test each).
+- **Why not use real survey data:** field surveys are heavily skewed toward staples such as maize, and a model fitted to that skew would simply recommend maize everywhere.
+
+### What the feature-importance analysis shows
+
+Importance measured on the trained Random Forest (mean decrease in impurity):
+
+| Rank | Feature | Meaning | Importance |
+|:---:|---|---|---:|
+| 1 | `elevation_m` | Height above sea level | 22.63% |
+| 2 | `seasonal_rainfall_mm` | Total rain in the season | 21.15% |
+| 3 | `max_dry_spell_days` | Longest run of days under 1 mm of rain | 18.27% |
+| 4 | `temp_mean_c` | Average temperature | 10.36% |
+| 5 | `temp_min_c` | Coldest night temperature | 8.91% |
+| 6 | `temp_max_c` | Hottest day temperature | 8.81% |
+| 7 | `drought_risk_index` | Combined water-deficit index | 6.90% |
+| 8 | `onset_week` | Week the rains start | 2.97% |
+
+**The surprise:** elevation ranked above rainfall and above every single temperature measure. Altitude is a stand-in for several things at once: temperature falls roughly 6.5 °C for every 1,000 m climbed, and it also shapes evaporation and soil moisture. The same 600 mm of rain behaves very differently at 2,400 m (Nyandarua, where cool, moist-soil crops such as potatoes and pyrethrum do well) than at 850 m (Machakos, where heat dries the soil fast and drought-tolerant sorghum and millet fare better). A second finding: the longest dry spell (18.3%) mattered almost twice as much as mean temperature (10.4%), because a long dry spell at flowering can ruin a season even when total rainfall looks fine.
+
+**How far to trust it.** These importances come from a model trained on *synthetic* samples, and elevation was set per crop group when those samples were generated. So the ranking partly reflects how the generator encodes each crop's needs, and is a **hypothesis to test**, not a finding about real farms. It is a useful sanity check (nothing implausible, such as onset week, dominates), and the dry-spell result points in the same direction as the climate-risk score. Because the credit-risk formula is still uncalibrated, these importances should not be read as tuning it.
+
+**What we do not claim:** no accuracy figure is quoted. A held-out test on synthetic data would only show how well the model relearns its own generator. Real validation needs real yield outcomes (see [What's next](#whats-next)).
+
+## Quickstart
+
+```bash
+git clone https://github.com/CarsonSila/ClimaCrop-Intelligence.git
+git checkout doinggbits_ingestion
+cd ClimaCrop-Intelligence
+pip install -r requirements.txt
+python -m unittest discover -s tests -p "test_*.py"   # confirm everything passes
+
+# Optional but recommended — real data instead of synthetic fallbacks:
+python scripts/rebuild_climate_data.py                 # real NASA POWER weather
+python scripts/refresh_market_prices.py                 # real KAMIS prices (requires kamis_scraper.py
+                                                          # to have already been run — see kamis-ingestion/README.md)
+
+# Optional — retrain the machine-learning models after the data changes:
+python train_models.py                                 # writes the models to models/
+
+streamlit run app.py
+```
+
+## Key files
+
+| File | Purpose |
+|---|---|
+| `src/ml_models.py` | `ClimatePatternEngine` (K-Means), `CropSuitabilityEngine` (Random Forest), `MarketArbitrageEngine` |
+| `train_models.py` | Trains the models and saves them to `models/` |
+| `models/climate_pattern_engine.joblib`, `models/crop_suitability_engine.joblib` | Trained model files |
+| `api/main.py` | Service endpoints `/recommendations`, `/seasonal-outlook` and `/climate-history`, used by the Next.js frontend |
+| `src/ml_pipeline_ready.py` | Yield model that refuses to train on synthetic data (waiting for real outcomes) |
+
+## What's next
+
+1. Source real per-crop cost/yield/price data from KALRO; cross-check yields via FAOSTAT. This is the last major gap and has no scriptable fix.
+2. Calibrate the credit-risk formula with a real lender, or keep it advisory-only.
+3. Move from rule-based scoring to real ML once genuine yield-outcome data exists (`src/ml_pipeline_ready.py` is built and waiting, but refuses to run on synthetic data on purpose).
+4. Once real outcomes exist, retrain the Random Forest on them, validate it on a held-out set of real seasons, and re-check whether elevation and dry spells still rank at the top.
+5. Keep `kamis_scraper.py` running on a schedule so market prices accumulate enough history for real peak/off-season figures, not just averages.
+
+*Future direction (not yet built): connecting farmers directly to traders, a bank-facing recommendation feed, youth agribusiness programs, and greenhouse/climate-adaptation advisory once this system has a multi-year track record.*
+
+
+## Team
+ 
+Carson Sila, Charlene Kamunyu, Brian Mugambi, Emmanuel Brian
+ 
+## License
+ 
+MIT. See [LICENSE](LICENSE).
