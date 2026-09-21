@@ -323,7 +323,7 @@ The container reads `$PORT` (defaults to 8501), which matches Render's conventio
 
 ## 12. From MVP 1 to MVP 2
 
-This repository is **MVP 2**. **MVP 1** is the original advisory console. MVP 2 [`doinggbits/ClimaCrop_Intelligence`](https://github.com/doinggbits/ClimaCrop_Intelligence.git) keeps the same climate data and crop engine and builds a multi-role platform around them.
+This repository is **MVP 1**. **MVP 1** is the original advisory console. MVP 2 [`doinggbits/ClimaCrop_Intelligence`](https://github.com/doinggbits/ClimaCrop_Intelligence.git) keeps the same climate data and crop engine and builds a multi-role platform around them.
 
 | | MVP 1 | MVP 2 (this repo) |
 |---|---|---|
